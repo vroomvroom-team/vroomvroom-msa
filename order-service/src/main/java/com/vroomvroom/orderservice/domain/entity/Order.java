@@ -18,11 +18,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "p_order")
 public class Order extends BaseTimeEntity {
 
     @Id
     @Column(columnDefinition = "UUID")
-    private UUID orderId;
+    private UUID id;
 
     @Column(nullable = false, columnDefinition = "UUID")
     private UUID supplyCompanyId;
@@ -61,8 +62,8 @@ public class Order extends BaseTimeEntity {
 
     @PrePersist
     public void prePersist() {
-        if (this.orderId == null) {
-            this.orderId = UUID.randomUUID();
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
         }
         if (this.orderStatus == null) {
             this.orderStatus = OrderStatus.PENDING;
