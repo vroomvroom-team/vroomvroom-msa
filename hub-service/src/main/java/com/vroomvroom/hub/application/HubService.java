@@ -17,6 +17,7 @@ public class HubService {
 
     @Transactional
     public HubRes.CreateHubRes createHub(CreateHubCommand command) {
+        if (hubRepository.existsByHubName(command.getHubName())) throw new IllegalArgumentException("중복된 허브 이름입니다."); // TODO: ErrorCode 공통 적용
         Hub hub = Hub.builder()
                 .hubName(command.getHubName())
                 .address(command.getAddress())
@@ -24,4 +25,6 @@ public class HubService {
                 .build();
         return HubRes.CreateHubRes.from(hubRepository.save(hub));
     }
+
+
 }

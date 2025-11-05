@@ -5,6 +5,8 @@ import com.vroomvroom.hub.domain.repository.HubRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class HubRepositoryImpl implements HubRepository {
@@ -15,4 +17,10 @@ public class HubRepositoryImpl implements HubRepository {
     public Hub save(Hub hub) {
         return jpaHubRepository.save(hub);
     }
+
+    @Override
+    public Boolean existsByHubName(String hubName) {
+        return jpaHubRepository.existsByHubName(hubName);
+    }
+
 }
