@@ -5,6 +5,8 @@ import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
 import com.vroomvroom.hub.application.dto.HubRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +20,8 @@ public class HubController {
     private final HubService hubService;
 
     @PostMapping
-    public ApiResponse<HubRes.CreateHubRes> createHub(@RequestBody CreateHubCommand command) {
+    public ResponseEntity<ApiResponse<HubRes.CreateHubRes>> createHub(@RequestBody CreateHubCommand command) {
         HubRes.CreateHubRes res = hubService.createHub(command);
-        return ApiResponse.success(res);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
     }
 }
