@@ -15,10 +15,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Location {
 
-    @Column
+    @Column(precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @Column
+    @Column(precision = 11, scale = 8)
     private BigDecimal longitude;
 
     public Location(BigDecimal latitude, BigDecimal longitude) {
