@@ -47,3 +47,5 @@ logs
 node_modules/
 ### 도커 이미지 빌드 파일 ###
 *.tar
+
+*.class
