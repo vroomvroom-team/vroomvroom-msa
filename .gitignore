@@ -38,7 +38,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 ### .env files ###
-.env.**
+.env
+.env.*
 ### log ###
 logs
 **/log/**
