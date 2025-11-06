@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +29,11 @@ public class HubRepositoryImpl implements HubRepository {
     @Override
     public Page<Hub> findAllByDeletedAtIsNull(Pageable pageable) {
         return jpaHubRepository.findAllByDeletedAtIsNull(pageable);
+    }
+
+    @Override
+    public Hub findHubByHubId(UUID hubId) {
+        return jpaHubRepository.findHubByHubId(hubId);
     }
 
 }
