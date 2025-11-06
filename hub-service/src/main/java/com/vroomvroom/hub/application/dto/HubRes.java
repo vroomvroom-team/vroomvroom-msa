@@ -32,4 +32,20 @@ public class HubRes {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class HubListRes {
+        private UUID hubId;
+        private String hubName;
+        private String address;
+
+        public static HubListRes from(Hub hub) {
+            return HubListRes.builder()
+                    .hubId(hub.getHubId())
+                    .hubName(hub.getHubName())
+                    .address(hub.getAddress())
+                    .build();
+        }
+    }
 }
