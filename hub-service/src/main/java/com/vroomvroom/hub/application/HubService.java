@@ -1,5 +1,7 @@
 package com.vroomvroom.hub.application;
 
+import com.vroomvroom.common.exception.CustomException;
+import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
 import com.vroomvroom.hub.application.dto.HubRes;
 import com.vroomvroom.hub.domain.entity.Hub;
@@ -17,7 +19,7 @@ public class HubService {
 
     @Transactional
     public HubRes.CreateHubRes createHub(CreateHubCommand command) {
-        if (hubRepository.existsByHubName(command.getHubName())) throw new IllegalArgumentException("중복된 허브 이름입니다."); // TODO: ErrorCode 공통 적용
+        if (hubRepository.existsByHubName(command.getHubName())) throw new CustomException(ErrorCode.DUPLICATE_HUB_NAME);
         Hub hub = Hub.builder()
                 .hubName(command.getHubName())
                 .address(command.getAddress())
