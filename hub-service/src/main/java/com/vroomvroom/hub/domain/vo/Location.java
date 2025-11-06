@@ -30,13 +30,10 @@ public class Location {
     }
 
     private void validate(BigDecimal latitude, BigDecimal longitude) {
-        if (latitude == null || longitude == null) {
-            throw new CustomException(ErrorCode.INVALID_LOCATION);
-        }
-        if (latitude.compareTo(new BigDecimal("-90")) < 0 || latitude.compareTo(new BigDecimal("90")) > 0) {
-            throw new CustomException(ErrorCode.INVALID_LOCATION);
-        }
-        if (longitude.compareTo(new BigDecimal("-180")) < 0 || longitude.compareTo(new BigDecimal("180")) > 0) {
+        if (latitude == null || longitude == null ||
+                latitude.compareTo(new BigDecimal("-90")) < 0 || latitude.compareTo(new BigDecimal("90")) > 0 ||
+                longitude.compareTo(new BigDecimal("-180")) < 0 || longitude.compareTo(new BigDecimal("180")) > 0
+        ) {
             throw new CustomException(ErrorCode.INVALID_LOCATION);
         }
     }
