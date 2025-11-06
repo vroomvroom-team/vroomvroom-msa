@@ -19,7 +19,7 @@ public class HubRepositoryImpl implements HubRepository {
     }
 
     @Override
-    public Boolean existsByHubName(String hubName) {
+    public boolean existsByHubName(String hubName) {
         return jpaHubRepository.existsByHubName(hubName);
     }
 
