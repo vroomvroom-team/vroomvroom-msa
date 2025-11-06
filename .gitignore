@@ -38,7 +38,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 ### .env files ###
-.env.**
+.env
+.env.*
 ### log ###
 logs
 **/log/**
@@ -46,3 +47,5 @@ logs
 node_modules/
 ### 도커 이미지 빌드 파일 ###
 *.tar
+
+*.class
