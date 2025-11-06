@@ -1,15 +1,99 @@
 package com.vroomvroom.orderservice.presentation;
 
-import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.vroomvroom.common.api.ApiResponse;
+import com.vroomvroom.common.api.PageResponse;
+import com.vroomvroom.orderservice.application.OrderService;
+import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
+import com.vroomvroom.orderservice.application.dto.OrderResponse;
+import com.vroomvroom.orderservice.domain.vo.Money;
+import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderRequest;
+import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
+@Slf4j
 @RestController
-@NoArgsConstructor
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/orders")
 public class OrderController {
 
-    @GetMapping("/")
-    public String test() {
-        return "Order Service";
+    private final OrderService orderService;
+
+    /**
+     * 주문 생성
+     * <p>
+     * POST /api/v1/orders
+     *
+     * @param request 주문 생성 요청
+     * @return 생성된 주문 정보
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<CreateOrderResponse>> createOrder(
+            @Valid @RequestBody CreateOrderRequest request) {
+        log.info("POST /api/v1/orders - 주문 생성 요청");
+
+        CreateOrderCommand command = new CreateOrderCommand(
+                request.getSupplyCompanyId(),
+                request.getReceiveCompanyId(),
+                request.getSupplyHubId(),
+                request.getReceiveHubId(),
+                request.getProductId(),
+                Money.of(request.getPrice()),
+                request.getQuantity(),
+                request.getDeadline(),
+                request.getRequestNote()
+        );
+
+        UUID orderId = orderService.createOrder(command).getOrderId();
+
+        // TODO. 배송 정보 반영 필요
+
+        CreateOrderResponse response = new CreateOrderResponse(orderId, "주문이 성공적으로 생성되었습니다.");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+    }
+
+    /**
+     * 주문 단건 조회
+     * <p>
+     * GET /api/v1/orders/{orderId}
+     *
+     * @param orderId 주문 ID
+     * @return 주문 정보
+     */
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable UUID orderId) {
+        log.info("GET /api/v1/orders/{} - 주문 조회", orderId);
+
+        OrderResponse response = orderService.getOrder(orderId);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 주문 전체 목록 조회
+     * <p>
+     * GET /api/v1/orders
+     *
+     * @param pageable 페이징 정보 (page, size, sort)
+     * @return 주문 목록
+     */
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<OrderResponse>>> getOrders(Pageable pageable) {
+        log.info("GET /api/v1/orders - 주문 전체 목록 조회");
+
+        Page<OrderResponse> page = orderService.getOrders(pageable);
+
+        PageResponse<OrderResponse> response = PageResponse.fromPage(page);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

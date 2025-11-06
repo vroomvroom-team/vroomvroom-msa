@@ -44,8 +44,8 @@ public class Order extends BaseTimeEntity {
     private UUID deliveryId;
 
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "price"))
-    private Money price;
+    @AttributeOverride(name = "amount", column = @Column(name = "total_price"))
+    private Money totalPrice;
 
     @Column(nullable = false)
     private BigInteger quantity;
@@ -88,6 +88,6 @@ public class Order extends BaseTimeEntity {
      * 주문 금액 계산
      */
     public Money calculateTotalPrice() {
-        return price.multiply(quantity.intValue());
+        return totalPrice.multiply(quantity.intValue());
     }
 }

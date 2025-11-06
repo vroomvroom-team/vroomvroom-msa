@@ -25,8 +25,8 @@ public class Money {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("금액은 음수일 수 없습니다");
         }
-        if (amount.scale() > 2) {
-            throw new IllegalArgumentException("금액은 소수점 둘째 자리까지만 가능합니다");
+        if (amount.stripTrailingZeros().scale() > 0) {
+            throw new IllegalArgumentException("원화는 소수점을 포함할 수 없습니다");
         }
         this.amount = amount;
     }
