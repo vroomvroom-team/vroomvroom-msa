@@ -35,7 +35,7 @@ services:
   # Kafka + Zookeeper
   # ======================
   zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
+    image: wurstmeister/zookeeper:latest
     container_name: zookeeper
     restart: always
     ports:
