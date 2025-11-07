@@ -53,9 +53,10 @@ public class HubServiceImpl implements HubService {
     }
 
     @Override
+    @Transactional
     public void updateHub(UUID hubId, UpdateHubReq req) {
         Hub hub = findHubById(hubId);
-
+        hub.update(req.getHubName(), req.getAddress(), req.getLatitude(), req.getLongitude());
     }
 
     Hub findHubById(UUID hubId) {
