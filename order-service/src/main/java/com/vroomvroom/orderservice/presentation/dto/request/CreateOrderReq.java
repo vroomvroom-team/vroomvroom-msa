@@ -1,6 +1,5 @@
 package com.vroomvroom.orderservice.presentation.dto.request;
 
-import com.vroomvroom.orderservice.domain.vo.Money;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateOrderRequest {
+public class CreateOrderReq {
     @NotNull(message = "공급 업체 ID는 필수입니다")
     private UUID supplyCompanyId;
 

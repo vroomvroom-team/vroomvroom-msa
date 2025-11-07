@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderResponse {
+public class CreateOrderRes {
     UUID orderId;
     String message;
 }

@@ -4,10 +4,10 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.orderservice.application.OrderService;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
-import com.vroomvroom.orderservice.application.dto.OrderResponse;
+import com.vroomvroom.orderservice.application.dto.OrderRes;
 import com.vroomvroom.orderservice.domain.vo.Money;
-import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderRequest;
-import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderResponse;
+import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderReq;
+import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +36,8 @@ public class OrderController {
      * @return 생성된 주문 정보
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateOrderResponse>> createOrder(
-            @Valid @RequestBody CreateOrderRequest request) {
+    public ResponseEntity<ApiResponse<CreateOrderRes>> createOrder(
+            @Valid @RequestBody CreateOrderReq request) {
         log.info("POST /api/v1/orders - 주문 생성 요청");
 
         CreateOrderCommand command = new CreateOrderCommand(
@@ -56,7 +56,7 @@ public class OrderController {
 
         // TODO. 배송 정보 반영 필요
 
-        CreateOrderResponse response = new CreateOrderResponse(orderId, "주문이 성공적으로 생성되었습니다.");
+        CreateOrderRes response = new CreateOrderRes(orderId, "주문이 성공적으로 생성되었습니다.");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
@@ -70,10 +70,10 @@ public class OrderController {
      * @return 주문 정보
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<ApiResponse<OrderRes>> getOrder(@PathVariable UUID orderId) {
         log.info("GET /api/v1/orders/{} - 주문 조회", orderId);
 
-        OrderResponse response = orderService.getOrder(orderId);
+        OrderRes response = orderService.getOrder(orderId);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -87,12 +87,12 @@ public class OrderController {
      * @return 주문 목록
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<OrderResponse>>> getOrders(Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(Pageable pageable) {
         log.info("GET /api/v1/orders - 주문 전체 목록 조회");
 
-        Page<OrderResponse> page = orderService.getOrders(pageable);
+        Page<OrderRes> page = orderService.getOrders(pageable);
 
-        PageResponse<OrderResponse> response = PageResponse.fromPage(page);
+        PageResponse<OrderRes> response = PageResponse.fromPage(page);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

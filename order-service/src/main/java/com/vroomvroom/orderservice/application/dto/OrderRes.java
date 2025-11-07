@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderResponse {
+public class OrderRes {
     private UUID orderId;
     private UUID supplyCompanyId;
     private UUID receiveCompanyId;
@@ -32,8 +32,8 @@ public class OrderResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static OrderResponse from(Order order) {
-        return OrderResponse.builder()
+    public static OrderRes from(Order order) {
+        return OrderRes.builder()
                 .orderId(order.getId())
                 .supplyCompanyId(order.getSupplyCompanyId())
                 .receiveCompanyId(order.getReceiveCompanyId())
