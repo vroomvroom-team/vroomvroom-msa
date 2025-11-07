@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: company-service
+
+  config:
+    import: optional:file:./.env[.properties]
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+    group:
+      local: local
+      prod: prod
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${COMPANY_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: ${SPRING_JPA_FORMAT_SQL}
+        show_sql: ${SPRING_JPA_SHOW_SQL}
+    open-in-view: false
+
+  web:
+    resources:
+      add-mappings: false
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+
+# 임시
+logging:
+  level:
+    com.netflix.discovery: OFF
+    org.springframework.cloud.netflix.eureka: OFF
+
