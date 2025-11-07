@@ -2,6 +2,7 @@ package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
+import com.vroomvroom.hub.application.command.UpdateHubCommand;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
@@ -15,5 +16,5 @@ public interface HubService {
     CreateHubRes createHub(CreateHubCommand command);
     PageResponse<HubListRes> getHubList(int page, int size, Sort.Direction direction);
     HubDetailRes getHubDetail(UUID hubId);
-    void updateHub(UUID hubId, UpdateHubReq req);
+    void updateHub(UUID hubId, UpdateHubCommand command);
 }

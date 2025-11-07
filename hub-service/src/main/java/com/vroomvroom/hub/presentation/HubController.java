@@ -4,6 +4,7 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
+import com.vroomvroom.hub.application.command.UpdateHubCommand;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
@@ -55,7 +56,13 @@ public class HubController {
     @PatchMapping("/{hubId}")
     public ResponseEntity<ApiResponse<Void>> updateHub(@PathVariable UUID hubId,
                                                        @RequestBody UpdateHubReq req) {
-        hubService.updateHub(hubId, req);
+        UpdateHubCommand command = new UpdateHubCommand(
+                req.getHubName(),
+                req.getAddress(),
+                req.getLatitude(),
+                req.getLongitude()
+        );
+        hubService.updateHub(hubId, command);
         return ResponseEntity.noContent().build();
     }
 }

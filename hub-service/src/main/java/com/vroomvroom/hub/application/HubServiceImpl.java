@@ -2,6 +2,7 @@ package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
+import com.vroomvroom.hub.application.command.UpdateHubCommand;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
@@ -54,9 +55,9 @@ public class HubServiceImpl implements HubService {
 
     @Override
     @Transactional
-    public void updateHub(UUID hubId, UpdateHubReq req) {
+    public void updateHub(UUID hubId, UpdateHubCommand command) {
         Hub hub = findHubById(hubId);
-        hub.update(req.getHubName(), req.getAddress(), req.getLatitude(), req.getLongitude());
+        hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude());
     }
 
     Hub findHubById(UUID hubId) {
