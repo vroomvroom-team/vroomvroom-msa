@@ -65,4 +65,10 @@ public class HubController {
         hubService.updateHub(hubId, command);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{hubId}")
+    public ResponseEntity<ApiResponse<Void>> deleteHub(@PathVariable UUID hubId) {
+        hubService.deleteHub(hubId);
+        return ResponseEntity.noContent().build();
+    }
 }

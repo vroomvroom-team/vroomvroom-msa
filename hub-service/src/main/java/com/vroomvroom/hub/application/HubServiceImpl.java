@@ -3,8 +3,6 @@ package com.vroomvroom.hub.application;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
 import com.vroomvroom.hub.application.command.UpdateHubCommand;
-import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
-import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.domain.entity.Hub;
@@ -12,6 +10,7 @@ import com.vroomvroom.hub.domain.repository.HubRepository;
 import com.vroomvroom.hub.domain.vo.Location;
 import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +57,13 @@ public class HubServiceImpl implements HubService {
     public void updateHub(UUID hubId, UpdateHubCommand command) {
         Hub hub = findHubById(hubId);
         hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude());
+    }
+
+    @Override
+    @Transactional
+    public void deleteHub(UUID hubId) {
+        Hub hub = findHubById(hubId);
+        hub.markAsDeleted();
     }
 
     Hub findHubById(UUID hubId) {
