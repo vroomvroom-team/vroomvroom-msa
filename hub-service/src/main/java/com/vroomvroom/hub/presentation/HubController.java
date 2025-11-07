@@ -4,9 +4,10 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
-import com.vroomvroom.hub.application.dto.CreateHubRes;
+import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
+import com.vroomvroom.hub.presentation.dto.request.CreateHubReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,13 @@ public class HubController {
     private final HubService hubService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateHubRes>> createHub(@RequestBody CreateHubCommand command) {
+    public ResponseEntity<ApiResponse<CreateHubRes>> createHub(@RequestBody CreateHubReq req) {
+        CreateHubCommand command = new CreateHubCommand(
+                req.getHubName(),
+                req.getAddress(),
+                req.getLatitude(),
+                req.getLongitude()
+        );
         CreateHubRes res = hubService.createHub(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
     }

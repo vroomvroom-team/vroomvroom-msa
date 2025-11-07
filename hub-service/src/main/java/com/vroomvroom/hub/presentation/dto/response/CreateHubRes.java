@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.application.dto;
+package com.vroomvroom.hub.presentation.dto.response;
 
 import com.vroomvroom.hub.domain.entity.Hub;
 import lombok.Builder;
