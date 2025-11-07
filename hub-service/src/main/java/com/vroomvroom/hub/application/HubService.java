@@ -1,30 +1,17 @@
 package com.vroomvroom.hub.application;
 
+import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.CreateHubCommand;
-import com.vroomvroom.hub.application.dto.HubRes;
-import com.vroomvroom.hub.domain.entity.Hub;
-import com.vroomvroom.hub.domain.repository.HubRepository;
-import com.vroomvroom.hub.domain.vo.Location;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
+import com.vroomvroom.hub.application.dto.HubDetailRes;
+import com.vroomvroom.hub.application.dto.HubListRes;
+import org.springframework.data.domain.Sort;
 
-@Service
-@RequiredArgsConstructor
-public class HubService {
+import java.util.UUID;
 
-    private final HubRepository hubRepository;
+public interface HubService {
 
-    @Transactional
-    public HubRes.CreateHubRes createHub(CreateHubCommand command) {
-        if (hubRepository.existsByHubName(command.getHubName())) throw new IllegalArgumentException("중복된 허브 이름입니다."); // TODO: ErrorCode 공통 적용
-        Hub hub = Hub.builder()
-                .hubName(command.getHubName())
-                .address(command.getAddress())
-                .location(new Location(command.getLatitude(), command.getLongitude()))
-                .build();
-        return HubRes.CreateHubRes.from(hubRepository.save(hub));
-    }
-
-
+    CreateHubRes createHub(CreateHubCommand command);
+    PageResponse<HubListRes> getHubList(int page, int size, Sort.Direction direction);
+    HubDetailRes getHubDetail(UUID hubId);
 }
