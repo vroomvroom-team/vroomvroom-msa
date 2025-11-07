@@ -66,7 +66,8 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
 		);
 
 		DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
+
 		return response.writeWith(Mono.just(buffer))
-			.doOnError(error -> DataBufferUtils.release(buffer));
+			.doFinally(signal -> DataBufferUtils.release(buffer));
 	}
 }

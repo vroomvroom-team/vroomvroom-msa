@@ -18,13 +18,6 @@ public class SecurityConfig {
 			.httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
 			.formLogin(ServerHttpSecurity.FormLoginSpec::disable)
 			.logout(ServerHttpSecurity.LogoutSpec::disable)
-
-			.authorizeExchange(exchanges -> exchanges
-				.pathMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-				.pathMatchers("/actuator/health", "/actuator/info").permitAll()
-				.anyExchange().permitAll()
-			)
-
 			.build();
 	}
 }
