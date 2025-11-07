@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,8 +33,7 @@ public class HubRepositoryImpl implements HubRepository {
     }
 
     @Override
-    public Hub findHubByHubId(UUID hubId) {
+    public Optional<Hub> findHubByHubId(UUID hubId) {
         return jpaHubRepository.findHubByHubId(hubId);
     }
-
 }

@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface JpaHubRepository extends JpaRepository<Hub, UUID> {
     boolean existsByHubName(String hubName);
     Page<Hub> findAllByDeletedAtIsNull(Pageable pageable);
-    Hub findHubByHubId(UUID hubId);
+    Optional<Hub> findHubByHubId(UUID hubId);
 }
