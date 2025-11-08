@@ -1,7 +1,9 @@
 package com.vroomvroom.company.application.service;
 
-import org.springframework.stereotype.Service;
+import com.vroomvroom.company.application.command.CreateCompanyCommand;
 
-@Service
-public class CompanyService {
+import java.util.UUID;
+
+public interface CompanyService {
+    UUID createCompany(CreateCompanyCommand command);
 }

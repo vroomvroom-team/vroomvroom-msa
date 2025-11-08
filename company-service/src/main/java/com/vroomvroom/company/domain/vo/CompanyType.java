@@ -6,7 +6,7 @@ public enum CompanyType {
 
     private final String description;
 
-    CompanyType(String description) {
+    private CompanyType(String description) {
         this.description = description;
     }
 

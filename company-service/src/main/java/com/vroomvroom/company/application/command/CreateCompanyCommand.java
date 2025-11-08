@@ -1,3 +1,11 @@
 package com.vroomvroom.company.application.command;
 
-public record CreateCompanyCommand() {}
+import java.util.UUID;
+
+public record CreateCompanyCommand(
+        UUID hubId,
+        Long companyManagerId,
+        String companyName,
+        String companyAddress,
+        String companyType
+) {}
