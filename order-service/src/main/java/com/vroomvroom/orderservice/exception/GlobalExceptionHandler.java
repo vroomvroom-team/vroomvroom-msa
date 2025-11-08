@@ -1,6 +1,8 @@
 package com.vroomvroom.orderservice.exception;
 
 import com.vroomvroom.common.api.ApiResponse;
+import com.vroomvroom.common.exception.CustomException;
+import com.vroomvroom.common.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

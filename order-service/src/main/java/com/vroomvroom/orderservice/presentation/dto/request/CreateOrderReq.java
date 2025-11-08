@@ -24,17 +24,8 @@ public class CreateOrderReq {
     @NotNull(message = "수령 업체 ID는 필수입니다")
     private UUID receiveCompanyId;
 
-    @NotNull(message = "공급 허브 ID는 필수입니다")
-    private UUID supplyHubId;
-
-    @NotNull(message = "수령 허브 ID는 필수입니다")
-    private UUID receiveHubId;
-
     @NotNull(message = "상품 ID는 필수입니다")
     private UUID productId;
-
-    @NotNull(message = "가격은 필수입니다")
-    private Long price;
 
     @NotNull(message = "수량은 필수입니다")
     @Min(value = 1, message = "수량은 최소 1개 이상이어야 합니다")

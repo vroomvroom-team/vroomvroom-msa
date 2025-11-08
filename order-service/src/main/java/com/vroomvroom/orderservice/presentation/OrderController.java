@@ -43,10 +43,7 @@ public class OrderController {
         CreateOrderCommand command = new CreateOrderCommand(
                 request.getSupplyCompanyId(),
                 request.getReceiveCompanyId(),
-                request.getSupplyHubId(),
-                request.getReceiveHubId(),
                 request.getProductId(),
-                Money.of(request.getPrice()),
                 request.getQuantity(),
                 request.getDeadline(),
                 request.getRequestNote()
