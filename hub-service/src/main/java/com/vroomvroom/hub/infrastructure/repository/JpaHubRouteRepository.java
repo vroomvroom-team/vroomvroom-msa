@@ -16,7 +16,7 @@ public interface JpaHubRouteRepository extends JpaRepository<HubRoute, UUID> {
             "JOIN FETCH h.arrivalHub " +
             "WHERE h.deletedAt IS NULL")
     Page<HubRoute> findAllWithHubs(Pageable pageable);
-
+    
     @Query("SELECT h FROM HubRoute h " +
             "JOIN FETCH h.departureHub " +
             "JOIN FETCH h.arrivalHub " +

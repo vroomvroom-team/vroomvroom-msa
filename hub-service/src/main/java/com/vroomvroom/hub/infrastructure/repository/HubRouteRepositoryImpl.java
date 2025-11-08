@@ -25,9 +25,4 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     public Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId) {
         return jpaHubRouteRepository.findHubRouteWithHubsByRouteId(routeId);
     }
-
-    @Override
-    public Optional<HubRoute> findHubRouteByRouteId(UUID routeId) {
-        return jpaHubRouteRepository.findHubRouteByRouteId(routeId);
-    }
 }
