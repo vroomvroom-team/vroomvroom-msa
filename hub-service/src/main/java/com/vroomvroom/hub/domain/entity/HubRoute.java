@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Table(name = "p_hub_route", uniqueConstraints = {
         @UniqueConstraint(
-                columnNames = { "departure_hub_id", "arrive_hub_id" }
+                columnNames = { "departure_hub_id", "arrival_hub_id" }
         )
 })
 @EntityListeners(AuditingEntityListener.class)
