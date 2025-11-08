@@ -30,7 +30,7 @@ public class HubRoute extends BaseTimeEntity {
     @JoinColumn(name = "departure_hub_id", nullable = false)
     private Hub departureHub;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "arrival_hub_id", nullable = false)
     private Hub arrivalHub;
 
@@ -40,8 +40,8 @@ public class HubRoute extends BaseTimeEntity {
     @Column
     private Long distance;
 
-    private static HubRoute of(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
-        validateHubRoute(departureHub, arrivalHub);
+    public static HubRoute of(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
+        validateHubRoute(departureHub, arrivalHub, time, distance);
         return HubRoute.builder()
                 .departureHub(departureHub)
                 .arrivalHub(arrivalHub)
@@ -50,8 +50,10 @@ public class HubRoute extends BaseTimeEntity {
                 .build();
     }
 
-    private static void validateHubRoute(Hub departureHub, Hub arrivalHub) {
+    private static void validateHubRoute(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
         if (departureHub == null || arrivalHub == null) throw new CustomException(ErrorCode.BAD_REQUEST);
         if (departureHub.getHubId().equals(arrivalHub.getHubId())) throw new CustomException(ErrorCode.SAME_DEPARTURE_ARRIVAL_HUB);
+        if (time == null || time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
+        if (distance == null || distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
     }
 }

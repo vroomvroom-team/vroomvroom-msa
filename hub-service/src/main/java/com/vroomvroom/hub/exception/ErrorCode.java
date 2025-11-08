@@ -19,9 +19,8 @@ public enum ErrorCode {
     HUB_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 허브를 찾을 수 없습니다."),
     SAME_DEPARTURE_ARRIVAL_HUB(HttpStatus.BAD_REQUEST, "출발 허브와 도착 허브가 같습니다."),
     HUB_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 허브 경로를 찾을 수 없습니다."),
-
-
-    ;
+    INVALID_TIME(HttpStatus.BAD_REQUEST, "유효하지 않은 소요 시간입니다."),
+    INVALID_DISTANCE(HttpStatus.BAD_REQUEST, "유효하지 않은 이동 거리입니다.");
 
 
 
