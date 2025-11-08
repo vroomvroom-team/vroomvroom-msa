@@ -7,7 +7,6 @@ import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.repository.HubRepository;
-import com.vroomvroom.hub.domain.vo.Location;
 import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.ErrorCode;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
@@ -31,11 +30,12 @@ public class HubServiceImpl implements HubService {
     @Transactional
     public CreateHubRes createHub(CreateHubCommand command) {
         if (hubRepository.existsByHubName(command.getHubName())) throw new CustomException(ErrorCode.DUPLICATE_HUB_NAME);
-        Hub hub = Hub.builder()
-                .hubName(command.getHubName())
-                .address(command.getAddress())
-                .location(new Location(command.getLatitude(), command.getLongitude()))
-                .build();
+        Hub hub = Hub.of(
+                command.getHubName(),
+                command.getAddress(),
+                command.getLatitude(),
+                command.getLongitude()
+        );
         return CreateHubRes.from(hubRepository.save(hub));
     }
 

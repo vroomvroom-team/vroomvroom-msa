@@ -2,6 +2,8 @@ package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.hub.domain.vo.Location;
+import com.vroomvroom.hub.exception.CustomException;
+import com.vroomvroom.hub.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,7 +16,7 @@ import java.util.UUID;
 @Table(name = "p_hub")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Hub extends BaseTimeEntity {
 
@@ -31,14 +33,28 @@ public class Hub extends BaseTimeEntity {
     @Embedded
     private Location location;
 
+    public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
+        validateHub(hubName, address, latitude, longitude);
+        return Hub.builder()
+                .hubName(hubName)
+                .address(address)
+                .location(Location.of(latitude, longitude))
+                .build();
+    }
+
+    private static void validateHub(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
+        if (hubName == null || hubName.trim().isEmpty() ||
+        address == null || address.trim().isEmpty() ||
+        latitude == null || longitude == null) throw new CustomException(ErrorCode.BAD_REQUEST);
+    }
+
     public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         if (hubName != null) this.hubName = hubName;
         if (address != null) this.address = address;
         if (latitude != null || longitude != null) {
-            this.location = new Location(
-                    latitude != null ? latitude : this.location.getLatitude(),
-                    longitude != null ? longitude : this.location.getLongitude()
-            );
+            BigDecimal newLatitude = latitude != null ? latitude : this.location.getLatitude();
+            BigDecimal newLongitude = longitude != null ? longitude : this.location.getLongitude();
+            this.location = Location.of(newLatitude, newLongitude);
         }
     }
 }

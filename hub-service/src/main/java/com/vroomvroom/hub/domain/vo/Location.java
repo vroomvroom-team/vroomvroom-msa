@@ -23,10 +23,14 @@ public class Location {
     @Column(precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    public Location(BigDecimal latitude, BigDecimal longitude) {
+    private Location(BigDecimal latitude, BigDecimal longitude) {
         validate(latitude, longitude);
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public static Location of(BigDecimal latitude, BigDecimal longitude) {
+        return new Location(latitude, longitude);
     }
 
     private void validate(BigDecimal latitude, BigDecimal longitude) {
