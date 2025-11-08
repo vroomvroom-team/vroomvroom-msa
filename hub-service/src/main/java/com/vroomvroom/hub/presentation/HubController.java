@@ -11,7 +11,9 @@ import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubReq;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +41,9 @@ public class HubController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<HubListRes>>> getHubList(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
-            ) {
-        PageResponse<HubListRes> res = hubService.getHubList(page, size, direction);
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        PageResponse<HubListRes> res = hubService.getHubList(pageable);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 

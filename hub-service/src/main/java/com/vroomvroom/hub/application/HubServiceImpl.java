@@ -40,8 +40,7 @@ public class HubServiceImpl implements HubService {
     }
 
     @Override
-    public PageResponse<HubListRes> getHubList(int page, int size, Sort.Direction direction) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
+    public PageResponse<HubListRes> getHubList(Pageable pageable) {
         Page<Hub> hubs = hubRepository.findAllByDeletedAtIsNull(pageable);
         return PageResponse.fromPage(hubs.map(HubListRes::from));
     }
