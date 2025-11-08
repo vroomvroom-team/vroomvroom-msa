@@ -7,6 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class HubRouteRepositoryImpl implements HubRouteRepository {
@@ -16,5 +19,10 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     @Override
     public Page<HubRoute> findAllByDeletedAtIsNull(Pageable pageable) {
         return jpaHubRouteRepository.findAllByDeletedAtIsNull(pageable);
+    }
+
+    @Override
+    public Optional<HubRoute> findHubRouteByRouteId(UUID routeId) {
+        return jpaHubRouteRepository.findHubRouteByRouteId(routeId);
     }
 }
