@@ -23,7 +23,7 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     @Override
     public PageResponse<HubRouteListRes> getHubRouteList(Pageable pageable) {
-        Page<HubRoute> hubRoutes = hubRouteRepository.findAllByDeletedAtIsNull(pageable);
+        Page<HubRoute> hubRoutes = hubRouteRepository.findAllWithHubs(pageable);
         return PageResponse.fromPage(hubRoutes.map(HubRouteListRes::from));
     }
 
@@ -34,7 +34,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     }
 
     HubRoute findHubRouteById(UUID routeId) {
-        return hubRouteRepository.findHubRouteByRouteId(routeId)
+        return hubRouteRepository.findHubRouteWithHubsByRouteId(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.HUB_ROUTE_NOT_FOUND));
     }
 }

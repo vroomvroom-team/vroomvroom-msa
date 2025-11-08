@@ -8,6 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface HubRouteRepository {
-    Page<HubRoute> findAllByDeletedAtIsNull(Pageable pageable);
-    Optional<HubRoute> findHubRouteByRouteId(UUID routeId);
+    Page<HubRoute> findAllWithHubs(Pageable pageable);
+    Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId);
 }

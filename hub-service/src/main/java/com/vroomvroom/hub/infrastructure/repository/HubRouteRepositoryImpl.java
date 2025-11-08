@@ -17,12 +17,12 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     private final JpaHubRouteRepository jpaHubRouteRepository;
 
     @Override
-    public Page<HubRoute> findAllByDeletedAtIsNull(Pageable pageable) {
-        return jpaHubRouteRepository.findAllByDeletedAtIsNull(pageable);
+    public Page<HubRoute> findAllWithHubs(Pageable pageable) {
+        return jpaHubRouteRepository.findAllWithHubs(pageable);
     }
 
     @Override
-    public Optional<HubRoute> findHubRouteByRouteId(UUID routeId) {
-        return jpaHubRouteRepository.findHubRouteByRouteId(routeId);
+    public Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId) {
+        return jpaHubRouteRepository.findHubRouteWithHubsByRouteId(routeId);
     }
 }
