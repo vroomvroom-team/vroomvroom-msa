@@ -13,15 +13,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class CreateHubReq {
-    @NotNull(message = "허브 이름은 필수입니다")
+    @NotNull(message = "허브 이름은 필수입니다.")
     private String hubName;
 
-    @NotNull(message = "허브 주소는 필수입니다")
+    @NotNull(message = "허브 주소는 필수입니다.")
     private String address;
 
-    @NotNull(message = "허브 위도는 필수입니다")
+    @NotNull(message = "허브 위도는 필수입니다.")
     private BigDecimal latitude;
 
-    @NotNull(message = "허브 경도는 필수입니다")
+    @NotNull(message = "허브 경도는 필수입니다.")
     private BigDecimal longitude;
 }
