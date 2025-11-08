@@ -12,6 +12,7 @@ import com.vroomvroom.company.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class CompanyServiceImpl implements CompanyService{
     private final HubClient hubClient;
     private final UserClient userClient;
 
+    @Transactional
     public UUID createCompany(CreateCompanyCommand command) {
         log.info("업체 생성 시작");
 
