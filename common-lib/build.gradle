@@ -1,5 +1,6 @@
-repositories {
-    mavenCentral()
+plugins {
+    id 'org.springframework.boot'
+    id 'java'
 }
 
 dependencies {
