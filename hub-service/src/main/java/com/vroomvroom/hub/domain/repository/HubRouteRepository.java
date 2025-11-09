@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface HubRouteRepository {
+    HubRoute save(HubRoute hubRoute);
     Page<HubRoute> findAllWithHubs(Pageable pageable);
     Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId);
+    boolean existsByDepartureHub_HubIdAndArrivalHub_HubId(UUID departureHubId, UUID arrivalHubId);
 }

@@ -10,9 +10,13 @@ import java.util.UUID;
 public class CreateHubRouteCommand {
     private UUID departureHubId;
     private UUID arrivalHubId;
+    private Long time;
+    private Long distance;
 
-    public CreateHubRouteCommand(UUID departureHubId, UUID arrivalHubId) {
+    public CreateHubRouteCommand(UUID departureHubId, UUID arrivalHubId, Long time, Long distance) {
         this.departureHubId = departureHubId;
         this.arrivalHubId = arrivalHubId;
+        this.time = time;
+        this.distance = distance;
     }
 }

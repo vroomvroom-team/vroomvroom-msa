@@ -34,7 +34,8 @@ public class HubServiceImpl implements HubService {
                 command.getHubName(),
                 command.getAddress(),
                 command.getLatitude(),
-                command.getLongitude()
+                command.getLongitude(),
+                command.getHubZone()
         );
         return CreateHubRes.from(hubRepository.save(hub));
     }
@@ -55,7 +56,7 @@ public class HubServiceImpl implements HubService {
     @Transactional
     public void updateHub(UUID hubId, UpdateHubCommand command) {
         Hub hub = findHubById(hubId);
-        hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude());
+        hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude(), command.getHubZone());
     }
 
     @Override

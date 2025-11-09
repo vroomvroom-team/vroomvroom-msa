@@ -33,7 +33,9 @@ public class HubController {
                 req.getHubName(),
                 req.getAddress(),
                 req.getLatitude(),
-                req.getLongitude()
+                req.getLongitude(),
+                req.getHubZone(),
+                req.isCentral()
         );
         CreateHubRes res = hubService.createHub(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
@@ -60,7 +62,8 @@ public class HubController {
                 req.getHubName(),
                 req.getAddress(),
                 req.getLatitude(),
-                req.getLongitude()
+                req.getLongitude(),
+                req.getHubZone()
         );
         hubService.updateHub(hubId, command);
         return ResponseEntity.noContent().build();

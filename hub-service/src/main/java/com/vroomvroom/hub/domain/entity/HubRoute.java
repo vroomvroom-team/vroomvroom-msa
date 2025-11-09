@@ -40,6 +40,9 @@ public class HubRoute extends BaseTimeEntity {
     @Column
     private Long distance;
 
+    @Column(name = "is_deleted")
+    private Boolean isActive;
+
     public static HubRoute of(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
         validateHubRoute(departureHub, arrivalHub, time, distance);
         return HubRoute.builder()
@@ -47,6 +50,7 @@ public class HubRoute extends BaseTimeEntity {
                 .arrivalHub(arrivalHub)
                 .time(time)
                 .distance(distance)
+                .isActive(true)
                 .build();
     }
 

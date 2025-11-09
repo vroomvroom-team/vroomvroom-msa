@@ -30,7 +30,9 @@ public class HubRouteController {
     public ResponseEntity<ApiResponse<CreateHubRouteRes>> createHubRoute(@RequestBody CreateHubRouteReq req) {
         CreateHubRouteCommand command = new CreateHubRouteCommand(
                 req.getDepartureHubId(),
-                req.getArrivalHubId()
+                req.getArrivalHubId(),
+                req.getTime(),
+                req.getDistance()
         );
         CreateHubRouteRes res = hubRouteService.createHubRoute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));

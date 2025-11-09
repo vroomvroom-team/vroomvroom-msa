@@ -17,6 +17,11 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     private final JpaHubRouteRepository jpaHubRouteRepository;
 
     @Override
+    public HubRoute save(HubRoute hubRoute) {
+        return jpaHubRouteRepository.save(hubRoute);
+    }
+
+    @Override
     public Page<HubRoute> findAllWithHubs(Pageable pageable) {
         return jpaHubRouteRepository.findAllWithHubs(pageable);
     }
@@ -24,5 +29,10 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     @Override
     public Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId) {
         return jpaHubRouteRepository.findHubRouteWithHubsByRouteId(routeId);
+    }
+
+    @Override
+    public boolean existsByDepartureHub_HubIdAndArrivalHub_HubId(UUID departureHubId, UUID arrivalHubId) {
+        return jpaHubRouteRepository.existsByDepartureHub_HubIdAndArrivalHub_HubId(departureHubId, arrivalHubId);
     }
 }
