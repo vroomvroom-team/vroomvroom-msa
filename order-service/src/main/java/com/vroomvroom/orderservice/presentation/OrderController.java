@@ -3,9 +3,9 @@ package com.vroomvroom.orderservice.presentation;
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.orderservice.application.OrderService;
+import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
-import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderReq;
 import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderRes;
 import jakarta.validation.Valid;
@@ -39,6 +39,8 @@ public class OrderController {
     public ResponseEntity<ApiResponse<CreateOrderRes>> createOrder(
             @Valid @RequestBody CreateOrderReq request) {
         log.info("POST /api/v1/orders - 주문 생성 요청");
+
+        // TODO. 유저 ID 반영 필요
 
         CreateOrderCommand command = new CreateOrderCommand(
                 request.getSupplyCompanyId(),
@@ -92,5 +94,25 @@ public class OrderController {
         PageResponse<OrderRes> response = PageResponse.fromPage(page);
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 주문 취소
+     * <p>
+     * DELETE /api/v1/orders/{orderId}
+     *
+     * @param orderId 주문 ID
+     * @return OK
+     */
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<String>> cancelOrder(@PathVariable UUID orderId) {
+        log.info("DELETE /api/v1/cancel/{} - 주문 취소", orderId);
+
+        // TODO. 유저 ID 반영 필요
+        CancelOrderCommand command = new CancelOrderCommand(UUID.randomUUID(), orderId);
+
+        orderService.cancelOrder(command);
+
+        return ResponseEntity.ok(ApiResponse.success("주문 취소 성공"));
     }
 }

@@ -155,7 +155,22 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void cancelOrder(CancelOrderCommand command) {
-        // 배송
+        log.info("주문 취소 시작 - 유저 ID={}, 주문 ID={}",
+                command.userId(), command.orderId());
+
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+
+        // 배송 전 주문만 취소 가능
+        if (!order.isCancellable()) {
+            log.debug("주문 취소 불가 상태 - 주문 상태={}", order.getOrderStatus());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR);
+        }
+
+        order.updateStatus(OrderStatus.CANCELLED);
+        order.markAsDeleted();
+        orderRepository.save(order);
+        log.info("주문 삭제 성공 - 주문 ID={}", order.getId());
     }
 
     /**

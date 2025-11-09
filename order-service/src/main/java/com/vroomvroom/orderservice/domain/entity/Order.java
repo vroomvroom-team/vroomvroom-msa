@@ -90,4 +90,11 @@ public class Order extends BaseTimeEntity {
     public Money calculateTotalPrice() {
         return totalPrice.multiply(quantity.intValue());
     }
+
+    /**
+     * 삭제 가능 여부 확인
+     */
+    public boolean isCancellable() {
+        return orderStatus.isBeforeShipping();
+    }
 }
