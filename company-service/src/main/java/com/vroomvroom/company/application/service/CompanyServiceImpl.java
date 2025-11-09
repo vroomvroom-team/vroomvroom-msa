@@ -1,14 +1,12 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
-import com.vroomvroom.company.application.port.HubClient;
-import com.vroomvroom.company.application.port.UserClient;
+import com.vroomvroom.company.application.validator.CompanyValidator;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
 import com.vroomvroom.company.domain.entity.Company;
 import com.vroomvroom.company.domain.repository.CompanyRepository;
-import com.vroomvroom.company.domain.service.CompanyDomainService;
-import com.vroomvroom.company.domain.vo.*;
+import com.vroomvroom.company.domain.vo.CompanyType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,11 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService{
 
-    private final CompanyDomainService companyDomainService;
+    private final CompanyValidator companyValidator;
     private final CompanyRepository companyRepository;
-
-    private final HubClient hubClient;
-    private final UserClient userClient;
 
     @Transactional
     public UUID createCompany(CreateCompanyCommand command) {
@@ -33,19 +28,9 @@ public class CompanyServiceImpl implements CompanyService{
 
         CompanyType companyType = parseCompanyType(command.companyType());
 
-        HubId hubId = HubId.of(command.hubId());
-        validateHub(hubId);
+        companyValidator.validate(command);
 
-        CompanyManagerId companyManagerId = CompanyManagerId.of(command.companyManagerId());
-        validateManager(companyManagerId);
-
-        CompanyName companyName = CompanyName.of(command.companyName());
-        companyDomainService.validateDuplicateCompanyName(companyName);
-
-        CompanyAddress companyAddress = CompanyAddress.of(command.companyAddress());
-        companyDomainService.validateDuplicateCompanyAddress(companyAddress);
-
-        Company company = Company.create(hubId, companyManagerId, companyName, companyAddress, companyType);
+        Company company = Company.create(command.hubId(), command.companyManagerId(), command.companyName(), command.companyAddress(), companyType);
 
         Company saveCompany = companyRepository.save(company);
 
@@ -59,15 +44,5 @@ public class CompanyServiceImpl implements CompanyService{
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INVALID_COMPANY_TYPE);
         }
-    }
-
-    private void validateHub(HubId hubId) {
-        boolean exists = hubClient.existsHub(hubId);
-        if (!exists) throw new CustomException(ErrorCode.HUB_NOT_FOUND);
-    }
-
-    private void validateManager(CompanyManagerId companyManagerId) {
-        boolean exists = userClient.existsUser(companyManagerId);
-        if (!exists) throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 }

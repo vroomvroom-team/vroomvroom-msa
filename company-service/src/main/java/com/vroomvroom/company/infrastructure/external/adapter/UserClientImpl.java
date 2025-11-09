@@ -1,9 +1,6 @@
 package com.vroomvroom.company.infrastructure.external.adapter;
 
 import com.vroomvroom.company.application.port.UserClient;
-import com.vroomvroom.company.common.exception.CustomException;
-import com.vroomvroom.company.common.exception.ErrorCode;
-import com.vroomvroom.company.domain.vo.CompanyManagerId;
 import com.vroomvroom.company.infrastructure.external.UserFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +14,7 @@ public class UserClientImpl implements UserClient {
     private final UserFeignClient userFeignClient;
 
     @Override
-    public boolean existsUser(CompanyManagerId companyManagerId) {
+    public boolean existsUser(Long companyManagerId) {
         log.info("유저 존재 여부 확인 요청: companyManagerId = {}", companyManagerId);
         
 /*        try {

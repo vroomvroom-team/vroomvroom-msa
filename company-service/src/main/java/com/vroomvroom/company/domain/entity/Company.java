@@ -22,31 +22,27 @@ public class Company extends BaseTimeEntity {
     @Column(name = "company_id")
     private UUID companyId;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "company_manager_id"))
-    private CompanyManagerId companyManagerId;
+    @Column(name = "company_manager_id", nullable = false)
+    private Long companyManagerId;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "hub_id"))
-    private HubId hubId;
+    @Column(name = "hub_id", nullable = false)
+    private UUID hubId;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "company_name"))
-    private CompanyName companyName;
+    @Column(name = "company_name", nullable = false)
+    private String companyName;
 
-    @Embedded
-    @AttributeOverride(name = "detail", column = @Column(name = "company_address"))
-    private CompanyAddress companyAddress;
+    @Column(name = "company_address", nullable = false)
+    private String companyAddress;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "company_type")
     private CompanyType companyType;
 
     private Company(
-            HubId hubId,
-            CompanyManagerId companyManagerId,
-            CompanyName companyName,
-            CompanyAddress companyAddress,
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
             CompanyType companyType
     ){
         this.hubId = hubId;
@@ -57,10 +53,10 @@ public class Company extends BaseTimeEntity {
     }
 
     public static Company create(
-            HubId hubId,
-            CompanyManagerId companyManagerId,
-            CompanyName companyName,
-            CompanyAddress companyAddress,
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
             CompanyType companyType
     ) {
         validate(hubId, companyManagerId, companyName, companyAddress, companyType);
@@ -68,15 +64,16 @@ public class Company extends BaseTimeEntity {
     }
 
     private static void validate(
-            HubId hubId,
-            CompanyManagerId companyManagerId,
-            CompanyName companyName,
-            CompanyAddress companyAddress,
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
             CompanyType companyType
     ) {
-        if (hubId == null || companyManagerId == null || companyName == null
-                || companyAddress == null || companyType == null) {
-            throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
-        }
+        if (hubId == null) throw new CustomException(ErrorCode.HUB_ID_REQUIRED);
+        if (companyManagerId == null) throw new CustomException(ErrorCode.COMPANY_MANAGER_REQUIRED);
+        if (companyName == null || companyName.isBlank()) throw new CustomException(ErrorCode.COMPANY_NAME_REQUIRED);
+        if (companyAddress == null || companyAddress.isBlank()) throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
+        if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
     }
 }

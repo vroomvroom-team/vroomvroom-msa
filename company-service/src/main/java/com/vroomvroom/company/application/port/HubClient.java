@@ -1,7 +1,7 @@
 package com.vroomvroom.company.application.port;
 
-import com.vroomvroom.company.domain.vo.HubId;
+import java.util.UUID;
 
 public interface HubClient {
-    boolean existsHub(HubId hubId);
+    boolean existsHub(UUID hubId);
 }

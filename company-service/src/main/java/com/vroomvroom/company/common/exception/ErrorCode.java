@@ -24,6 +24,7 @@ public enum ErrorCode {
     COMPANY_ADDRESS_REQUIRED(HttpStatus.BAD_REQUEST, "업체 주소는 필수입니다."),
     COMPANY_MANAGER_REQUIRED(HttpStatus.BAD_REQUEST, "업체 관리자 ID는 필수입니다."),
     HUB_ID_REQUIRED(HttpStatus.BAD_REQUEST, "허브 ID는 필수입니다."),
+    COMPANY_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "업체 타입은 필수입니다."),
     DUPLICATE_COMPANY_NAME(HttpStatus.CONFLICT, "이미 존재하는 업체 이름입니다."),
     DUPLICATE_COMPANY_ADDRESS(HttpStatus.CONFLICT, "이미 존재하는 업체 주소입니다."),
 
