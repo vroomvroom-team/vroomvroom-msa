@@ -3,9 +3,10 @@ package com.vroomvroom.company.domain.entity;
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
-import com.vroomvroom.company.domain.vo.*;
+import com.vroomvroom.company.domain.vo.CompanyType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,6 +39,7 @@ public class Company extends BaseTimeEntity {
     @Column(name = "company_type")
     private CompanyType companyType;
 
+    @Builder(access = AccessLevel.PRIVATE)
     private Company(
             UUID hubId,
             Long companyManagerId,
@@ -60,7 +62,13 @@ public class Company extends BaseTimeEntity {
             CompanyType companyType
     ) {
         validate(hubId, companyManagerId, companyName, companyAddress, companyType);
-        return new Company(hubId, companyManagerId, companyName, companyAddress, companyType);
+        return Company.builder()
+                .hubId(hubId)
+                .companyManagerId(companyManagerId)
+                .companyName(companyName)
+                .companyAddress(companyAddress)
+                .companyType(companyType)
+                .build();
     }
 
     private static void validate(
