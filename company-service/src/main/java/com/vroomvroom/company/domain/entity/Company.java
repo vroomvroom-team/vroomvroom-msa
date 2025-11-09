@@ -84,4 +84,10 @@ public class Company extends BaseTimeEntity {
         if (companyAddress == null || companyAddress.isBlank()) throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
         if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
     }
+
+    public void validateNotDeleted() {
+        if (this.deletedAt != null) {
+            throw new CustomException(ErrorCode.COMPANY_DELETED);
+        }
+    }
 }

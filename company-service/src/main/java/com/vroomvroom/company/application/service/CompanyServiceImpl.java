@@ -54,6 +54,8 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = companyRepository.findByCompanyId(companyId)
                         .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
+        company.validateNotDeleted();
+
         log.info("업체 생성 완료: companyId = {}", company.getCompanyId());
         return CompanyResult.form(company);
     }
