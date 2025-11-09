@@ -28,5 +28,7 @@ include(
         "delivery-service",
         "gateway-service",
         "eureka-server",
-        "company-service"
+        "company-service",
+        "slack-service"
+
 )
