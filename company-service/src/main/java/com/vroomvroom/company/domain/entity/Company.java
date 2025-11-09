@@ -1,9 +1,12 @@
 package com.vroomvroom.company.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
-import com.vroomvroom.company.domain.vo.*;
+import com.vroomvroom.company.common.exception.CustomException;
+import com.vroomvroom.company.common.exception.ErrorCode;
+import com.vroomvroom.company.domain.vo.CompanyType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,23 +23,65 @@ public class Company extends BaseTimeEntity {
     @Column(name = "company_id")
     private UUID companyId;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "company_manager_id"))
-    private CompanyManagerId companyManagerId;
+    @Column(name = "company_manager_id", nullable = false)
+    private Long companyManagerId;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "hub_id"))
-    private HubId hubId;
+    @Column(name = "hub_id", nullable = false)
+    private UUID hubId;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "company_name"))
-    private CompanyName companyName;
+    @Column(name = "company_name", nullable = false)
+    private String companyName;
 
-    @Embedded
-    @AttributeOverride(name = "detail", column = @Column(name = "company_address"))
-    private CompanyAddress companyAddress;
+    @Column(name = "company_address", nullable = false)
+    private String companyAddress;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "company_type")
     private CompanyType companyType;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Company(
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
+            CompanyType companyType
+    ){
+        this.hubId = hubId;
+        this.companyManagerId = companyManagerId;
+        this.companyName = companyName;
+        this.companyAddress = companyAddress;
+        this.companyType = companyType;
+    }
+
+    public static Company create(
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
+            CompanyType companyType
+    ) {
+        validate(hubId, companyManagerId, companyName, companyAddress, companyType);
+        return Company.builder()
+                .hubId(hubId)
+                .companyManagerId(companyManagerId)
+                .companyName(companyName)
+                .companyAddress(companyAddress)
+                .companyType(companyType)
+                .build();
+    }
+
+    private static void validate(
+            UUID hubId,
+            Long companyManagerId,
+            String companyName,
+            String companyAddress,
+            CompanyType companyType
+    ) {
+        if (hubId == null) throw new CustomException(ErrorCode.HUB_ID_REQUIRED);
+        if (companyManagerId == null) throw new CustomException(ErrorCode.COMPANY_MANAGER_REQUIRED);
+        if (companyName == null || companyName.isBlank()) throw new CustomException(ErrorCode.COMPANY_NAME_REQUIRED);
+        if (companyAddress == null || companyAddress.isBlank()) throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
+        if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
+    }
 }

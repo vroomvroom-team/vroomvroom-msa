@@ -4,7 +4,9 @@ import com.vroomvroom.company.domain.repository.CompanyRepository;
 import com.vroomvroom.company.infrastructure.repository.CompanyRepositoryAdapter;
 import com.vroomvroom.company.infrastructure.repository.JpaCompanyRepository;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class RepositoryConfig {
 
     @Bean

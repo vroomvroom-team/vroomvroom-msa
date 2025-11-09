@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface JpaCompanyRepository extends JpaRepository<Company, UUID> {
+    boolean existsByCompanyName(String companyName);
+    boolean existsByCompanyAddress(String companyAddress);
 }
