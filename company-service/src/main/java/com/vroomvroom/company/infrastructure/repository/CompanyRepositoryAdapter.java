@@ -5,6 +5,9 @@ import com.vroomvroom.company.domain.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class CompanyRepositoryAdapter implements CompanyRepository {
@@ -24,5 +27,10 @@ public class CompanyRepositoryAdapter implements CompanyRepository {
     @Override
     public boolean existsByCompanyAddress(String companyAddress) {
         return jpaCompanyRepository.existsByCompanyAddress(companyAddress);
+    }
+
+    @Override
+    public Optional<Company> findByCompanyId(UUID companyId) {
+        return jpaCompanyRepository.findByCompanyId(companyId);
     }
 }
