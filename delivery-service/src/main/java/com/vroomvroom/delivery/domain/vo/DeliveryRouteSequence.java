@@ -10,22 +10,22 @@ import lombok.NoArgsConstructor;
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DeliverySequence {
+public class DeliveryRouteSequence {
 
-    private int value;
+    private Long value;
 
-    private DeliverySequence(int value) {
+    private DeliveryRouteSequence(Long value) {
         if (value < 0) {
             throw new IllegalArgumentException("배송 순번은 0번부터 시작됩니다.");
         }
         this.value = value;
     }
 
-    public static DeliverySequence of(int value) {
-        return new DeliverySequence(value);
+    public static DeliveryRouteSequence of(Long value) {
+        return new DeliveryRouteSequence(value);
     }
 
-    public DeliverySequence next() {
-        return new DeliverySequence(this.value + 1);
+    public DeliveryRouteSequence next() {
+        return new DeliveryRouteSequence(this.value + 1);
     }
 }
