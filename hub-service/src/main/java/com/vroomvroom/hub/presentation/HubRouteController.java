@@ -3,13 +3,17 @@ package com.vroomvroom.hub.presentation;
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubRouteService;
+import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.domain.entity.HubRoute;
+import com.vroomvroom.hub.presentation.dto.request.CreateHubRouteReq;
+import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +25,16 @@ import java.util.UUID;
 public class HubRouteController {
 
     private final HubRouteService hubRouteService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<CreateHubRouteRes>> createHubRoute(@RequestBody CreateHubRouteReq req) {
+        CreateHubRouteCommand command = new CreateHubRouteCommand(
+                req.getDepartureHubId(),
+                req.getArrivalHubId()
+        );
+        CreateHubRouteRes res = hubRouteService.createHubRoute(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<HubRouteListRes>>> getHubRouteList(
