@@ -2,11 +2,29 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
+        maven { url "https://repo.spring.io/release" }
+    }
+    plugins {
+        id "org.springframework.boot" version "3.3.2"
+        id "io.spring.dependency-management" version "1.1.5"
     }
 }
 
-rootProject.name = 'vroomvroom-msa'
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
 
-include 'common-lib', 'user-service', 'hub-service','order-service', 'delivery-service',
-        'gateway-service', 'eureka-server'
-
+rootProject.name = "vroomvroom-msa"
+include(
+        "common-lib",
+        "user-service",
+        "hub-service",
+        "order-service",
+        "gateway-service",
+        "eureka-server",
+        "slack-service"
+)

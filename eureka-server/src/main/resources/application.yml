@@ -15,7 +15,7 @@
       import: optional:file:.env[.properties]
 
   server:
-    port: ${EUREKA_PORT}
+    port: ${EUREKA_PORT:8761}
 
   eureka:
     client:
