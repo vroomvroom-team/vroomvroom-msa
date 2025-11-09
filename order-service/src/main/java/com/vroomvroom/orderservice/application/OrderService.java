@@ -1,6 +1,7 @@
 package com.vroomvroom.orderservice.application;
 
 
+import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
 import org.springframework.data.domain.Page;
@@ -14,4 +15,8 @@ public interface OrderService {
     OrderRes getOrder(UUID orderId);
 
     Page<OrderRes> getOrders(Pageable pageable);
+
+    void cancelOrder(CancelOrderCommand orderId);
+
+    OrderRes updateOrder();
 }
