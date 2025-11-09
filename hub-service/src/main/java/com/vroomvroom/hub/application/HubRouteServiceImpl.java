@@ -34,7 +34,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     public CreateHubRouteRes createHubRoute(CreateHubRouteCommand command) {
         Hub departure = findHubById(command.getDepartureHubId());
         Hub arrival = findHubById(command.getArrivalHubId());
-        log.info("👍👍👍👍👍👍👍 departureHub: {}, arrivalHub: {}", departure.getHubName(), arrival.getHubName());
+        log.info("departureHub: {}, arrivalHub: {}", departure.getHubName(), arrival.getHubName());
         validateHub(departure, arrival);
         HubRoute hubRoute = HubRoute.of(
                 departure,
