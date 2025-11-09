@@ -14,4 +14,5 @@ public interface HubRouteService {
     CreateHubRouteRes createHubRoute(CreateHubRouteCommand command);
     PageResponse<HubRouteListRes> getHubRouteList(Pageable pageable);
     HubRouteDetailRes getHubRouteDetail(UUID routeId);
+    void deleteHubRoute(UUID routeId);
 }

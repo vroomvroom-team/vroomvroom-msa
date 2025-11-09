@@ -11,11 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Table(name = "p_hub_route", uniqueConstraints = {
-        @UniqueConstraint(
-                columnNames = { "departure_hub_id", "arrival_hub_id" }
-        )
-})
+@Table(name = "p_hub_route")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(access = AccessLevel.PRIVATE)
@@ -40,7 +36,7 @@ public class HubRoute extends BaseTimeEntity {
     @Column
     private Long distance;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_active")
     private Boolean isActive;
 
     public static HubRoute of(Hub departureHub, Hub arrivalHub, Long time, Long distance) {

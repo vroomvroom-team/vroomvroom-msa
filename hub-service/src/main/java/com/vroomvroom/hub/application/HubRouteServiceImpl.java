@@ -56,6 +56,13 @@ public class HubRouteServiceImpl implements HubRouteService {
         return HubRouteDetailRes.from(route);
     }
 
+    @Override
+    @Transactional
+    public void deleteHubRoute(UUID routeId) {
+        HubRoute hubRoute = findHubRouteById(routeId);
+        hubRoute.markAsDeleted();
+    }
+
     private Hub findHubById(UUID hubId) {
         return hubRepository.findHubByHubId(hubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.HUB_NOT_FOUND));
