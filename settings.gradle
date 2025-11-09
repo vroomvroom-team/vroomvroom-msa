@@ -19,12 +19,14 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "vroomvroom-msa"
+
 include(
         "common-lib",
         "user-service",
         "hub-service",
         "order-service",
+        "delivery-service",
         "gateway-service",
         "eureka-server",
-        "slack-service"
+        "company-service"
 )
