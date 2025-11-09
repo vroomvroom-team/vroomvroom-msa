@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,7 +28,7 @@ public class CreateOrderReq {
 
     @NotNull(message = "수량은 필수입니다")
     @Min(value = 1, message = "수량은 최소 1개 이상이어야 합니다")
-    private BigInteger quantity;
+    private Long quantity;
 
     @NotNull(message = "납기일은 필수입니다")
     @Future(message = "납기일은 현재 시간 이후여야 합니다")

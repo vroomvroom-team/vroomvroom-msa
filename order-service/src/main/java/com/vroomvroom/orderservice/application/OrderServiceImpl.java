@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 @Slf4j
@@ -51,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         CompanyHubDTO receiveCompany = getCompanyHubInfo(command.receiveCompanyId());
 
         // 외부 상품 서비스 호출 및 총 금액 계산
-        ProductDTO product = getProductInfo(command.productId(), command.quantity());
+        ProductDTO product = getProductInfo(command.productId());
         Money totalPrice = product.getPrice().multiply(command.quantity());
 
         // 주문 생성
@@ -92,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 상품 정보 가져오기
-    private ProductDTO getProductInfo(UUID productId, BigInteger quantity) {
+    private ProductDTO getProductInfo(UUID productId) {
         // TODO. 상품 서비스 API 호출
         try {
             return productClient.getProductInfo(productId);
@@ -103,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 상품 재고 감소
-    private void decreaseStocks(UUID productId, BigInteger quantity) {
+    private void decreaseStocks(UUID productId, Long quantity) {
         // TODO. 상품 재고 감소 로직
         try {
             if (!productClient.decreaseStocks(productId, quantity))
@@ -195,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Money newTotalPrice = order.getTotalPrice();
-        BigInteger quantityDiff = null;
+        Long quantityDiff = null;
 
         // 수량 변경 시 재고 및 금액 재계산
         if (command.quantity() != null && !command.quantity().equals(order.getQuantity())) {
@@ -203,14 +202,13 @@ public class OrderServiceImpl implements OrderService {
             ProductDTO product = productClient.getProductInfo(order.getProductId());
 
             // 수량 차이 계산
-            quantityDiff = command.quantity().subtract(order.getQuantity());
+            quantityDiff = command.quantity() - order.getQuantity();
 
             // 재고 확인
-            if (quantityDiff.compareTo(BigInteger.ZERO) > 0) {
-                if (!productClient.decreaseStocks(order.getProductId(), quantityDiff))
-                    throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
-            } else if (quantityDiff.compareTo(BigInteger.ZERO) < 0)
-                productClient.increaseStocks(order.getProductId(), quantityDiff.abs());
+            if (quantityDiff > 0) {
+                decreaseStocks(order.getProductId(), quantityDiff);
+            } else if (quantityDiff < 0)
+                productClient.increaseStocks(order.getProductId(), Math.abs(quantityDiff));
 
             // 총 금액 재계산
             newTotalPrice = product.getPrice().multiply(command.quantity());
@@ -232,12 +230,12 @@ public class OrderServiceImpl implements OrderService {
         log.info("주문 수정 완료 - 주문 ID={}", command.orderId());
     }
 
-    private void rollbackStock(UUID productId, BigInteger quantityDiff) {
+    private void rollbackStock(UUID productId, long quantityDiff) {
         try {
-            if (quantityDiff.compareTo(BigInteger.ZERO) > 0) {
+            if (quantityDiff > 0) {
                 productClient.increaseStocks(productId, quantityDiff);
-            } else if (quantityDiff.compareTo(BigInteger.ZERO) < 0)
-                productClient.decreaseStocks(productId, quantityDiff.abs());
+            } else if (quantityDiff < 0)
+                productClient.decreaseStocks(productId, Math.abs(quantityDiff));
 
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리

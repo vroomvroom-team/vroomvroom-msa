@@ -56,8 +56,8 @@ public class Money {
         return new Money(this.amount.multiply(BigDecimal.valueOf(quantity)));
     }
 
-    public Money multiply(BigInteger quantity) {
-        return new Money(this.amount.multiply(new BigDecimal(quantity)));
+    public Money multiply(long quantity) {
+        return new Money(this.amount.multiply(BigDecimal.valueOf(quantity)));
     }
 
     public Money multiply(BigDecimal rate) {

@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UpdateOrderReq {
     @Min(value = 1, message = "수량은 최소 1개 이상이어야 합니다")
-    private BigInteger quantity;
+    private Long quantity;
 
     @Future(message = "납기일은 현재 시간 이후여야 합니다")
     private LocalDateTime deadline;

@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -48,7 +47,7 @@ public class Order extends BaseTimeEntity {
     private Money totalPrice;
 
     @Column(nullable = false)
-    private BigInteger quantity;
+    private Long quantity;
 
     @Column(nullable = false)
     private LocalDateTime deadline;
@@ -108,7 +107,7 @@ public class Order extends BaseTimeEntity {
     /**
      * 주문 수정
      */
-    public void update(BigInteger quantity, LocalDateTime deadline, String requestNote, Money newTotalPrice) {
+    public void update(Long quantity, LocalDateTime deadline, String requestNote, Money newTotalPrice) {
         // 수량 변경
         if (quantity != null && !quantity.equals(this.quantity)) {
             this.quantity = quantity;

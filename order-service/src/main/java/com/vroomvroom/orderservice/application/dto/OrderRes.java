@@ -25,7 +25,7 @@ public class OrderRes {
     private UUID productId;
     private UUID deliveryId;
     private Money totalPrice;
-    private BigInteger quantity;
+    private Long quantity;
     private LocalDateTime deadline;
     private String requestNote;
     private OrderStatus orderStatus;
