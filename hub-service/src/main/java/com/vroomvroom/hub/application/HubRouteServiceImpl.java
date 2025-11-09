@@ -2,6 +2,7 @@ package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
+import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.domain.entity.Hub;
@@ -54,6 +55,13 @@ public class HubRouteServiceImpl implements HubRouteService {
     public HubRouteDetailRes getHubRouteDetail(UUID routeId) {
         HubRoute route = findHubRouteById(routeId);
         return HubRouteDetailRes.from(route);
+    }
+
+    @Override
+    @Transactional
+    public void updateHubRoute(UUID routeId, UpdateHubRouteCommand command) {
+        HubRoute hubRoute = findHubRouteById(routeId);
+        hubRoute.update(command.getTime(), command.getDistance(), command.getIsActive());
     }
 
     @Override

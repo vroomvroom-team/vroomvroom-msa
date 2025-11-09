@@ -4,10 +4,12 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubRouteService;
 import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
+import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubRouteReq;
+import com.vroomvroom.hub.presentation.dto.request.UpdateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +52,18 @@ public class HubRouteController {
     public ResponseEntity<ApiResponse<HubRouteDetailRes>> getHubRouteDetail(@PathVariable UUID routeId) {
         HubRouteDetailRes res = hubRouteService.getHubRouteDetail(routeId);
         return ResponseEntity.ok(ApiResponse.success(res));
+    }
+
+    @PatchMapping("/{routeId}")
+    public ResponseEntity<ApiResponse<Void>> updateHubRoute(@PathVariable UUID routeId,
+                                                            @RequestBody UpdateHubRouteReq req) {
+        UpdateHubRouteCommand command = new UpdateHubRouteCommand(
+                req.getTime(),
+                req.getDistance(),
+                req.getIsActive()
+        );
+        hubRouteService.updateHubRoute(routeId, command);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{routeId}")

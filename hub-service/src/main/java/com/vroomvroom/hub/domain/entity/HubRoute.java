@@ -56,4 +56,12 @@ public class HubRoute extends BaseTimeEntity {
         if (time == null || time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
         if (distance == null || distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
     }
+
+    public void update(Long time, Long distance, Boolean isActive) {
+        if (time != null && time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
+        if (distance != null && distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
+        if (time != null) this.time = time;
+        if (distance != null) this.distance = distance;
+        if (isActive != null) this.isActive = isActive;
+    }
 }
