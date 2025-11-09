@@ -97,4 +97,35 @@ public class Order extends BaseTimeEntity {
     public boolean isCancellable() {
         return orderStatus.isBeforeShipping();
     }
+
+    /**
+     * 수정 가능 여부 확인
+     */
+    public boolean isModifiable() {
+        return orderStatus.isBeforeShipping();
+    }
+
+    /**
+     * 주문 수정
+     */
+    public void update(BigInteger quantity, LocalDateTime deadline, String requestNote, Money newTotalPrice) {
+        // 수량 변경
+        if (quantity != null && !quantity.equals(this.quantity)) {
+            this.quantity = quantity;
+            this.totalPrice = newTotalPrice;
+        }
+
+        // 납기일 변경
+        if (deadline != null && !deadline.equals(this.deadline)) {
+            this.deadline = deadline;
+        }
+
+        // 요청사항 변경
+        if (requestNote != null && !requestNote.equals(this.requestNote)) {
+            this.requestNote = requestNote;
+        }
+
+        // 주문 상태 PENDING으로 변경
+        updateStatus(OrderStatus.PENDING);
+    }
 }

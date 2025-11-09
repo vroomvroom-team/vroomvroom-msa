@@ -2,7 +2,6 @@ package com.vroomvroom.orderservice.infrastructure.external;
 
 import com.vroomvroom.orderservice.application.service.ProductClient;
 import com.vroomvroom.orderservice.domain.vo.Money;
-import com.vroomvroom.orderservice.infrastructure.dto.CompanyHubDTO;
 import com.vroomvroom.orderservice.infrastructure.dto.ProductDTO;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +24,10 @@ public class ProductClientImpl implements ProductClient {
     public boolean decreaseStocks(UUID productId, BigInteger quantity) {
         // TODO. FeignClient를 통한 재고 감소 API 호출?
         return true;
+    }
+
+    @Override
+    public void increaseStocks(UUID productId, BigInteger abs) {
+        // TODO. FeignClient를 통한 재고 증가 API 호출?
     }
 }

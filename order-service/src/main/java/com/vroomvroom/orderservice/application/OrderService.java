@@ -3,6 +3,7 @@ package com.vroomvroom.orderservice.application;
 
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
+import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,5 +19,5 @@ public interface OrderService {
 
     void cancelOrder(CancelOrderCommand orderId);
 
-    OrderRes updateOrder();
+    void updateOrder(UpdateOrderCommand command);
 }

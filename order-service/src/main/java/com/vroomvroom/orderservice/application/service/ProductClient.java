@@ -9,4 +9,6 @@ public interface ProductClient {
     ProductDTO getProductInfo(UUID productId);
 
     boolean decreaseStocks(UUID productId, BigInteger quantity);
+
+    void increaseStocks(UUID productId, BigInteger abs);
 }

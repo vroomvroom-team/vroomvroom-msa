@@ -4,6 +4,7 @@ import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
+import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
 import com.vroomvroom.orderservice.application.service.CompanyClient;
 import com.vroomvroom.orderservice.application.service.ProductClient;
@@ -86,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
             return companyClient.getCompanyHubInfo(companyId);
         } catch (FeignException e) {
             // e "업체 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
@@ -97,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
             return productClient.getProductInfo(productId);
         } catch (FeignException e) {
             // e "상품 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
@@ -110,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (FeignException e) {
             // e "상품 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
@@ -159,12 +160,12 @@ public class OrderServiceImpl implements OrderService {
                 command.userId(), command.orderId());
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
 
         // 배송 전 주문만 취소 가능
         if (!order.isCancellable()) {
             log.debug("주문 취소 불가 상태 - 주문 상태={}", order.getOrderStatus());
-            throw new CustomException(ErrorCode.VALIDATION_ERROR);
+            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
         }
 
         order.updateStatus(OrderStatus.CANCELLED);
@@ -177,12 +178,70 @@ public class OrderServiceImpl implements OrderService {
      * 주문 수정
      * 배송 전 주문만 수정 가능
      *
-     * @return 주문 응답 DTO
      */
     @Transactional
     @Override
-    public OrderRes updateOrder() {
-        return null;
+    public void updateOrder(UpdateOrderCommand command) {
+        log.info("주문 수정 시작 - 주문 ID={}", command.orderId());
+
+        // TODO. 유저 ID 유효성 검증 필요
+
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+
+        if (!order.isModifiable()) {
+            log.debug("주문 수정 불가 상태 - 주문 상태={}", order.getOrderStatus());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+        }
+
+        Money newTotalPrice = order.getTotalPrice();
+        BigInteger quantityDiff = null;
+
+        // 수량 변경 시 재고 및 금액 재계산
+        if (command.quantity() != null && !command.quantity().equals(order.getQuantity())) {
+            // 상품 정보 조회
+            ProductDTO product = productClient.getProductInfo(order.getProductId());
+
+            // 수량 차이 계산
+            quantityDiff = command.quantity().subtract(order.getQuantity());
+
+            // 재고 확인
+            if (quantityDiff.compareTo(BigInteger.ZERO) > 0) {
+                if (!productClient.decreaseStocks(order.getProductId(), quantityDiff))
+                    throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+            } else if (quantityDiff.compareTo(BigInteger.ZERO) < 0)
+                productClient.increaseStocks(order.getProductId(), quantityDiff.abs());
+
+            // 총 금액 재계산
+            newTotalPrice = product.getPrice().multiply(command.quantity());
+        }
+
+        // 주문 수정
+        try {
+            order.update(
+                    command.quantity(),
+                    command.deadline(),
+                    command.requestNote(),
+                    newTotalPrice
+            );
+        } catch (Exception e) {
+            // 재고 변동 시 원래 주문 수량으로 원복
+            if (quantityDiff != null)
+                rollbackStock(order.getProductId(), quantityDiff);
+        }
+        log.info("주문 수정 완료 - 주문 ID={}", command.orderId());
+    }
+
+    private void rollbackStock(UUID productId, BigInteger quantityDiff) {
+        try {
+            if (quantityDiff.compareTo(BigInteger.ZERO) > 0) {
+                productClient.increaseStocks(productId, quantityDiff);
+            } else if (quantityDiff.compareTo(BigInteger.ZERO) < 0)
+                productClient.decreaseStocks(productId, quantityDiff.abs());
+
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
+        }
     }
 
 }

@@ -5,9 +5,12 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.orderservice.application.OrderService;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
+import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
 import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderReq;
+import com.vroomvroom.orderservice.presentation.dto.request.UpdateOrderReq;
 import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderRes;
+import com.vroomvroom.orderservice.presentation.dto.response.UpdateOrderRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +109,7 @@ public class OrderController {
      */
     @DeleteMapping("/{orderId}")
     public ResponseEntity<ApiResponse<String>> cancelOrder(@PathVariable UUID orderId) {
-        log.info("DELETE /api/v1/cancel/{} - 주문 취소", orderId);
+        log.info("DELETE /api/v1/orders/{} - 주문 취소", orderId);
 
         // TODO. 유저 ID 반영 필요
         CancelOrderCommand command = new CancelOrderCommand(UUID.randomUUID(), orderId);
@@ -114,5 +117,34 @@ public class OrderController {
         orderService.cancelOrder(command);
 
         return ResponseEntity.ok(ApiResponse.success("주문 취소 성공"));
+    }
+
+    /**
+     * 주문 취소
+     * <p>
+     * DELETE /api/v1/orders/{orderId}
+     *
+     * @param orderId 주문 ID
+     * @return OK
+     */
+    @PatchMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<UpdateOrderRes>> updateOrder(
+            @PathVariable UUID orderId,
+            @Valid @RequestBody UpdateOrderReq request) {
+        log.info("PATCH /api/v1/orders/{} - 주문 수정", orderId);
+
+        // TODO. 유저 ID 반영 필요
+        UpdateOrderCommand command = new UpdateOrderCommand(
+                UUID.randomUUID(),
+                orderId,
+                request.getQuantity(),
+                request.getDeadline(),
+                request.getRequestNote());
+
+        orderService.updateOrder(command);
+
+        UpdateOrderRes response = new UpdateOrderRes(orderId, "주문이 성공적으로 변경되었습니다.");
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
