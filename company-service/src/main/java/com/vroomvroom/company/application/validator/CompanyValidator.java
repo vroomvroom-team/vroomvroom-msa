@@ -50,8 +50,17 @@ public class CompanyValidator {
         }
     }
 
-/*    public void ensureCompanyManager(Long companyManagerId, Long requesterId) {
-        if (!companyManagerId.equals(requesterId)) {
+/*    public boolean hasAuthority(String userRole) {
+        String upperUserRole = userRole.toUpperCase();
+        return upperUserRole.equals("MASTER") || upperUserRole.equals("HUB_MANAGER");
+    }
+
+    public void checkUpdatePermission(Long companyManagerId, Long userId, String userRole) {
+        if (userRole.equals("MASTER") || userRole.equals("HUB_MANAGER")) {
+            return;
+        }
+
+        if (!companyManagerId.equals(userId)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
     }*/

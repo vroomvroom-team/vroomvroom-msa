@@ -31,6 +31,11 @@ public class CompanyServiceImpl implements CompanyService{
     public CompanyResult createCompany(CreateCompanyCommand command) {
         log.info("업체 생성 시작");
 
+/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
+        if (!companyValidator.hasAuthority(command.userRole())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }*/
+
         CompanyType companyType = parseCompanyType(command.companyType());
 
         companyValidator.validateForCreate(command);
@@ -76,8 +81,12 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = companyRepository.findByCompanyId(command.companyId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
-/*         TODO. requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
-        companyValidator.ensureCompanyManager(command.companyManagerId(), command.requesterId());*/
+/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER) <- 아닐 경우 requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
+        companyValidator.checkUpdatePermission(
+                company.getCompanyManagerId(),
+                command.userId(),
+                command.userRole()
+        );*/
 
         CompanyUpdates(company, command);
 

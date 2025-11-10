@@ -9,4 +9,5 @@ public record UpdateCompanyCommand(
         String companyName,
         String companyAddress,
         String companyType
+        // TODO. userId, userRole 추가
 ) {}
