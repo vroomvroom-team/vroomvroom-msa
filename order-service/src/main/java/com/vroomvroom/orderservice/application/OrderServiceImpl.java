@@ -45,27 +45,23 @@ public class OrderServiceImpl implements OrderService {
         log.info("주문 생성 시작 - 요청 업체 ID={}, 공급 업체 ID={}, 상품 ID={}",
                 command.receiveCompanyId(), command.supplyCompanyId(), command.productId());
 
-        // 외부 업체 서비스 호출
-        CompanyHubDTO supplyCompany = getCompanyHubInfo(command.supplyCompanyId());
-        CompanyHubDTO receiveCompany = getCompanyHubInfo(command.receiveCompanyId());
-
-        // 외부 상품 서비스 호출 및 총 금액 계산
-        ProductDTO product = getProductInfo(command.productId());
-        Money totalPrice = product.getPrice().multiply(command.quantity());
+        // 외부 정보 조회
+        CompanyHubDTO supplyCompany = companyClient.getCompanyHubInfo(command.supplyCompanyId());
+        CompanyHubDTO receiveCompany = companyClient.getCompanyHubInfo(command.receiveCompanyId());
+        ProductDTO product = productClient.getProductInfo(command.productId());
 
         // 주문 생성
-        Order order = Order.builder()
-                .supplyCompanyId(supplyCompany.getCompanyId())
-                .receiveCompanyId(receiveCompany.getCompanyId())
-                .supplyHubId(supplyCompany.getHubId())
-                .receiveHubId(receiveCompany.getHubId())
-                .productId(product.getProductId())
-                .totalPrice(totalPrice)
-                .quantity(command.quantity())
-                .deadline(command.deadline())
-                .requestNote(command.requestNote())
-                .orderStatus(OrderStatus.PENDING)
-                .build();
+        Order order = Order.create(
+                supplyCompany.getCompanyId(),
+                receiveCompany.getCompanyId(),
+                supplyCompany.getHubId(),
+                receiveCompany.getHubId(),
+                product.getProductId(),
+                product.getPrice(),
+                command.quantity(),
+                command.deadline(),
+                command.requestNote()
+        );
 
         // 재고 차감
         decreaseStocks(order.getProductId(), order.getQuantity());
@@ -76,29 +72,7 @@ public class OrderServiceImpl implements OrderService {
         // TODO. 주문 저장 실패 시 재고 원복 로직 필요
 
         log.info("주문 생성 성공 - 주문 ID={}", savedOrder.getId());
-        return OrderDTO.from(order);
-    }
-
-    // 업체별 소속 허브 정보 가져오기
-    private CompanyHubDTO getCompanyHubInfo(UUID companyId) {
-        // TODO. 업체 서비스 API 호출
-        try {
-            return companyClient.getCompanyHubInfo(companyId);
-        } catch (FeignException e) {
-            // e "업체 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
-        }
-    }
-
-    // 상품 정보 가져오기
-    private ProductDTO getProductInfo(UUID productId) {
-        // TODO. 상품 서비스 API 호출
-        try {
-            return productClient.getProductInfo(productId);
-        } catch (FeignException e) {
-            // e "상품 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
-        }
+        return OrderDTO.from(savedOrder);
     }
 
     // 상품 재고 감소
@@ -169,8 +143,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.updateStatus(OrderStatus.CANCELLED);
         order.markAsDeleted();
-        orderRepository.save(order);
-        log.info("주문 삭제 성공 - 주문 ID={}", order.getId());
+        log.info("주문 취소 성공 - 주문 ID={}", order.getId());
 
         return OrderDTO.from(order);
     }
@@ -244,5 +217,4 @@ public class OrderServiceImpl implements OrderService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
         }
     }
-
 }

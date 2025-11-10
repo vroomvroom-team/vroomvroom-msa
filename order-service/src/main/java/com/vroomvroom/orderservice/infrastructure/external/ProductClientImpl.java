@@ -5,7 +5,6 @@ import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.infrastructure.dto.ProductDTO;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 @Component
