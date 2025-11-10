@@ -2,10 +2,12 @@ package com.vroomvroom.company.presentation;
 
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
+import com.vroomvroom.company.application.command.DeleteCompanyCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.service.CompanyService;
-import com.vroomvroom.company.presentation.dto.reqeust.CreateCompanyReq;
-import com.vroomvroom.company.presentation.dto.reqeust.UpdateCompanyReq;
+import com.vroomvroom.company.presentation.dto.request.CreateCompanyReq;
+import com.vroomvroom.company.presentation.dto.request.UpdateCompanyReq;
+import com.vroomvroom.company.presentation.dto.response.CompanyDeletedRes;
 import com.vroomvroom.company.presentation.dto.response.CompanyDetailRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +70,7 @@ public class CompanyController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole*/
 
-            ) {
+    ) {
         log.info("PATCH api/v1/companies/{} 업체 수정 요청", companyId);
 
         UpdateCompanyCommand command = new UpdateCompanyCommand(
@@ -83,6 +85,31 @@ public class CompanyController {
         CompanyDetailRes response = CompanyDetailRes.form(companyService.updateCompany(command));
 
         log.info("업체 수정 성공: companyId = {}", response.companyId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/{companyId}")
+    public ResponseEntity<ApiResponse<CompanyDeletedRes>> deleteCompany(
+            @PathVariable UUID companyId
+/*             TODO. 유저 정보 받아오기
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String userRole*/
+    ) {
+        log.info("DELETE api/v1/companies/{} 업체 삭제 요청", companyId);
+
+        DeleteCompanyCommand command = new DeleteCompanyCommand(
+                companyId
+                // TODO. userId, userRole 추가
+        );
+
+        UUID DeletedCompanyId = companyService.deleteCompany(command); // TODO. 추후 command로 수정
+
+        CompanyDeletedRes response = new CompanyDeletedRes(
+                DeletedCompanyId,
+                "업체가 성공적으로 삭제되었습니다."
+        );
+
+        log.info("업체 삭제 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

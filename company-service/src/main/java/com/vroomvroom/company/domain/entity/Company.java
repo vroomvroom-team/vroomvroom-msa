@@ -85,16 +85,6 @@ public class Company extends BaseTimeEntity {
         if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
     }
 
-    public void validateNotDeleted() {
-        if (this.deletedAt != null) {
-            throw new CustomException(ErrorCode.COMPANY_DELETED);
-        }
-    }
-
-    public void changeHub(UUID hubId) {
-        this.hubId = hubId;
-    }
-
     public void changeManager(Long companyManagerId) {
         this.companyManagerId = companyManagerId;
     }

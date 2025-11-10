@@ -1,4 +1,4 @@
-package com.vroomvroom.company.presentation.dto.reqeust;
+package com.vroomvroom.company.presentation.dto.request;
 
 public record UpdateCompanyReq (
         Long companyManagerId,

@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface JpaCompanyRepository extends JpaRepository<Company, UUID> {
     boolean existsByCompanyName(String companyName);
     boolean existsByCompanyAddress(String companyAddress);
-    Optional<Company> findByCompanyId(UUID companyId);
+    Optional<Company> findByCompanyIdAndDeletedAtIsNull(UUID companyId);
 }
