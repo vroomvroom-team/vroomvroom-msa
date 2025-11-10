@@ -27,6 +27,8 @@ public enum ErrorCode {
     COMPANY_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "업체 타입은 필수입니다."),
     DUPLICATE_COMPANY_NAME(HttpStatus.CONFLICT, "이미 존재하는 업체 이름입니다."),
     DUPLICATE_COMPANY_ADDRESS(HttpStatus.CONFLICT, "이미 존재하는 업체 주소입니다."),
+    COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 업체 ID 입니다."),
+    COMPANY_DELETED(HttpStatus.BAD_REQUEST, "삭제된 업체입니다."),
 
 
     // 외부 서비스 검증 실패

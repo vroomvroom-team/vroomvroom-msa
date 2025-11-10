@@ -1,6 +1,7 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
+import com.vroomvroom.company.application.dto.CompanyResult;
 import com.vroomvroom.company.application.validator.CompanyValidator;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
@@ -44,5 +45,18 @@ public class CompanyServiceImpl implements CompanyService{
         } catch (Exception e) {
             throw new CustomException(ErrorCode.INVALID_COMPANY_TYPE);
         }
+    }
+
+    @Override
+    public CompanyResult getCompany(UUID companyId) {
+        log.info("업체 상세 조회 시작");
+
+        Company company = companyRepository.findByCompanyId(companyId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
+
+        company.validateNotDeleted();
+
+        log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
+        return CompanyResult.form(company);
     }
 }
