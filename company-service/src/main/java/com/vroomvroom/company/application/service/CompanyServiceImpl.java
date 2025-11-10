@@ -54,7 +54,7 @@ public class CompanyServiceImpl implements CompanyService{
         Company savedCompany = companyRepository.save(company);
 
         log.info("업체 생성 완료: companyId = {}", savedCompany.getCompanyId());
-        return CompanyResult.form(savedCompany);
+        return CompanyResult.from(savedCompany);
     }
 
     private CompanyType parseCompanyType(String type) {
@@ -72,7 +72,7 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = getActiveCompany(companyId);
 
         log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
-        return CompanyResult.form(company);
+        return CompanyResult.from(company);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CompanyServiceImpl implements CompanyService{
         companyUpdates(company, command);
 
         log.info("업체 수정 완료: companyId = {}", company.getCompanyId());
-        return CompanyResult.form(company);
+        return CompanyResult.from(company);
     }
 
     private void companyUpdates(Company company, UpdateCompanyCommand command) {
