@@ -12,12 +12,21 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class CompanyAuthorityValidator {
+public class AuthorityValidator {
 
     private final UserClient userClient;
 
-    public void validateCreateAuthority(UUID hubId, Long userId, UserRole userRole) {
+    public void validateCreateCompanyAuthority(UUID hubId, Long userId, UserRole userRole) {
         validateMasterOrHubManager(hubId, userId, userRole);
+    }
+
+    public void validateCreateProductAuthority(UUID hubId, Long companyManagerId, Long userId, UserRole role) {
+        if (role == UserRole.COMPANY_MANAGER) {
+            if (!Objects.equals(companyManagerId, userId)) throw new CustomException(ErrorCode.FORBIDDEN);
+            return;
+        }
+
+        validateMasterOrHubManager(hubId, userId, role);
     }
 
     public void validateUpdateAuthority(UUID hubId, Long companyManagerId, Long userId, UserRole role) {

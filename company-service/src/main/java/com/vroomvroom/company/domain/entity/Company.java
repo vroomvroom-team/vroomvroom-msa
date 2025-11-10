@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -38,6 +40,9 @@ public class Company extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "company_type")
     private CompanyType companyType;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
 
     @Builder(access = AccessLevel.PRIVATE)
     private Company(
@@ -100,4 +105,19 @@ public class Company extends BaseTimeEntity {
     public void changeType(CompanyType companyType) {
         this.companyType = companyType;
     }
+
+    public Product addProduct(UUID hubId, String productName, Long price) {
+        if (!this.hubId.equals(hubId)) throw new CustomException(ErrorCode.HUB_MISMATCH);
+        if (hasProductName(productName)) throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
+
+        Product product = Product.create(this, hubId, productName, price);
+        this.products.add(product);
+        return product;
+    }
+
+    public boolean hasProductName(String productName) {
+        return products.stream()
+                .anyMatch(product -> product.getProductName().equals(productName));
+    }
 }
+
