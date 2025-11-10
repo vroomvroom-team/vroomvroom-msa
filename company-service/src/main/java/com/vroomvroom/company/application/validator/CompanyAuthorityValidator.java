@@ -29,7 +29,7 @@ public class CompanyAuthorityValidator {
         validateMasterOrHubManager(hubId, userId, role);
     }
 
-    public void ValidateDeleteAuthority(UUID hubId, Long userId, UserRole userRole) {
+    public void validateDeleteAuthority(UUID hubId, Long userId, UserRole userRole) {
         validateMasterOrHubManager(hubId, userId, userRole);
     }
 

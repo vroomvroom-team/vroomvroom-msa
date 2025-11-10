@@ -88,13 +88,13 @@ public class CompanyServiceImpl implements CompanyService{
                 command.userRole()
         );*/
 
-        CompanyUpdates(company, command);
+        companyUpdates(company, command);
 
         log.info("업체 수정 완료: companyId = {}", company.getCompanyId());
         return CompanyResult.form(company);
     }
 
-    private void CompanyUpdates(Company company, UpdateCompanyCommand command) {
+    private void companyUpdates(Company company, UpdateCompanyCommand command) {
         if (command.companyManagerId() != null) {
             companyValidator.validateManager(command.companyManagerId());
             company.changeManager(command.companyManagerId());
@@ -121,7 +121,7 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = getActiveCompany(command.companyId());
 
 /*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
-        companyAuthorityValidator.validateCreateAuthority(
+        companyAuthorityValidator.validateDeleteAuthority(
                 company.getHubId(),
                 command.userId(),
                 command.userRole()
