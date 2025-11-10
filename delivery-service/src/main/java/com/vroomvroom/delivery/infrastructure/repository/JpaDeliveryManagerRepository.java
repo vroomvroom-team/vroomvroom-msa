@@ -3,6 +3,8 @@ package com.vroomvroom.delivery.infrastructure.repository;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 
 import java.util.Optional;
+import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
@@ -37,6 +39,7 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
         """, nativeQuery = true)
     Long nextGlobalSequence();
 
+
     // 업체 매니저(허브별)
     @Query(value = """
                SELECT s.seq
@@ -51,4 +54,18 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
                LIMIT 1
         """, nativeQuery = true)
     Long nextHubSequence(@Param("hubId") UUID hubId);
+
+
+    @Query(value = """
+                SELECT dm
+                FROM DeliveryManager dm
+                WHERE dm.sequence.value = :sequence
+                  AND dm.type = :type
+                  AND dm.isActive = :isActive
+        """)
+    Optional<DeliveryManager> findBySequenceAndTypeAndIsActiveFalse(
+        @Param("sequence") Long sequence,
+        @Param("type") DeliveryManagerType type,
+        @Param("isActive") Boolean isActive
+    );
 }

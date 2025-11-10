@@ -4,6 +4,8 @@ import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 
 import java.util.Optional;
+import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
@@ -53,4 +55,10 @@ public class DeliveryManagerRepositoryAdapter implements DeliveryManagerReposito
         return jpaDeliveryManagerRepository.nextHubSequence(hubId);
     }
 
+    @Override
+    public Optional<DeliveryManager> findBySequenceAndTypeAndIsActiveFalse(
+        Long sequenceToAssign, DeliveryManagerType type, boolean isActive) {
+        return jpaDeliveryManagerRepository
+            .findBySequenceAndTypeAndIsActiveFalse(sequenceToAssign, type, isActive);
+    }
 }
