@@ -22,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -64,10 +65,10 @@ public class Delivery extends BaseTimeEntity {
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeliveryRoute> deliveryRoutes;
 
-    @Column(name = "start_time", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "start_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime startTime;
 
-    @Column(name = "arrive_time", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "arrive_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime arriveTime;
 
     @Embedded
@@ -95,5 +96,13 @@ public class Delivery extends BaseTimeEntity {
             .deliveryAddress(address)
             .status(DeliveryStatus.HUB_WAITING)
             .build();
+    }
+
+    public Optional<DeliveryRoute> findFirstRoute() {
+        return this.getDeliveryRoutes().stream().findFirst();
+    }
+
+    public void updateStartTime() {
+        this.startTime = LocalDateTime.now();
     }
 }

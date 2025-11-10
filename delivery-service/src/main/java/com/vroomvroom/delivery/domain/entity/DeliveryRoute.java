@@ -2,7 +2,6 @@ package com.vroomvroom.delivery.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.delivery.domain.vo.ArriveHubId;
-import com.vroomvroom.delivery.domain.vo.DeliveryManagerId;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteSequence;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import com.vroomvroom.delivery.domain.vo.StartHubId;
@@ -41,9 +40,8 @@ public class DeliveryRoute extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "delivery_manager_id", nullable = false))
-    private DeliveryManagerId deliveryManagerId;
+    @Column(name = "delivery_manager_id")
+    private Long deliveryManagerId;
 
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "start_hub_id", nullable = false))
@@ -75,15 +73,34 @@ public class DeliveryRoute extends BaseTimeEntity {
     private DeliveryRouteSequence sequence; // route sequence : 배송 순번
 
     public static DeliveryRoute create(
-        DeliveryRouteStatus deliveryRouteStatus,
         DeliveryRouteSequence deliverySequence,
-        StartHubId startHubId, ArriveHubId arriveHubId
+        StartHubId startHubId, ArriveHubId arriveHubId,
+        Long expectedDistance, Long expectedDuration,
+        DeliveryRouteStatus deliveryRouteStatus
     ) {
         return DeliveryRoute.builder()
-            .status(deliveryRouteStatus)
             .sequence(deliverySequence)
             .startHubId(startHubId)
             .arriveHubId(arriveHubId)
+            .expectedDistance(expectedDistance)
+            .expectedDuration(expectedDuration)
+            .status(deliveryRouteStatus)
             .build();
+    }
+
+    public void attachToDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void assignManager(Long id) {
+        this.deliveryManagerId = id;
+    }
+
+    public void updateStatus() {
+        this.status = DeliveryRouteStatus.HUB_MOVING;
+    }
+
+    public void updateDeliveryManagerId(DeliveryManager manager) {
+        this.deliveryManagerId = manager.getId();
     }
 }
