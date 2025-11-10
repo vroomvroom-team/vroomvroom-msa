@@ -4,6 +4,7 @@ import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
+import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderRes;
 import com.vroomvroom.orderservice.application.service.CompanyClient;
 import com.vroomvroom.orderservice.application.service.ProductClient;
@@ -21,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 @Slf4j
@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
         CompanyHubDTO receiveCompany = getCompanyHubInfo(command.receiveCompanyId());
 
         // 외부 상품 서비스 호출 및 총 금액 계산
-        ProductDTO product = getProductInfo(command.productId(), command.quantity());
+        ProductDTO product = getProductInfo(command.productId());
         Money totalPrice = product.getPrice().multiply(command.quantity());
 
         // 주문 생성
@@ -86,23 +86,23 @@ public class OrderServiceImpl implements OrderService {
             return companyClient.getCompanyHubInfo(companyId);
         } catch (FeignException e) {
             // e "업체 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
     // 상품 정보 가져오기
-    private ProductDTO getProductInfo(UUID productId, BigInteger quantity) {
+    private ProductDTO getProductInfo(UUID productId) {
         // TODO. 상품 서비스 API 호출
         try {
             return productClient.getProductInfo(productId);
         } catch (FeignException e) {
             // e "상품 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
     // 상품 재고 감소
-    private void decreaseStocks(UUID productId, BigInteger quantity) {
+    private void decreaseStocks(UUID productId, Long quantity) {
         // TODO. 상품 재고 감소 로직
         try {
             if (!productClient.decreaseStocks(productId, quantity))
@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (FeignException e) {
             // e "상품 정보 조회 실패"
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // TODO. ErrorCode 관리
         }
     }
 
@@ -155,19 +155,91 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public void cancelOrder(CancelOrderCommand command) {
-        // 배송
+        log.info("주문 취소 시작 - 유저 ID={}, 주문 ID={}",
+                command.userId(), command.orderId());
+
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+
+        // 배송 전 주문만 취소 가능
+        if (!order.isCancellable()) {
+            log.debug("주문 취소 불가 상태 - 주문 상태={}", order.getOrderStatus());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+        }
+
+        order.updateStatus(OrderStatus.CANCELLED);
+        order.markAsDeleted();
+        orderRepository.save(order);
+        log.info("주문 삭제 성공 - 주문 ID={}", order.getId());
     }
 
     /**
      * 주문 수정
      * 배송 전 주문만 수정 가능
      *
-     * @return 주문 응답 DTO
      */
     @Transactional
     @Override
-    public OrderRes updateOrder() {
-        return null;
+    public void updateOrder(UpdateOrderCommand command) {
+        log.info("주문 수정 시작 - 주문 ID={}", command.orderId());
+
+        // TODO. 유저 ID 유효성 검증 필요
+
+        Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+
+        if (!order.isModifiable()) {
+            log.debug("주문 수정 불가 상태 - 주문 상태={}", order.getOrderStatus());
+            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+        }
+
+        Money newTotalPrice = order.getTotalPrice();
+        Long quantityDiff = null;
+
+        // 수량 변경 시 재고 및 금액 재계산
+        if (command.quantity() != null && !command.quantity().equals(order.getQuantity())) {
+            // 상품 정보 조회
+            ProductDTO product = productClient.getProductInfo(order.getProductId());
+
+            // 수량 차이 계산
+            quantityDiff = command.quantity() - order.getQuantity();
+
+            // 재고 확인
+            if (quantityDiff > 0) {
+                decreaseStocks(order.getProductId(), quantityDiff);
+            } else if (quantityDiff < 0)
+                productClient.increaseStocks(order.getProductId(), Math.abs(quantityDiff));
+
+            // 총 금액 재계산
+            newTotalPrice = product.getPrice().multiply(command.quantity());
+        }
+
+        // 주문 수정
+        try {
+            order.update(
+                    command.quantity(),
+                    command.deadline(),
+                    command.requestNote(),
+                    newTotalPrice
+            );
+        } catch (Exception e) {
+            // 재고 변동 시 원래 주문 수량으로 원복
+            if (quantityDiff != null)
+                rollbackStock(order.getProductId(), quantityDiff);
+        }
+        log.info("주문 수정 완료 - 주문 ID={}", command.orderId());
+    }
+
+    private void rollbackStock(UUID productId, long quantityDiff) {
+        try {
+            if (quantityDiff > 0) {
+                productClient.increaseStocks(productId, quantityDiff);
+            } else if (quantityDiff < 0)
+                productClient.decreaseStocks(productId, Math.abs(quantityDiff));
+
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
+        }
     }
 
 }

@@ -22,5 +22,5 @@ import java.util.UUID;
 public class ProductDTO {
     private UUID productId;
     private Money price;
-    private BigInteger stock;
+    private Long stock;
 }
