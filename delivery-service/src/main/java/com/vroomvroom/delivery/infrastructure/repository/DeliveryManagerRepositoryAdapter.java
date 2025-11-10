@@ -2,8 +2,14 @@ package com.vroomvroom.delivery.infrastructure.repository;
 
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
+
+import java.util.Optional;
 import java.util.UUID;
+
+import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +26,21 @@ public class DeliveryManagerRepositoryAdapter implements DeliveryManagerReposito
     @Override
     public boolean existsByDeliveryManagerId(Long userId) {
         return jpaDeliveryManagerRepository.existsById(userId);
+    }
+
+    @Override
+    public Page<DeliveryManager> findAllDelivery(Pageable pageable) {
+        return jpaDeliveryManagerRepository.findAllByDeletedAtIsNull(pageable);
+    }
+
+    @Override
+    public Page<DeliveryManager> findAllByType(DeliveryManagerType type, Pageable pageable) {
+        return jpaDeliveryManagerRepository.findAllByTypeAndDeletedAtIsNull(type, pageable);
+    }
+
+    @Override
+    public Optional<DeliveryManager> findDeliveryById(Long id) {
+        return jpaDeliveryManagerRepository.findByIdAndDeletedAtIsNull(id);
     }
 
     @Override
