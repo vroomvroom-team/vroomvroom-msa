@@ -2,7 +2,6 @@ package com.vroomvroom.company.application.dto;
 
 import com.vroomvroom.company.domain.entity.Company;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CompanyResult (
@@ -11,8 +10,7 @@ public record CompanyResult (
         Long companyManagerId,
         String companyName,
         String companyAddress,
-        String companyType,
-        LocalDateTime createdAt
+        String companyType
 ) {
     public static CompanyResult form(Company company) {
         return new CompanyResult(
@@ -21,8 +19,7 @@ public record CompanyResult (
                 company.getCompanyManagerId(),
                 company.getCompanyName(),
                 company.getCompanyAddress(),
-                company.getCompanyType().name(),
-                company.getCreatedAt()
+                company.getCompanyType().name()
         );
     }
 }
