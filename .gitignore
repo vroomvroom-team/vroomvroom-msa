@@ -24,6 +24,12 @@ out/
 .settings
 .springBeans
 .sts4-cache
+.gradlew
+.gradlew.bat
+.gitattributes
+.gitignore
+.HELP.md
+.slack-service.iml
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
