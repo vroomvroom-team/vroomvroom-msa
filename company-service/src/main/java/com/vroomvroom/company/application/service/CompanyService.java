@@ -6,6 +6,6 @@ import com.vroomvroom.company.application.dto.CompanyResult;
 import java.util.UUID;
 
 public interface CompanyService {
-    UUID createCompany(CreateCompanyCommand command);
+    CompanyResult createCompany(CreateCompanyCommand command);
     CompanyResult getCompany(UUID companyId);
 }

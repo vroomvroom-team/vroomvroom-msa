@@ -7,11 +7,11 @@ import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
 import com.vroomvroom.company.domain.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class CompanyValidator {
 

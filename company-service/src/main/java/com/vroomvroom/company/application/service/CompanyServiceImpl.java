@@ -24,19 +24,25 @@ public class CompanyServiceImpl implements CompanyService{
     private final CompanyRepository companyRepository;
 
     @Transactional
-    public UUID createCompany(CreateCompanyCommand command) {
+    public CompanyResult createCompany(CreateCompanyCommand command) {
         log.info("업체 생성 시작");
 
         CompanyType companyType = parseCompanyType(command.companyType());
 
         companyValidator.validate(command);
 
-        Company company = Company.create(command.hubId(), command.companyManagerId(), command.companyName(), command.companyAddress(), companyType);
+        Company company = Company.create(
+                command.hubId(),
+                command.companyManagerId(),
+                command.companyName(),
+                command.companyAddress(),
+                companyType
+        );
 
-        Company saveCompany = companyRepository.save(company);
+        Company savedCompany = companyRepository.save(company);
 
-        log.info("업체 생성 완료: companyId = {}", saveCompany.getCompanyId());
-        return saveCompany.getCompanyId();
+        log.info("업체 생성 완료: companyId = {}", savedCompany.getCompanyId());
+        return CompanyResult.form(savedCompany);
     }
 
     private CompanyType parseCompanyType(String type) {
