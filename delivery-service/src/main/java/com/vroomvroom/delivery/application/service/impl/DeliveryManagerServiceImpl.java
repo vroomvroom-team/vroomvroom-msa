@@ -62,6 +62,7 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
     }
 
     @Override
+    @Transactional
     public DeliveryManagerRes deleteDelivery(Long id) {
         DeliveryManager deliveryManager = deliveryManagerRepository.findDeliveryById(id)
                 .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
@@ -69,9 +70,8 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
         // 현재 할당된 배송이 있는지 확인 필요?
 
         deliveryManager.markAsDeleted();
-        deliveryManagerRepository.save(deliveryManager);
 
-        return  DeliveryManagerRes.from(deliveryManager);
+        return DeliveryManagerRes.from(deliveryManager);
     }
 
     private CreateManagerRes createHubManager(CreateManagerCommand request) {
