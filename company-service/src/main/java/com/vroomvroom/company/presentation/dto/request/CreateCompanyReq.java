@@ -1,4 +1,4 @@
-package com.vroomvroom.company.presentation.dto.reqeust;
+package com.vroomvroom.company.presentation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

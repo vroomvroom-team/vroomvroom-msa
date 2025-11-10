@@ -9,5 +9,5 @@ public interface CompanyRepository {
     Company save(Company company);
     boolean existsByCompanyName(String companyName);
     boolean existsByCompanyAddress(String companyAddress);
-    Optional<Company> findByCompanyId(UUID companyId);
+    Optional<Company> findByCompanyIdAndDeletedAtIsNull(UUID companyId);
 }

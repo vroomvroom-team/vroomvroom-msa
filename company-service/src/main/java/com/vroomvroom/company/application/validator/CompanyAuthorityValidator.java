@@ -16,17 +16,21 @@ public class CompanyAuthorityValidator {
 
     private final UserClient userClient;
 
-    public void validateCreatePermission(UUID hubId, Long userId, UserRole userRole) {
+    public void validateCreateAuthority(UUID hubId, Long userId, UserRole userRole) {
         validateMasterOrHubManager(hubId, userId, userRole);
     }
 
-    public void validateUpdatePermission(UUID hubId, Long companyManagerId, Long userId, UserRole role) {
+    public void validateUpdateAuthority(UUID hubId, Long companyManagerId, Long userId, UserRole role) {
         if (role == UserRole.COMPANY_MANAGER) {
             if (!Objects.equals(companyManagerId, userId)) throw new CustomException(ErrorCode.FORBIDDEN);
             return;
         }
 
         validateMasterOrHubManager(hubId, userId, role);
+    }
+
+    public void validateDeleteAuthority(UUID hubId, Long userId, UserRole userRole) {
+        validateMasterOrHubManager(hubId, userId, userRole);
     }
 
     private void validateMasterOrHubManager(UUID hubId, Long userId, UserRole role) {

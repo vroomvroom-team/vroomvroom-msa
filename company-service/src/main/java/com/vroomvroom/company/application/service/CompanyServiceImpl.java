@@ -1,6 +1,7 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
+import com.vroomvroom.company.application.command.DeleteCompanyCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.dto.CompanyResult;
 import com.vroomvroom.company.application.validator.CompanyAuthorityValidator;
@@ -32,7 +33,7 @@ public class CompanyServiceImpl implements CompanyService{
         log.info("업체 생성 시작");
 
 /*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
-        companyAuthorityValidator.validateCreatePermission(
+        companyAuthorityValidator.validateCreateAuthority(
                 command.hubId(),
                 command.userId(),
                 command.userRole()
@@ -53,7 +54,7 @@ public class CompanyServiceImpl implements CompanyService{
         Company savedCompany = companyRepository.save(company);
 
         log.info("업체 생성 완료: companyId = {}", savedCompany.getCompanyId());
-        return CompanyResult.form(savedCompany);
+        return CompanyResult.from(savedCompany);
     }
 
     private CompanyType parseCompanyType(String type) {
@@ -68,38 +69,32 @@ public class CompanyServiceImpl implements CompanyService{
     public CompanyResult getCompany(UUID companyId) {
         log.info("업체 상세 조회 시작");
 
-        Company company = companyRepository.findByCompanyId(companyId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
-        company.validateNotDeleted();
+        Company company = getActiveCompany(companyId);
 
         log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
-        return CompanyResult.form(company);
+        return CompanyResult.from(company);
     }
 
     @Override
     @Transactional
     public CompanyResult updateCompany(UpdateCompanyCommand command) {
-        Company company = companyRepository.findByCompanyId(command.companyId())
-                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
-        company.validateNotDeleted();
+        Company company = getActiveCompany(command.companyId());
 
 /*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER) <- 아닐 경우 requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
-        companyAuthorityValidator.validateUpdatePermission(
+        companyAuthorityValidator.validateUpdateAuthority(
                 company.getHubId(),
                 company.getCompanyManagerId(),
                 command.userId(),
                 command.userRole()
         );*/
 
-        CompanyUpdates(company, command);
+        companyUpdates(company, command);
 
         log.info("업체 수정 완료: companyId = {}", company.getCompanyId());
-        return CompanyResult.form(company);
+        return CompanyResult.from(company);
     }
 
-    private void CompanyUpdates(Company company, UpdateCompanyCommand command) {
+    private void companyUpdates(Company company, UpdateCompanyCommand command) {
         if (command.companyManagerId() != null) {
             companyValidator.validateManager(command.companyManagerId());
             company.changeManager(command.companyManagerId());
@@ -118,5 +113,26 @@ public class CompanyServiceImpl implements CompanyService{
         if (command.companyType() != null) {
             company.changeType(parseCompanyType(command.companyType()));
         }
+    }
+
+    @Override
+    @Transactional
+    public UUID deleteCompany(DeleteCompanyCommand command) {
+        Company company = getActiveCompany(command.companyId());
+
+/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
+        companyAuthorityValidator.validateDeleteAuthority(
+                company.getHubId(),
+                command.userId(),
+                command.userRole()
+        );*/
+
+        company.markAsDeleted();
+        return company.getCompanyId();
+    }
+
+    private Company getActiveCompany(UUID companyId) {
+        return companyRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
     }
 }
