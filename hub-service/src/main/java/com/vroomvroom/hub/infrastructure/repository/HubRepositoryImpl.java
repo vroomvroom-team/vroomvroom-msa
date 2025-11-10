@@ -35,4 +35,9 @@ public class HubRepositoryImpl implements HubRepository {
     public Optional<Hub> findHubByHubId(UUID hubId) {
         return jpaHubRepository.findHubByHubId(hubId);
     }
+
+    @Override
+    public boolean existsById(UUID hubId) {
+        return jpaHubRepository.existsById(hubId);
+    }
 }

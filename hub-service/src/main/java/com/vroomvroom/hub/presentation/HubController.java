@@ -71,4 +71,11 @@ public class HubController {
         hubService.deleteHub(hubId);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/{hubId}/exists")
+    public boolean existHub(@PathVariable UUID hubId) {
+        return hubService.existsHub(hubId);
+    }
+
 }

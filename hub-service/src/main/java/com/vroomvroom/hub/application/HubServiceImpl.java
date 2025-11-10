@@ -63,6 +63,11 @@ public class HubServiceImpl implements HubService {
         hub.markAsDeleted();
     }
 
+    @Override
+    public boolean existsHub(UUID hubId) {
+        return hubRepository.existsById(hubId);
+    }
+
     Hub findHubById(UUID hubId) {
         return hubRepository.findHubByHubId(hubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.HUB_NOT_FOUND));
