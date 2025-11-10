@@ -100,11 +100,6 @@ public class CompanyServiceImpl implements CompanyService{
     }
 
     private void CompanyUpdates(Company company, UpdateCompanyCommand command) {
-        if (company.getHubId() != null) {
-            companyValidator.validateHub(company.getHubId());
-            company.changeHub(company.getHubId());
-        }
-
         if (command.companyManagerId() != null) {
             companyValidator.validateManager(command.companyManagerId());
             company.changeManager(command.companyManagerId());
