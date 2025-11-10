@@ -49,19 +49,4 @@ public class CompanyValidator {
             throw new CustomException(ErrorCode.DUPLICATE_COMPANY_ADDRESS);
         }
     }
-
-/*    public boolean hasAuthority(String userRole) {
-        String upperUserRole = userRole.toUpperCase();
-        return upperUserRole.equals("MASTER") || upperUserRole.equals("HUB_MANAGER");
-    }
-
-    public void checkUpdatePermission(Long companyManagerId, Long userId, String userRole) {
-        if (userRole.equals("MASTER") || userRole.equals("HUB_MANAGER")) {
-            return;
-        }
-
-        if (!companyManagerId.equals(userId)) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
-    }*/
 }

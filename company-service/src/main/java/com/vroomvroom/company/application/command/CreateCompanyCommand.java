@@ -8,5 +8,5 @@ public record CreateCompanyCommand(
         String companyName,
         String companyAddress,
         String companyType
-        // TODO. userRole 추가
+        // TODO. userId, userRole 추가
 ) {}

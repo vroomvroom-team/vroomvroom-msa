@@ -3,7 +3,7 @@ package com.vroomvroom.company.application.service;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.dto.CompanyResult;
-import com.vroomvroom.company.application.port.HubClient;
+import com.vroomvroom.company.application.validator.CompanyAuthorityValidator;
 import com.vroomvroom.company.application.validator.CompanyValidator;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
@@ -23,8 +23,8 @@ import java.util.UUID;
 public class CompanyServiceImpl implements CompanyService{
 
     private final CompanyValidator companyValidator;
+    private final CompanyAuthorityValidator companyAuthorityValidator;
     private final CompanyRepository companyRepository;
-    private final HubClient hubClient;
 
     @Override
     @Transactional
@@ -32,9 +32,11 @@ public class CompanyServiceImpl implements CompanyService{
         log.info("업체 생성 시작");
 
 /*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
-        if (!companyValidator.hasAuthority(command.userRole())) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }*/
+        companyAuthorityValidator.validateCreatePermission(
+                command.hubId(),
+                command.userId(),
+                command.userRole()
+        );*/
 
         CompanyType companyType = parseCompanyType(command.companyType());
 
@@ -81,8 +83,11 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = companyRepository.findByCompanyId(command.companyId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
+        company.validateNotDeleted();
+
 /*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER) <- 아닐 경우 requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
-        companyValidator.checkUpdatePermission(
+        companyAuthorityValidator.validateUpdatePermission(
+                company.getHubId(),
                 company.getCompanyManagerId(),
                 command.userId(),
                 command.userRole()
@@ -95,9 +100,9 @@ public class CompanyServiceImpl implements CompanyService{
     }
 
     private void CompanyUpdates(Company company, UpdateCompanyCommand command) {
-        if (command.hubId() != null) {
-            companyValidator.validateHub(command.hubId());
-            company.changeHub(command.hubId());
+        if (company.getHubId() != null) {
+            companyValidator.validateHub(company.getHubId());
+            company.changeHub(company.getHubId());
         }
 
         if (command.companyManagerId() != null) {

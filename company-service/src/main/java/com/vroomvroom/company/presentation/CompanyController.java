@@ -30,6 +30,7 @@ public class CompanyController {
     public ResponseEntity<ApiResponse<CompanyDetailRes>> createCompany(
             @RequestBody @Valid CreateCompanyReq req
 /*             TODO. 유저 정보 받아오기
+            @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole*/
     ) {
         log.info("POST api/v1/companies 업체 생성 요청");
@@ -40,7 +41,7 @@ public class CompanyController {
                 req.companyName(),
                 req.companyAddress(),
                 req.companyType()
-                // TODO. userRole 추가
+                // TODO. userId, userRole 추가
         );
 
         CompanyDetailRes response = CompanyDetailRes.form(companyService.createCompany(command));
@@ -72,7 +73,6 @@ public class CompanyController {
 
         UpdateCompanyCommand command = new UpdateCompanyCommand(
                 companyId,
-                req.hubId(),
                 req.companyManagerId(),
                 req.companyName(),
                 req.companyAddress(),
