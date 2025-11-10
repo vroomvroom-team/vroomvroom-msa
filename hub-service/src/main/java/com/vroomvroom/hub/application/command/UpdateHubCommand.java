@@ -1,6 +1,5 @@
 package com.vroomvroom.hub.application.command;
 
-import com.vroomvroom.hub.domain.vo.HubZone;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,13 +13,11 @@ public class UpdateHubCommand {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
-    private HubZone hubZone;
 
-    public UpdateHubCommand(String hubName, String address, BigDecimal latitude, BigDecimal longitude, HubZone hubZone) {
+    public UpdateHubCommand(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         this.hubName = hubName;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.hubZone = hubZone;
     }
 }

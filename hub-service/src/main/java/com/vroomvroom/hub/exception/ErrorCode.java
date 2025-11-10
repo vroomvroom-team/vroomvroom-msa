@@ -22,7 +22,8 @@ public enum ErrorCode {
     INVALID_TIME(HttpStatus.BAD_REQUEST, "유효하지 않은 소요 시간입니다."),
     INVALID_DISTANCE(HttpStatus.BAD_REQUEST, "유효하지 않은 이동 거리입니다."),
     DUPLICATE_HUB_ROUTE(HttpStatus.BAD_REQUEST, "중복되는 허브 경로가 존재합니다."),
-    HUBS_NOT_CONNECTED(HttpStatus.BAD_REQUEST, "연결되어 있지 않은 허브는 경로 생성이 불가합니다.");
+    HUBS_NOT_CONNECTED(HttpStatus.BAD_REQUEST, "연결되어 있지 않은 허브는 경로 생성이 불가합니다."),
+    NO_ACTIVE_ROUTE(HttpStatus.BAD_REQUEST, "활성화된 경로가 없습니다.");
 
 
 

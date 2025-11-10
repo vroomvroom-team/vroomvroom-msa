@@ -5,9 +5,11 @@ import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
 import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
+import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public interface HubRouteService {
@@ -17,4 +19,5 @@ public interface HubRouteService {
     HubRouteDetailRes getHubRouteDetail(UUID routeId);
     void updateHubRoute(UUID routeId, UpdateHubRouteCommand command);
     void deleteHubRoute(UUID routeId);
+    OptimalRouteRes findOptimalPath(UUID departureId, UUID arrivalId, String type);
 }

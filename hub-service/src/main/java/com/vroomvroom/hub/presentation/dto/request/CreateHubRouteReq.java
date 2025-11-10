@@ -14,6 +14,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class CreateHubRouteReq {
+    private String routeName;
+
     @NotNull(message = "출발 허브는 필수입니다.")
     private UUID departureHubId;
 

@@ -1,7 +1,6 @@
 package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
-import com.vroomvroom.hub.domain.vo.HubZone;
 import com.vroomvroom.hub.domain.vo.Location;
 import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.ErrorCode;
@@ -34,19 +33,12 @@ public class Hub extends BaseTimeEntity {
     @Embedded
     private Location location;
 
-    @Enumerated(EnumType.STRING)
-    private HubZone hubZone;
-
-    @Column
-    private boolean isCentral;
-
-    public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude, HubZone hubZone) {
+    public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         validateHub(hubName, address, latitude, longitude);
         return Hub.builder()
                 .hubName(hubName)
                 .address(address)
                 .location(Location.of(latitude, longitude))
-                .hubZone(hubZone)
                 .build();
     }
 
@@ -56,7 +48,7 @@ public class Hub extends BaseTimeEntity {
         latitude == null || longitude == null) throw new CustomException(ErrorCode.BAD_REQUEST);
     }
 
-    public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude, HubZone hubZone) {
+    public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         if (hubName != null) this.hubName = hubName;
         if (address != null) this.address = address;
         if (latitude != null || longitude != null) {
@@ -64,6 +56,5 @@ public class Hub extends BaseTimeEntity {
             BigDecimal newLongitude = longitude != null ? longitude : this.location.getLongitude();
             this.location = Location.of(newLatitude, newLongitude);
         }
-        if (hubZone != null) this.hubZone = hubZone;
     }
 }

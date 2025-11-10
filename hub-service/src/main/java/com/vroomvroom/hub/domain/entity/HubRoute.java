@@ -22,6 +22,9 @@ public class HubRoute extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID routeId;
 
+    @Column
+    private String routeName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departure_hub_id", nullable = false)
     private Hub departureHub;
@@ -39,9 +42,10 @@ public class HubRoute extends BaseTimeEntity {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    public static HubRoute of(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
+    public static HubRoute of(String routeName, Hub departureHub, Hub arrivalHub, Long time, Long distance) {
         validateHubRoute(departureHub, arrivalHub, time, distance);
         return HubRoute.builder()
+                .routeName(routeName)
                 .departureHub(departureHub)
                 .arrivalHub(arrivalHub)
                 .time(time)
@@ -57,9 +61,10 @@ public class HubRoute extends BaseTimeEntity {
         if (distance == null || distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
     }
 
-    public void update(Long time, Long distance, Boolean isActive) {
+    public void update(String routeName, Long time, Long distance, Boolean isActive) {
         if (time != null && time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
         if (distance != null && distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
+        if (routeName != null) this.routeName = routeName;
         if (time != null) this.time = time;
         if (distance != null) this.distance = distance;
         if (isActive != null) this.isActive = isActive;

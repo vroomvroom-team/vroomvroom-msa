@@ -7,7 +7,7 @@ import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
 import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
-import com.vroomvroom.hub.domain.entity.HubRoute;
+import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
@@ -31,6 +31,7 @@ public class HubRouteController {
     @PostMapping
     public ResponseEntity<ApiResponse<CreateHubRouteRes>> createHubRoute(@RequestBody CreateHubRouteReq req) {
         CreateHubRouteCommand command = new CreateHubRouteCommand(
+                req.getRouteName(),
                 req.getDepartureHubId(),
                 req.getArrivalHubId(),
                 req.getTime(),
@@ -58,6 +59,7 @@ public class HubRouteController {
     public ResponseEntity<ApiResponse<Void>> updateHubRoute(@PathVariable UUID routeId,
                                                             @RequestBody UpdateHubRouteReq req) {
         UpdateHubRouteCommand command = new UpdateHubRouteCommand(
+                req.getRouteName(),
                 req.getTime(),
                 req.getDistance(),
                 req.getIsActive()
@@ -70,5 +72,13 @@ public class HubRouteController {
     public ResponseEntity<ApiResponse<Void>> deleteHubRoute(@PathVariable UUID routeId) {
         hubRouteService.deleteHubRoute(routeId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/optimal-path")
+    public ResponseEntity<ApiResponse<OptimalRouteRes>> findOptimalPathByDistance(@RequestParam UUID departureId,
+                                                                                  @RequestParam UUID arrivalId,
+                                                                                  @RequestParam(defaultValue = "DISTANCE") String type) {
+        OptimalRouteRes res = hubRouteService.findOptimalPath(departureId, arrivalId, type);
+        return ResponseEntity.ok(ApiResponse.success(res));
     }
 }

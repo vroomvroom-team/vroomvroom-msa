@@ -10,6 +10,7 @@ import java.util.UUID;
 @Builder
 public class HubRouteListRes {
     private UUID routeId;
+    private String routeName;
     private String departureHubName;
     private String arrivalHubName;
     private Long time;
@@ -18,6 +19,7 @@ public class HubRouteListRes {
     public static HubRouteListRes from(HubRoute hubRoute) {
         return HubRouteListRes.builder()
                 .routeId(hubRoute.getRouteId())
+                .routeName(hubRoute.getRouteName())
                 .departureHubName(hubRoute.getDepartureHub().getHubName())
                 .arrivalHubName(hubRoute.getArrivalHub().getHubName())
                 .time(hubRoute.getTime())

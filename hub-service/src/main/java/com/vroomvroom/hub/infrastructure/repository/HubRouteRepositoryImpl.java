@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,5 +35,10 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     @Override
     public boolean existsByDepartureHub_HubIdAndArrivalHub_HubId(UUID departureHubId, UUID arrivalHubId) {
         return jpaHubRouteRepository.existsByDepartureHub_HubIdAndArrivalHub_HubId(departureHubId, arrivalHubId);
+    }
+
+    @Override
+    public List<HubRoute> findAllActive() {
+        return jpaHubRouteRepository.findAllActive();
     }
 }

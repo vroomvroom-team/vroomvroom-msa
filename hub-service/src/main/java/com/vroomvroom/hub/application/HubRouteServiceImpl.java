@@ -5,6 +5,7 @@ import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
 import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
+import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.domain.repository.HubRepository;
@@ -19,7 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +32,7 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     private final HubRepository hubRepository;
     private final HubRouteRepository hubRouteRepository;
+    private final HubConnection hubConnection;
 
     @Override
     @Transactional
@@ -37,6 +42,7 @@ public class HubRouteServiceImpl implements HubRouteService {
         log.info("departureHub: {}, arrivalHub: {}", departure.getHubName(), arrival.getHubName());
         validateHub(departure, arrival);
         HubRoute hubRoute = HubRoute.of(
+                command.getRouteName(),
                 departure,
                 arrival,
                 command.getTime(),
@@ -61,7 +67,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     @Transactional
     public void updateHubRoute(UUID routeId, UpdateHubRouteCommand command) {
         HubRoute hubRoute = findHubRouteById(routeId);
-        hubRoute.update(command.getTime(), command.getDistance(), command.getIsActive());
+        hubRoute.update(command.getRouteName(), command.getTime(), command.getDistance(), command.getIsActive());
     }
 
     @Override
@@ -69,6 +75,21 @@ public class HubRouteServiceImpl implements HubRouteService {
     public void deleteHubRoute(UUID routeId) {
         HubRoute hubRoute = findHubRouteById(routeId);
         hubRoute.markAsDeleted();
+    }
+
+    @Override
+    public OptimalRouteRes findOptimalPath(UUID departureId, UUID arrivalId, String type) {
+        Hub departure = findHubById(departureId);
+        Hub arrival = findHubById(arrivalId);
+        if (departure.getHubId().equals(arrival.getHubId())) throw new CustomException(ErrorCode.SAME_DEPARTURE_ARRIVAL_HUB);
+        List<HubRoute> allRoutes = hubRouteRepository.findAllActive();
+        if (allRoutes.isEmpty()) throw new CustomException(ErrorCode.NO_ACTIVE_ROUTE);
+        Map<UUID, List<HubRoute>> graph = allRoutes.stream()
+                .collect(Collectors.groupingBy(r -> r.getDepartureHub().getHubId()));
+        log.info("최적 경로 탐색 준비 - 출발: {} -> 도착: {}", departure.getHubName(), arrival.getHubName());
+        OptimalRouteRes res = Dijkstra.findOptimalRoute(graph, departureId, arrivalId, type);
+        log.info("최적 경로 탐색 완료 - 출발: {} -> 도착: {}, 경유지 수: {}, 총 비용: {}", departure.getHubName(), arrival.getHubName(), res.getPath().size(), res.getTotalCost());
+        return res;
     }
 
     private Hub findHubById(UUID hubId) {
@@ -83,9 +104,6 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     private void validateHub(Hub departure, Hub arrival) {
         if (departure.getHubId().equals(arrival.getHubId())) throw new CustomException(ErrorCode.SAME_DEPARTURE_ARRIVAL_HUB);
-        if (hubRouteRepository.existsByDepartureHub_HubIdAndArrivalHub_HubId(departure.getHubId(), departure.getHubId())) {
-            throw new CustomException(ErrorCode.DUPLICATE_HUB_ROUTE);
-        }
-        if (departure.getHubZone() != arrival.getHubZone()) throw new CustomException(ErrorCode.HUBS_NOT_CONNECTED);
+        if (!hubConnection.isConnected(departure.getHubName(), arrival.getHubName())) throw new CustomException(ErrorCode.HUBS_NOT_CONNECTED);
     }
 }
