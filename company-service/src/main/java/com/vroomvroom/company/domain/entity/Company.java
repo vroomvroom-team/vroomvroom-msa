@@ -100,24 +100,4 @@ public class Company extends BaseTimeEntity {
     public void changeType(CompanyType companyType) {
         this.companyType = companyType;
     }
-
-    public void changeHub(UUID hubId) {
-        this.hubId = hubId;
-    }
-
-    public void changeManager(Long companyManagerId) {
-        this.companyManagerId = companyManagerId;
-    }
-
-    public void changeName(String companyName) {
-        this.companyName = companyName;
-    }
-
-    public void changeAddress(String companyAddress) {
-        this.companyAddress = companyAddress;
-    }
-
-    public void changeType(CompanyType companyType) {
-        this.companyType = companyType;
-    }
 }
