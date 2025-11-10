@@ -3,6 +3,10 @@ build/
 .idea/
 !gradle/wrapper/gradle-wrapper.jar
 */gradle
+**/gradlew
+**/gradlew.bat
+**/.gitattributes
+**/.gitignore
 !**/src/main/**/build/
 !**/src/test/**/build/
 ### IntelliJ IDEA ###
