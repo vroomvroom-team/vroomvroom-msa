@@ -19,34 +19,40 @@ public class CompanyValidator {
     private final HubClient hubClient;
     private final UserClient userClient;
 
-    public void validate(CreateCompanyCommand command) {
+    public void validateForCreate(CreateCompanyCommand command) {
         validateHub(command.hubId());
         validateManager(command.companyManagerId());
         validateDuplicateName(command.companyName());
         validateDuplicateAddress(command.companyAddress());
     }
 
-    private void validateHub(UUID hubId) {
+    public void validateHub(UUID hubId) {
         if (!hubClient.existsHub(hubId)) {
             throw new CustomException(ErrorCode.HUB_NOT_FOUND);
         }
     }
 
-    private void validateManager(Long companyManagerId) {
+    public void validateManager(Long companyManagerId) {
         if (!userClient.existsUser(companyManagerId)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
     }
 
-    private void validateDuplicateName(String name) {
+    public void validateDuplicateName(String name) {
         if (companyRepository.existsByCompanyName(name)) {
             throw new CustomException(ErrorCode.DUPLICATE_COMPANY_NAME);
         }
     }
 
-    private void validateDuplicateAddress(String address) {
+    public void validateDuplicateAddress(String address) {
         if (companyRepository.existsByCompanyAddress(address)) {
             throw new CustomException(ErrorCode.DUPLICATE_COMPANY_ADDRESS);
         }
     }
+
+/*    public void ensureCompanyManager(Long companyManagerId, Long requesterId) {
+        if (!companyManagerId.equals(requesterId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+    }*/
 }

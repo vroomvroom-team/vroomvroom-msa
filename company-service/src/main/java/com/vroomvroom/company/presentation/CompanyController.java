@@ -2,8 +2,10 @@ package com.vroomvroom.company.presentation;
 
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
+import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.service.CompanyService;
 import com.vroomvroom.company.presentation.dto.reqeust.CreateCompanyReq;
+import com.vroomvroom.company.presentation.dto.reqeust.UpdateCompanyReq;
 import com.vroomvroom.company.presentation.dto.response.CompanyDetailRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +51,28 @@ public class CompanyController {
         CompanyDetailRes response = CompanyDetailRes.form(companyService.getCompany(companyId));
 
         log.info("업체 상세 조회 성공: companyId = {}", response.companyId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PatchMapping("/{companyId}")
+    public ResponseEntity<ApiResponse<CompanyDetailRes>> updateCompany(
+            @PathVariable UUID companyId,
+            @RequestBody UpdateCompanyReq req
+            ) {
+        log.info("PATCH api/v1/companies/{} 업체 수정 요청", companyId);
+
+        UpdateCompanyCommand command = new UpdateCompanyCommand(
+                companyId,
+                req.hubId(),
+                req.companyManagerId(),
+                req.companyName(),
+                req.companyAddress(),
+                req.companyType()
+        );
+
+        CompanyDetailRes response = CompanyDetailRes.form(companyService.updateCompany(command));
+
+        log.info("업체 수정 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

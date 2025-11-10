@@ -1,7 +1,9 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
+import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.dto.CompanyResult;
+import com.vroomvroom.company.application.port.HubClient;
 import com.vroomvroom.company.application.validator.CompanyValidator;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
@@ -22,14 +24,16 @@ public class CompanyServiceImpl implements CompanyService{
 
     private final CompanyValidator companyValidator;
     private final CompanyRepository companyRepository;
+    private final HubClient hubClient;
 
+    @Override
     @Transactional
     public CompanyResult createCompany(CreateCompanyCommand command) {
         log.info("업체 생성 시작");
 
         CompanyType companyType = parseCompanyType(command.companyType());
 
-        companyValidator.validate(command);
+        companyValidator.validateForCreate(command);
 
         Company company = Company.create(
                 command.hubId(),
@@ -64,5 +68,46 @@ public class CompanyServiceImpl implements CompanyService{
 
         log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
         return CompanyResult.form(company);
+    }
+
+    @Override
+    @Transactional
+    public CompanyResult updateCompany(UpdateCompanyCommand command) {
+        Company company = companyRepository.findByCompanyId(command.companyId())
+                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
+
+/*         TODO. requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
+        companyValidator.ensureCompanyManager(command.companyManagerId(), command.requesterId());*/
+
+        CompanyUpdates(company, command);
+
+        log.info("업체 수정 완료: companyId = {}", company.getCompanyId());
+        return CompanyResult.form(company);
+    }
+
+    private void CompanyUpdates(Company company, UpdateCompanyCommand command) {
+        if (command.hubId() != null) {
+            companyValidator.validateHub(command.hubId());
+            company.changeHub(command.hubId());
+        }
+
+        if (command.companyManagerId() != null) {
+            companyValidator.validateManager(command.companyManagerId());
+            company.changeManager(command.companyManagerId());
+        }
+
+        if (command.companyName() != null) {
+            companyValidator.validateDuplicateName(command.companyName());
+            company.changeName(command.companyName());
+        }
+
+        if (command.companyAddress() != null) {
+            companyValidator.validateDuplicateAddress(command.companyAddress());
+            company.changeAddress(command.companyAddress());
+        }
+
+        if (command.companyType() != null) {
+            company.changeType(parseCompanyType(command.companyType()));
+        }
     }
 }
