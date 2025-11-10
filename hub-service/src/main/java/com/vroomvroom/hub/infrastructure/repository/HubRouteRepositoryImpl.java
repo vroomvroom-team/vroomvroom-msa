@@ -33,11 +33,6 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     }
 
     @Override
-    public boolean existsByDepartureHub_HubIdAndArrivalHub_HubId(UUID departureHubId, UUID arrivalHubId) {
-        return jpaHubRouteRepository.existsByDepartureHub_HubIdAndArrivalHub_HubId(departureHubId, arrivalHubId);
-    }
-
-    @Override
     public List<HubRoute> findAllActive() {
         return jpaHubRouteRepository.findAllActive();
     }

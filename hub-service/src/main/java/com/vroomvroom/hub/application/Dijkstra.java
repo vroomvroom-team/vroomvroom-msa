@@ -1,6 +1,7 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
+import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,9 @@ public class Dijkstra {
         Map<UUID, Long> distance = new HashMap<>();
         Map<UUID, UUID> prev = new HashMap<>();
         PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingLong(Node::getCost));
-        graph.keySet().forEach(id -> distance.put(id, Long.MAX_VALUE));
+        Set<UUID> allHubs = new HashSet<>(graph.keySet());
+        graph.values().forEach(routes -> routes.forEach(r -> allHubs.add((r.getArrivalHub().getHubId()))));
+        allHubs.forEach(id -> distance.put(id, Long.MAX_VALUE));
         distance.put(start, 0L);
         pq.offer(new Node(start, 0));
         while (!pq.isEmpty()) {
@@ -32,7 +35,6 @@ public class Dijkstra {
                 long w = type.equalsIgnoreCase("DISTANCE") ? route.getDistance() : route.getTime();
                 long newDist = cur.cost + w;
                 UUID next = route.getArrivalHub().getHubId();
-
                 if (newDist < distance.get(next)) {
                     distance.put(next, newDist);
                     prev.put(next, cur.id);
@@ -48,9 +50,10 @@ public class Dijkstra {
         for (int i = 0; i < path.size() - 1; i++) {
             UUID departure = path.get(i);
             UUID arrival = path.get(i + 1);
-            graph.getOrDefault(departure, List.of()).stream()
+            HubRoute min = graph.getOrDefault(departure, List.of()).stream()
                     .filter(r -> r.getArrivalHub().getHubId().equals(arrival))
-                    .min(Comparator.comparingLong(r -> type.equalsIgnoreCase("DISTANCE") ? r.getDistance() : r.getTime())).ifPresent(min -> details.add(HubRouteDetailRes.from(min)));
+                    .min(Comparator.comparingLong(r -> type.equalsIgnoreCase("DISTANCE") ? r.getDistance() : r.getTime())).orElse(null);
+            if (min != null) details.add(HubRouteDetailRes.from(min));
         }
         return OptimalRouteRes.builder()
                 .path(details)

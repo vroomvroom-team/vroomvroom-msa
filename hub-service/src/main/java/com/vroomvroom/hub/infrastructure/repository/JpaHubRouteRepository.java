@@ -25,8 +25,6 @@ public interface JpaHubRouteRepository extends JpaRepository<HubRoute, UUID> {
             "AND h.deletedAt IS NULL")
     Optional<HubRoute> findHubRouteWithHubsByRouteId(@Param("routeId") UUID routeId);
 
-    boolean existsByDepartureHub_HubIdAndArrivalHub_HubId(UUID departureHubId, UUID arrivalHubId);
-
     @Query("SELECT h FROM HubRoute h " +
             "WHERE h.deletedAt IS NULL " +
             "AND h.isActive = true ")
