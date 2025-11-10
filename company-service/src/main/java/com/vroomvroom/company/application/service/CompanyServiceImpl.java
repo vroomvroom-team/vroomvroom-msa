@@ -56,7 +56,7 @@ public class CompanyServiceImpl implements CompanyService{
 
         company.validateNotDeleted();
 
-        log.info("업체 생성 완료: companyId = {}", company.getCompanyId());
+        log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
         return CompanyResult.form(company);
     }
 }
