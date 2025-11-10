@@ -126,5 +126,7 @@ public class Order extends BaseTimeEntity {
 
         // 주문 상태 PENDING으로 변경
         updateStatus(OrderStatus.PENDING);
+
+        this.updatedAt = LocalDateTime.now();
     }
 }

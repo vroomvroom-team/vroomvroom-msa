@@ -6,11 +6,10 @@ import com.vroomvroom.orderservice.application.OrderService;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
-import com.vroomvroom.orderservice.application.dto.OrderRes;
+import com.vroomvroom.orderservice.application.dto.OrderDTO;
 import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderReq;
 import com.vroomvroom.orderservice.presentation.dto.request.UpdateOrderReq;
-import com.vroomvroom.orderservice.presentation.dto.response.CreateOrderRes;
-import com.vroomvroom.orderservice.presentation.dto.response.UpdateOrderRes;
+import com.vroomvroom.orderservice.presentation.dto.response.OrderRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ public class OrderController {
      * @return 생성된 주문 정보
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<CreateOrderRes>> createOrder(
+    public ResponseEntity<ApiResponse<OrderRes>> createOrder(
             @Valid @RequestBody CreateOrderReq request) {
         log.info("POST /api/v1/orders - 주문 생성 요청");
 
@@ -54,13 +53,15 @@ public class OrderController {
                 request.getRequestNote()
         );
 
-        UUID orderId = orderService.createOrder(command).getOrderId();
-
         // TODO. 배송 정보 반영 필요
 
-        CreateOrderRes response = new CreateOrderRes(orderId, "주문이 성공적으로 생성되었습니다.");
+        OrderDTO orderDTO = orderService.createOrder(command);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        OrderRes response = OrderRes.from(orderDTO);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("주문이 생성되었습니다.", response));
     }
 
     /**
@@ -75,7 +76,9 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderRes>> getOrder(@PathVariable UUID orderId) {
         log.info("GET /api/v1/orders/{} - 주문 조회", orderId);
 
-        OrderRes response = orderService.getOrder(orderId);
+        OrderDTO orderDTO = orderService.getOrder(orderId);
+
+        OrderRes response = OrderRes.from(orderDTO);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -92,9 +95,11 @@ public class OrderController {
     public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(Pageable pageable) {
         log.info("GET /api/v1/orders - 주문 전체 목록 조회");
 
-        Page<OrderRes> page = orderService.getOrders(pageable);
+        Page<OrderDTO> orderDTOPage = orderService.getOrders(pageable);
 
-        PageResponse<OrderRes> response = PageResponse.fromPage(page);
+        Page<OrderRes> orderResPage = orderDTOPage.map(OrderRes::from);
+
+        PageResponse<OrderRes> response = PageResponse.fromPage(orderResPage);
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -108,27 +113,30 @@ public class OrderController {
      * @return OK
      */
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<String>> cancelOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<ApiResponse<OrderRes>> cancelOrder(@PathVariable UUID orderId) {
         log.info("DELETE /api/v1/orders/{} - 주문 취소", orderId);
 
         // TODO. 유저 ID 반영 필요
         CancelOrderCommand command = new CancelOrderCommand(UUID.randomUUID(), orderId);
 
-        orderService.cancelOrder(command);
+        OrderDTO orderDTO = orderService.cancelOrder(command);
 
-        return ResponseEntity.ok(ApiResponse.success("주문 취소 성공"));
+        OrderRes response = OrderRes.from(orderDTO);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("주문이 취소되었습니다.", response));
     }
 
     /**
-     * 주문 취소
+     * 주문 수정
      * <p>
-     * DELETE /api/v1/orders/{orderId}
+     * PATCH /api/v1/orders/{orderId}
      *
      * @param orderId 주문 ID
      * @return OK
      */
     @PatchMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<UpdateOrderRes>> updateOrder(
+    public ResponseEntity<ApiResponse<OrderRes>> updateOrder(
             @PathVariable UUID orderId,
             @Valid @RequestBody UpdateOrderReq request) {
         log.info("PATCH /api/v1/orders/{} - 주문 수정", orderId);
@@ -141,10 +149,11 @@ public class OrderController {
                 request.getDeadline(),
                 request.getRequestNote());
 
-        orderService.updateOrder(command);
+        OrderDTO orderDTO = orderService.updateOrder(command);
 
-        UpdateOrderRes response = new UpdateOrderRes(orderId, "주문이 성공적으로 변경되었습니다.");
+        OrderRes response = OrderRes.from(orderDTO);
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(
+                ApiResponse.success("주문이 수정되었습니다.", response));
     }
 }

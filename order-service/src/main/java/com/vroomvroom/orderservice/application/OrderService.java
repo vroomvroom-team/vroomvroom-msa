@@ -4,20 +4,20 @@ package com.vroomvroom.orderservice.application;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
-import com.vroomvroom.orderservice.application.dto.OrderRes;
+import com.vroomvroom.orderservice.application.dto.OrderDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
 public interface OrderService {
-    OrderRes createOrder(CreateOrderCommand command);
+    OrderDTO createOrder(CreateOrderCommand command);
 
-    OrderRes getOrder(UUID orderId);
+    OrderDTO getOrder(UUID orderId);
 
-    Page<OrderRes> getOrders(Pageable pageable);
+    Page<OrderDTO> getOrders(Pageable pageable);
 
-    void cancelOrder(CancelOrderCommand orderId);
+    OrderDTO cancelOrder(CancelOrderCommand orderId);
 
-    void updateOrder(UpdateOrderCommand command);
+    OrderDTO updateOrder(UpdateOrderCommand command);
 }
