@@ -1,7 +1,6 @@
 package com.vroomvroom.orderservice.application;
 
 import com.vroomvroom.common.exception.CustomException;
-import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
@@ -12,6 +11,7 @@ import com.vroomvroom.orderservice.domain.entity.Order;
 import com.vroomvroom.orderservice.domain.repository.OrderRepository;
 import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.domain.vo.OrderStatus;
+import com.vroomvroom.orderservice.exception.OrderErrorCode;
 import com.vroomvroom.orderservice.infrastructure.dto.CompanyHubDTO;
 import com.vroomvroom.orderservice.infrastructure.dto.ProductDTO;
 import feign.FeignException;
@@ -80,11 +80,10 @@ public class OrderServiceImpl implements OrderService {
         // TODO. 상품 재고 감소 로직
         try {
             if (!productClient.decreaseStocks(productId, quantity))
-                throw new RuntimeException("상품 재고 감소 실패");
+                throw new CustomException(OrderErrorCode.PRODUCT_STOCK_DECREASE_FAILED);
 
         } catch (FeignException e) {
-            // e "상품 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.PRODUCT_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -100,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("주문 조회 - 주문 ID={}", orderId);
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         return OrderDTO.from(order);
     }
@@ -133,12 +132,12 @@ public class OrderServiceImpl implements OrderService {
                 command.userId(), command.orderId());
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         // 배송 전 주문만 취소 가능
         if (!order.isCancellable()) {
             log.debug("주문 취소 불가 상태 - 주문 상태={}", order.getOrderStatus());
-            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.ORDER_NOT_CANCELLABLE);
         }
 
         order.updateStatus(OrderStatus.CANCELLED);
@@ -161,11 +160,11 @@ public class OrderServiceImpl implements OrderService {
         // TODO. 유저 ID 유효성 검증 필요
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         if (!order.isModifiable()) {
             log.debug("주문 수정 불가 상태 - 주문 상태={}", order.getOrderStatus());
-            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.ORDER_NOT_MODIFIABLE);
         }
 
         Money newTotalPrice = order.getTotalPrice();
@@ -214,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
                 productClient.decreaseStocks(productId, Math.abs(quantityDiff));
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.PRODUCT_INTERNAL_SERVER_ERROR);
         }
     }
 }

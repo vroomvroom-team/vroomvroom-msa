@@ -1,8 +1,10 @@
 package com.vroomvroom.orderservice.domain.entity;
 
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.domain.vo.OrderStatus;
+import com.vroomvroom.orderservice.exception.OrderErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -80,7 +82,7 @@ public class Order extends BaseTimeEntity {
             LocalDateTime deadline,
             String requestNote
     ) {
-        validateCreateOrder(quantity, deadline, productPrice);
+        validateCreateOrder(supplyCompanyId, receiveCompanyId, quantity, deadline, productPrice);
 
         Money totalPrice = productPrice.multiply(quantity);
 
@@ -102,15 +104,18 @@ public class Order extends BaseTimeEntity {
     /**
      * 주문 유효성 검증
      */
-    private static void validateCreateOrder(Long quantity, LocalDateTime deadline, Money productPrice) {
+    private static void validateCreateOrder(UUID supplyCompanyId, UUID receiveCompanyId, Long quantity, LocalDateTime deadline, Money productPrice) {
+        if (supplyCompanyId == receiveCompanyId) {
+            throw new CustomException(OrderErrorCode.SAME_SUPPLY_RECEIVE_COMPANY);
+        }
         if (quantity == null || quantity < 1) {
-            throw new IllegalArgumentException("주문 수량은 1개 이상이어야 합니다");
+            throw new CustomException(OrderErrorCode.INVALID_ORDER_QUANTITY);
         }
         if (deadline == null || deadline.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("납기일은 현재 시간 이후여야 합니다");
+            throw new CustomException(OrderErrorCode.INVALID_DEADLINE);
         }
         if (productPrice == null || productPrice.isZero()) {
-            throw new IllegalArgumentException("상품 가격은 0보다 커야 합니다");
+            throw new CustomException(OrderErrorCode.INVALID_PRICE);
         }
     }
 
