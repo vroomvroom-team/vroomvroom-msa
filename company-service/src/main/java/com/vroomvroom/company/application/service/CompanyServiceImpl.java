@@ -4,7 +4,7 @@ import com.vroomvroom.company.application.command.CreateCompanyCommand;
 import com.vroomvroom.company.application.command.DeleteCompanyCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.dto.CompanyResult;
-import com.vroomvroom.company.application.validator.CompanyAuthorityValidator;
+import com.vroomvroom.company.application.validator.AuthorityValidator;
 import com.vroomvroom.company.application.validator.CompanyValidator;
 import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
@@ -24,7 +24,7 @@ import java.util.UUID;
 public class CompanyServiceImpl implements CompanyService{
 
     private final CompanyValidator companyValidator;
-    private final CompanyAuthorityValidator companyAuthorityValidator;
+    private final AuthorityValidator authorityValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -32,8 +32,8 @@ public class CompanyServiceImpl implements CompanyService{
     public CompanyResult createCompany(CreateCompanyCommand command) {
         log.info("업체 생성 시작");
 
-/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
-        companyAuthorityValidator.validateCreateAuthority(
+/*        TODO. 유저 권한 체크
+        authorityValidator.validateCreateCompanyAuthority(
                 command.hubId(),
                 command.userId(),
                 command.userRole()
@@ -80,8 +80,8 @@ public class CompanyServiceImpl implements CompanyService{
     public CompanyResult updateCompany(UpdateCompanyCommand command) {
         Company company = getActiveCompany(command.companyId());
 
-/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER) <- 아닐 경우 requesterId 검사 추가 (로그인한 사용자가 companyManagerId와 같은지)
-        companyAuthorityValidator.validateUpdateAuthority(
+/*        TODO. 유저 권한 체크
+        authorityValidator.validateUpdateAuthority(
                 company.getHubId(),
                 company.getCompanyManagerId(),
                 command.userId(),
@@ -120,8 +120,8 @@ public class CompanyServiceImpl implements CompanyService{
     public UUID deleteCompany(DeleteCompanyCommand command) {
         Company company = getActiveCompany(command.companyId());
 
-/*        TODO. 유저 권한 체크(MASTER, HUB_MANAGER)
-        companyAuthorityValidator.validateDeleteAuthority(
+/*        TODO. 유저 권한 체크
+        authorityValidator.validateDeleteAuthority(
                 company.getHubId(),
                 command.userId(),
                 command.userRole()

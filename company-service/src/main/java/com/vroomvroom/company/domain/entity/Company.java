@@ -5,17 +5,18 @@ import com.vroomvroom.company.common.exception.CustomException;
 import com.vroomvroom.company.common.exception.ErrorCode;
 import com.vroomvroom.company.domain.vo.CompanyType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "p_company")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Builder
 public class Company extends BaseTimeEntity {
 
     @Id
@@ -39,20 +40,8 @@ public class Company extends BaseTimeEntity {
     @Column(name = "company_type")
     private CompanyType companyType;
 
-    @Builder(access = AccessLevel.PRIVATE)
-    private Company(
-            UUID hubId,
-            Long companyManagerId,
-            String companyName,
-            String companyAddress,
-            CompanyType companyType
-    ){
-        this.hubId = hubId;
-        this.companyManagerId = companyManagerId;
-        this.companyName = companyName;
-        this.companyAddress = companyAddress;
-        this.companyType = companyType;
-    }
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products = new ArrayList<>();
 
     public static Company create(
             UUID hubId,
@@ -78,10 +67,32 @@ public class Company extends BaseTimeEntity {
             String companyAddress,
             CompanyType companyType
     ) {
+        validateHub(hubId);
+        validateManager(companyManagerId);
+        validateName(companyName);
+        validateAddress(companyAddress);
+        validateType(companyType);
+    }
+
+    private static void validateHub(UUID hubId) {
         if (hubId == null) throw new CustomException(ErrorCode.HUB_ID_REQUIRED);
+    }
+
+    private static void validateManager(Long companyManagerId) {
         if (companyManagerId == null) throw new CustomException(ErrorCode.COMPANY_MANAGER_REQUIRED);
-        if (companyName == null || companyName.isBlank()) throw new CustomException(ErrorCode.COMPANY_NAME_REQUIRED);
-        if (companyAddress == null || companyAddress.isBlank()) throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
+    }
+
+    private static void validateName(String companyName) {
+        if (companyName == null || companyName.isBlank())
+            throw new CustomException(ErrorCode.COMPANY_NAME_REQUIRED);
+    }
+
+    private static void validateAddress(String companyAddress) {
+        if (companyAddress == null || companyAddress.isBlank())
+            throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
+    }
+
+    private static void validateType(CompanyType companyType) {
         if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
     }
 
@@ -101,3 +112,4 @@ public class Company extends BaseTimeEntity {
         this.companyType = companyType;
     }
 }
+

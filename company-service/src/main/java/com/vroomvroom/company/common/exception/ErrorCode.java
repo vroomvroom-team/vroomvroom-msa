@@ -31,12 +31,17 @@ public enum ErrorCode {
     COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 업체 ID 입니다."),
     COMPANY_DELETED(HttpStatus.BAD_REQUEST, "삭제된 업체입니다."),
 
+    // product
+    DUPLICATE_PRODUCT_NAME(HttpStatus.CONFLICT, "이미 존재하는 상품 이름입니다."),
+    HUB_MISMATCH(HttpStatus.BAD_REQUEST, "허브 정보가 일치하지 않습니다."),
+    INVALID_PRICE(HttpStatus.BAD_REQUEST, "가격은 0보다 큰 값이어야 합니다."),
+
 
     // 외부 서비스 검증 실패
     HUB_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 허브 ID입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 유저 ID입니다."),
     HUB_LOOKUP_FAILED(HttpStatus.BAD_GATEWAY, "허브 조회에 실패했습니다."),
-    USER_LOOKUP_FAILED(HttpStatus.BAD_GATEWAY, "유저 조회에 실패했습니다."),
+    HUB_MANAGER_LOOKUP_FAILED(HttpStatus.BAD_REQUEST, "허브 매니저 검증에 실패했습니다." )
 
     ;
 

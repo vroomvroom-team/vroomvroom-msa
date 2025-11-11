@@ -29,4 +29,19 @@ public class HubClientImpl implements HubClient {
         // TODO. 임시 구현
         return true;
     }
+
+    @Override
+    public boolean existsHubManager(UUID hubId, Long userId) {
+        log.info("허브 매니저 확인 요청: hubId={}, userId={}", hubId, userId);
+
+/*        try {
+            return hubFeignClient.isHubManager(hubId, userId);
+        } catch (Exception e) {
+            log.error("[HubClient] 허브 매니저 조회 실패: {}", e.getMessage());
+            throw new CustomException(ErrorCode.HUB_MANAGER_LOOKUP_FAILED);
+        }*/
+
+        // TODO. 임시 구현
+        return true;
+    }
 }

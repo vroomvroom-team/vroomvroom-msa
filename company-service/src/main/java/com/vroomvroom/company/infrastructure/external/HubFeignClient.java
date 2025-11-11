@@ -11,4 +11,10 @@ public interface HubFeignClient {
 
     @GetMapping("{hubId}/exists")
     boolean existsHub(@PathVariable UUID hubId);
+
+    @GetMapping("/{hubId}/managers/{userId}/check")
+    boolean isHubManager(
+            @PathVariable("hubId") UUID hubId,
+            @PathVariable("userId") Long userId
+    );
 }
