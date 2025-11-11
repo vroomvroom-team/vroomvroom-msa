@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderRes {
+public class OrderDTO {
     private UUID orderId;
     private UUID supplyCompanyId;
     private UUID receiveCompanyId;
@@ -31,9 +30,10 @@ public class OrderRes {
     private OrderStatus orderStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
-    public static OrderRes from(Order order) {
-        return OrderRes.builder()
+    public static OrderDTO from(Order order) {
+        return OrderDTO.builder()
                 .orderId(order.getId())
                 .supplyCompanyId(order.getSupplyCompanyId())
                 .receiveCompanyId(order.getReceiveCompanyId())
@@ -48,6 +48,7 @@ public class OrderRes {
                 .orderStatus(order.getOrderStatus())
                 .createdAt(order.getCreatedAt())
                 .updatedAt(order.getUpdatedAt())
+                .deletedAt(order.getDeletedAt())
                 .build();
     }
 }

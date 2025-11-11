@@ -5,7 +5,7 @@ import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
-import com.vroomvroom.orderservice.application.dto.OrderRes;
+import com.vroomvroom.orderservice.application.dto.OrderDTO;
 import com.vroomvroom.orderservice.application.service.CompanyClient;
 import com.vroomvroom.orderservice.application.service.ProductClient;
 import com.vroomvroom.orderservice.domain.entity.Order;
@@ -41,31 +41,27 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderRes createOrder(CreateOrderCommand command) {
+    public OrderDTO createOrder(CreateOrderCommand command) {
         log.info("주문 생성 시작 - 요청 업체 ID={}, 공급 업체 ID={}, 상품 ID={}",
                 command.receiveCompanyId(), command.supplyCompanyId(), command.productId());
 
-        // 외부 업체 서비스 호출
-        CompanyHubDTO supplyCompany = getCompanyHubInfo(command.supplyCompanyId());
-        CompanyHubDTO receiveCompany = getCompanyHubInfo(command.receiveCompanyId());
-
-        // 외부 상품 서비스 호출 및 총 금액 계산
-        ProductDTO product = getProductInfo(command.productId());
-        Money totalPrice = product.getPrice().multiply(command.quantity());
+        // 외부 정보 조회
+        CompanyHubDTO supplyCompany = companyClient.getCompanyHubInfo(command.supplyCompanyId());
+        CompanyHubDTO receiveCompany = companyClient.getCompanyHubInfo(command.receiveCompanyId());
+        ProductDTO product = productClient.getProductInfo(command.productId());
 
         // 주문 생성
-        Order order = Order.builder()
-                .supplyCompanyId(supplyCompany.getCompanyId())
-                .receiveCompanyId(receiveCompany.getCompanyId())
-                .supplyHubId(supplyCompany.getHubId())
-                .receiveHubId(receiveCompany.getHubId())
-                .productId(product.getProductId())
-                .totalPrice(totalPrice)
-                .quantity(command.quantity())
-                .deadline(command.deadline())
-                .requestNote(command.requestNote())
-                .orderStatus(OrderStatus.PENDING)
-                .build();
+        Order order = Order.create(
+                supplyCompany.getCompanyId(),
+                receiveCompany.getCompanyId(),
+                supplyCompany.getHubId(),
+                receiveCompany.getHubId(),
+                product.getProductId(),
+                product.getPrice(),
+                command.quantity(),
+                command.deadline(),
+                command.requestNote()
+        );
 
         // 재고 차감
         decreaseStocks(order.getProductId(), order.getQuantity());
@@ -76,29 +72,7 @@ public class OrderServiceImpl implements OrderService {
         // TODO. 주문 저장 실패 시 재고 원복 로직 필요
 
         log.info("주문 생성 성공 - 주문 ID={}", savedOrder.getId());
-        return OrderRes.from(order);
-    }
-
-    // 업체별 소속 허브 정보 가져오기
-    private CompanyHubDTO getCompanyHubInfo(UUID companyId) {
-        // TODO. 업체 서비스 API 호출
-        try {
-            return companyClient.getCompanyHubInfo(companyId);
-        } catch (FeignException e) {
-            // e "업체 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
-        }
-    }
-
-    // 상품 정보 가져오기
-    private ProductDTO getProductInfo(UUID productId) {
-        // TODO. 상품 서비스 API 호출
-        try {
-            return productClient.getProductInfo(productId);
-        } catch (FeignException e) {
-            // e "상품 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
-        }
+        return OrderDTO.from(savedOrder);
     }
 
     // 상품 재고 감소
@@ -122,13 +96,13 @@ public class OrderServiceImpl implements OrderService {
      * @return 주문 응답 DTO
      */
     @Override
-    public OrderRes getOrder(UUID orderId) {
+    public OrderDTO getOrder(UUID orderId) {
         log.info("주문 조회 - 주문 ID={}", orderId);
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR)); // TODO. ErrorCode 관리
 
-        return OrderRes.from(order);
+        return OrderDTO.from(order);
     }
 
     /**
@@ -139,11 +113,11 @@ public class OrderServiceImpl implements OrderService {
      * @return 주문 목록
      */
     @Override
-    public Page<OrderRes> getOrders(Pageable pageable) {
+    public Page<OrderDTO> getOrders(Pageable pageable) {
         log.info("주문 조회 페이징 - pagination={}", pageable);
 
         return orderRepository.findAllByDeletedAtIsNull(pageable)
-                .map(OrderRes::from);
+                .map(OrderDTO::from);
     }
 
     /**
@@ -154,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public void cancelOrder(CancelOrderCommand command) {
+    public OrderDTO cancelOrder(CancelOrderCommand command) {
         log.info("주문 취소 시작 - 유저 ID={}, 주문 ID={}",
                 command.userId(), command.orderId());
 
@@ -169,8 +143,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.updateStatus(OrderStatus.CANCELLED);
         order.markAsDeleted();
-        orderRepository.save(order);
-        log.info("주문 삭제 성공 - 주문 ID={}", order.getId());
+        log.info("주문 취소 성공 - 주문 ID={}", order.getId());
+
+        return OrderDTO.from(order);
     }
 
     /**
@@ -180,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public void updateOrder(UpdateOrderCommand command) {
+    public OrderDTO updateOrder(UpdateOrderCommand command) {
         log.info("주문 수정 시작 - 주문 ID={}", command.orderId());
 
         // TODO. 유저 ID 유효성 검증 필요
@@ -228,6 +203,7 @@ public class OrderServiceImpl implements OrderService {
                 rollbackStock(order.getProductId(), quantityDiff);
         }
         log.info("주문 수정 완료 - 주문 ID={}", command.orderId());
+        return OrderDTO.from(order);
     }
 
     private void rollbackStock(UUID productId, long quantityDiff) {
@@ -241,5 +217,4 @@ public class OrderServiceImpl implements OrderService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
         }
     }
-
 }

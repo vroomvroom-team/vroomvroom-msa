@@ -4,19 +4,16 @@ import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.domain.vo.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 @Table(name = "p_order")
 public class Order extends BaseTimeEntity {
 
@@ -70,6 +67,54 @@ public class Order extends BaseTimeEntity {
     }
 
     /**
+     * 주문 생성
+     */
+    public static Order create(
+            UUID supplyCompanyId,
+            UUID receiveCompanyId,
+            UUID supplyHubId,
+            UUID receiveHubId,
+            UUID productId,
+            Money productPrice,
+            Long quantity,
+            LocalDateTime deadline,
+            String requestNote
+    ) {
+        validateCreateOrder(quantity, deadline, productPrice);
+
+        Money totalPrice = productPrice.multiply(quantity);
+
+        return Order.builder()
+                .id(UUID.randomUUID())
+                .supplyCompanyId(supplyCompanyId)
+                .receiveCompanyId(receiveCompanyId)
+                .supplyHubId(supplyHubId)
+                .receiveHubId(receiveHubId)
+                .productId(productId)
+                .totalPrice(totalPrice)
+                .quantity(quantity)
+                .deadline(deadline)
+                .requestNote(requestNote)
+                .orderStatus(OrderStatus.PENDING)
+                .build();
+    }
+
+    /**
+     * 주문 유효성 검증
+     */
+    private static void validateCreateOrder(Long quantity, LocalDateTime deadline, Money productPrice) {
+        if (quantity == null || quantity < 1) {
+            throw new IllegalArgumentException("주문 수량은 1개 이상이어야 합니다");
+        }
+        if (deadline == null || deadline.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("납기일은 현재 시간 이후여야 합니다");
+        }
+        if (productPrice == null || productPrice.isZero()) {
+            throw new IllegalArgumentException("상품 가격은 0보다 커야 합니다");
+        }
+    }
+
+    /**
      * 주문 상태 변경
      */
     public void updateStatus(OrderStatus newStatus) {
@@ -81,13 +126,6 @@ public class Order extends BaseTimeEntity {
      */
     public void assignDelivery(UUID deliveryId) {
         this.deliveryId = deliveryId;
-    }
-
-    /**
-     * 주문 금액 계산
-     */
-    public Money calculateTotalPrice() {
-        return totalPrice.multiply(quantity.intValue());
     }
 
     /**
@@ -126,5 +164,7 @@ public class Order extends BaseTimeEntity {
 
         // 주문 상태 PENDING으로 변경
         updateStatus(OrderStatus.PENDING);
+
+        this.updatedAt = LocalDateTime.now();
     }
 }
