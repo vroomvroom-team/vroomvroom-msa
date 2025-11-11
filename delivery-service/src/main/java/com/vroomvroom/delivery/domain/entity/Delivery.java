@@ -105,4 +105,8 @@ public class Delivery extends BaseTimeEntity {
     public void updateStartTime() {
         this.startTime = LocalDateTime.now();
     }
+
+    public void updateStatus(DeliveryStatus status) {
+        this.status = status;
+    }
 }

@@ -9,6 +9,7 @@ import com.vroomvroom.delivery.domain.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.DeliveryAssignmentMessageSender;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
+import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
         route.updateDeliveryManagerId(manager);
         manager.updateStatus(); // 매니저 상태 변경(isActive) : false -> true
         route.updateStatus();
+        route.getDelivery().updateStatus(DeliveryStatus.TRANSIT_HUB); // 배송 상태 변경
         route.getDelivery().updateStartTime();
         RouteManagerAssignment.create(route, manager);
     }
