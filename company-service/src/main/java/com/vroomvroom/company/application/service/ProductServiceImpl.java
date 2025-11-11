@@ -20,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final CompanyRepository companyRepository;
     private final ProductRepository productRepository;
@@ -64,5 +64,20 @@ public class ProductServiceImpl implements ProductService{
         if (!hubClient.existsHub(hubId)) {
             throw new CustomException(ErrorCode.HUB_NOT_FOUND);
         }
+    }
+
+    @Override
+    public ProductResult getProduct(UUID productId) {
+        log.info("상품 상세 조회 시작");
+
+        Product product = getActiveProduct(productId);
+
+        log.info("상품 상세 조회 완료: productId = {}", product.getProductId());
+        return ProductResult.from(product);
+    }
+
+    private Product getActiveProduct(UUID productId) {
+        return productRepository.findByProductIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 }

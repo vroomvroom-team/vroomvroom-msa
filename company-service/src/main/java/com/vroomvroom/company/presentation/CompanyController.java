@@ -46,7 +46,7 @@ public class CompanyController {
                 // TODO. userId, userRole 추가
         );
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.createCompany(command));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.createCompany(command));
 
         log.info("업체 생성 성공: companyId = {}", response.companyId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
@@ -56,7 +56,7 @@ public class CompanyController {
     public ResponseEntity<ApiResponse<CompanyDetailRes>> getCompany(@PathVariable UUID companyId) {
         log.info("GET api/v1/companies/{} 업체 상세조회 요청", companyId);
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.getCompany(companyId));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.getCompany(companyId));
 
         log.info("업체 상세 조회 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -82,7 +82,7 @@ public class CompanyController {
                 // TODO. userId, userRole 추가
         );
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.updateCompany(command));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.updateCompany(command));
 
         log.info("업체 수정 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));

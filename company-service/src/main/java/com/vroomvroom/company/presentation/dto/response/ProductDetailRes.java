@@ -11,8 +11,8 @@ public record ProductDetailRes(
         String productName,
         Long price
 ) {
-    public static ProductResult from(ProductResult result) {
-        return new ProductResult(
+    public static ProductDetailRes from(ProductResult result) {
+        return new ProductDetailRes(
                 result.productId(),
                 result.companyId(),
                 result.hubId(),

@@ -35,6 +35,7 @@ public enum ErrorCode {
     DUPLICATE_PRODUCT_NAME(HttpStatus.CONFLICT, "이미 존재하는 상품 이름입니다."),
     HUB_MISMATCH(HttpStatus.BAD_REQUEST, "허브 정보가 일치하지 않습니다."),
     INVALID_PRICE(HttpStatus.BAD_REQUEST, "가격은 0보다 큰 값이어야 합니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품 ID 입니다."),
 
 
     // 외부 서비스 검증 실패

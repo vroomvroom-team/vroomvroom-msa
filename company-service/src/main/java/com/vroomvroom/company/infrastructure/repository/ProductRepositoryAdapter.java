@@ -1,4 +1,4 @@
-package com.vroomvroom.company.infrastructure.repository.product;
+package com.vroomvroom.company.infrastructure.repository;
 
 import com.vroomvroom.company.domain.entity.Company;
 import com.vroomvroom.company.domain.entity.Product;
@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,5 +24,10 @@ public class ProductRepositoryAdapter implements ProductRepository {
     @Override
     public Product save(Product product) {
         return jpaProductRepository.save(product);
+    }
+
+    @Override
+    public Optional<Product> findByProductIdAndDeletedAtIsNull(UUID productId) {
+        return jpaProductRepository.findByProductIdAndDeletedAtIsNull(productId);
     }
 }
