@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.infrastructure.repository;
 
 import com.vroomvroom.hub.domain.entity.HubRoute;
-import com.vroomvroom.hub.domain.repository.HubRouteRepository;
+import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,14 +13,9 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
-public class HubRouteRepositoryImpl implements HubRouteRepository {
+public class HubRouteFindRepositoryImpl implements HubRouteFindRepository {
 
     private final JpaHubRouteRepository jpaHubRouteRepository;
-
-    @Override
-    public HubRoute save(HubRoute hubRoute) {
-        return jpaHubRouteRepository.save(hubRoute);
-    }
 
     @Override
     public Page<HubRoute> findAllWithHubs(Pageable pageable) {

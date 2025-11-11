@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface HubRouteRepository {
-    HubRoute save(HubRoute hubRoute);
+public interface HubRouteFindRepository {
     Page<HubRoute> findAllWithHubs(Pageable pageable);
     Optional<HubRoute> findHubRouteWithHubsByRouteId(UUID routeId);
     List<HubRoute> findAllActive();

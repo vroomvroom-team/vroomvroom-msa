@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.domain.vo;
 
 import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ public class CompanyId {
     private UUID companyId;
 
     private CompanyId(UUID companyId) {
-        if (companyId == null) throw new CustomException(ErrorCode.COMPANY_NOT_FOUND);
+        if (companyId == null) throw new CustomException(HubErrorCode.COMPANY_NOT_FOUND);
     }
 
     public static CompanyId of(UUID companyId) {

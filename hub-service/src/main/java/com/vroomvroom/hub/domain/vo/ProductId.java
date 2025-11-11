@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.domain.vo;
 
 import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -18,7 +18,7 @@ public class ProductId {
     private UUID productId;
 
     private ProductId(UUID productId) {
-        if (productId == null) throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
+        if (productId == null) throw new CustomException(HubErrorCode.PRODUCT_NOT_FOUND);
         this.productId = productId;
     }
 

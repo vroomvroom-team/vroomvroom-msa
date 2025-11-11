@@ -2,9 +2,8 @@ package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.hub.domain.vo.Location;
-import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,6 +35,12 @@ public class Hub extends BaseTimeEntity {
     @Embedded
     private Location location;
 
+    @OneToMany(mappedBy = "departureHub", cascade = CascadeType.ALL)
+    private List<HubRoute> departureRoutes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "arrivalHub", cascade = CascadeType.ALL)
+    private List<HubRoute> arrivalRoutes = new ArrayList<>();
+
     @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL)
     private List<Stock> stocks = new ArrayList<>();
 
@@ -51,7 +56,7 @@ public class Hub extends BaseTimeEntity {
     private static void validateHub(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         if (hubName == null || hubName.trim().isEmpty() ||
                 address == null || address.trim().isEmpty() ||
-                latitude == null || longitude == null) throw new CustomException(ErrorCode.BAD_REQUEST);
+                latitude == null || longitude == null) throw new CustomException(HubErrorCode.BAD_REQUEST);
     }
 
     public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
@@ -66,6 +71,17 @@ public class Hub extends BaseTimeEntity {
 
     public void delete() {
         this.markAsDeleted();
+    }
+
+    public void createRoute(HubRoute route) {
+        route.setDepartureHub(this);
+        this.departureRoutes.add(route);
+    }
+
+    public void removeRoute(HubRoute route) {
+        this.departureRoutes.remove(route);
+        route.setDepartureHub(null);
+        route.markAsDeleted();
     }
 
     public void createStock(Stock stock) {

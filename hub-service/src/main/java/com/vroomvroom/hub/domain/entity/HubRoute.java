@@ -2,7 +2,7 @@ package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -25,10 +25,12 @@ public class HubRoute extends BaseTimeEntity {
     @Column
     private String routeName;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departure_hub_id", nullable = false)
     private Hub departureHub;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "arrival_hub_id", nullable = false)
     private Hub arrivalHub;
@@ -55,15 +57,15 @@ public class HubRoute extends BaseTimeEntity {
     }
 
     private static void validateHubRoute(Hub departureHub, Hub arrivalHub, Long time, Long distance) {
-        if (departureHub == null || arrivalHub == null) throw new CustomException(ErrorCode.BAD_REQUEST);
-        if (departureHub.getHubId().equals(arrivalHub.getHubId())) throw new CustomException(ErrorCode.SAME_DEPARTURE_ARRIVAL_HUB);
-        if (time == null || time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
-        if (distance == null || distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
+        if (departureHub == null || arrivalHub == null) throw new CustomException(HubErrorCode.BAD_REQUEST);
+        if (departureHub.getHubId().equals(arrivalHub.getHubId())) throw new CustomException(HubErrorCode.SAME_DEPARTURE_ARRIVAL_HUB);
+        if (time == null || time <= 0) throw new CustomException(HubErrorCode.INVALID_TIME);
+        if (distance == null || distance <= 0) throw new CustomException(HubErrorCode.INVALID_DISTANCE);
     }
 
     public void update(String routeName, Long time, Long distance, Boolean isActive) {
-        if (time != null && time <= 0) throw new CustomException(ErrorCode.INVALID_TIME);
-        if (distance != null && distance <= 0) throw new CustomException(ErrorCode.INVALID_DISTANCE);
+        if (time != null && time <= 0) throw new CustomException(HubErrorCode.INVALID_TIME);
+        if (distance != null && distance <= 0) throw new CustomException(HubErrorCode.INVALID_DISTANCE);
         if (routeName != null) this.routeName = routeName;
         if (time != null) this.time = time;
         if (distance != null) this.distance = distance;

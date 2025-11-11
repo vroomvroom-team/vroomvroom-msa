@@ -10,10 +10,10 @@ import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.domain.entity.Stock;
 //import com.vroomvroom.hub.domain.port.ProductClient;
 import com.vroomvroom.hub.domain.repository.HubRepository;
-import com.vroomvroom.hub.domain.repository.HubRouteRepository;
+import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
 import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import com.vroomvroom.hub.infrastructure.kafka.StockDecreasedEvent;
 import com.vroomvroom.hub.infrastructure.kafka.StockIncreasedEvent;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
@@ -37,14 +37,14 @@ import java.util.UUID;
 public class HubServiceImpl implements HubService {
 
     private final HubRepository hubRepository;
-    private final HubRouteRepository hubRouteRepository;
+    private final HubRouteFindRepository hubRouteFindRepository;
 //    private final ProductClient productClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
     public CreateHubRes createHub(CreateHubCommand command) {
-        if (hubRepository.existsByHubName(command.getHubName())) throw new CustomException(ErrorCode.DUPLICATE_HUB_NAME);
+        if (hubRepository.existsByHubName(command.getHubName())) throw new CustomException(HubErrorCode.DUPLICATE_HUB_NAME);
         Hub hub = Hub.of(
                 command.getHubName(),
                 command.getAddress(),
@@ -81,7 +81,7 @@ public class HubServiceImpl implements HubService {
     public void deleteHub(UUID hubId) {
         Hub hub = findHubById(hubId);
         hub.delete();
-        List<HubRoute> routes = hubRouteRepository.findAllByHubId(hubId);
+        List<HubRoute> routes = hubRouteFindRepository.findAllByHubId(hubId);
         routes.forEach(HubRoute::markAsDeleted);
     }
 
@@ -165,7 +165,7 @@ public class HubServiceImpl implements HubService {
 
     Hub findHubById(UUID hubId) {
         return hubRepository.findHubByHubIdAndDeletedAtIsNull(hubId)
-                .orElseThrow(() -> new CustomException(ErrorCode.HUB_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
     }
 
     Stock findStockById(UUID hubId, UUID productId) {
@@ -173,6 +173,6 @@ public class HubServiceImpl implements HubService {
         return hub.getStocks().stream()
                 .filter(s -> s.getProductId().equals(ProductId.of(productId)) && s.getDeletedAt() == null)
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.STOCK_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(HubErrorCode.STOCK_NOT_FOUND));
     }
 }

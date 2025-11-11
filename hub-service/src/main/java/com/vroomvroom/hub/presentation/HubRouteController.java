@@ -8,6 +8,7 @@ import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
+import com.vroomvroom.hub.domain.service.OptimalRouteType;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
@@ -77,7 +78,7 @@ public class HubRouteController {
     @GetMapping("/optimal-path")
     public ResponseEntity<ApiResponse<OptimalRouteRes>> findOptimalPathByDistance(@RequestParam UUID departureId,
                                                                                   @RequestParam UUID arrivalId,
-                                                                                  @RequestParam(defaultValue = "DISTANCE") String type) {
+                                                                                  @RequestParam(defaultValue = "DISTANCE") OptimalRouteType type) {
         OptimalRouteRes res = hubRouteService.findOptimalPath(departureId, arrivalId, type);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
