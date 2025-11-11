@@ -18,4 +18,5 @@ public interface HubService {
     HubDetailRes getHubDetail(UUID hubId);
     void updateHub(UUID hubId, UpdateHubCommand command);
     void deleteHub(UUID hubId);
+    boolean existsHub(UUID hubId);
 }

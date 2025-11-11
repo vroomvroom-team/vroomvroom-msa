@@ -20,7 +20,10 @@ public enum ErrorCode {
     SAME_DEPARTURE_ARRIVAL_HUB(HttpStatus.BAD_REQUEST, "출발 허브와 도착 허브가 같습니다."),
     HUB_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 허브 경로를 찾을 수 없습니다."),
     INVALID_TIME(HttpStatus.BAD_REQUEST, "유효하지 않은 소요 시간입니다."),
-    INVALID_DISTANCE(HttpStatus.BAD_REQUEST, "유효하지 않은 이동 거리입니다.");
+    INVALID_DISTANCE(HttpStatus.BAD_REQUEST, "유효하지 않은 이동 거리입니다."),
+    DUPLICATE_HUB_ROUTE(HttpStatus.BAD_REQUEST, "중복되는 허브 경로가 존재합니다."),
+    HUBS_NOT_CONNECTED(HttpStatus.BAD_REQUEST, "연결되어 있지 않은 허브는 경로 생성이 불가합니다."),
+    NO_ACTIVE_ROUTE(HttpStatus.BAD_REQUEST, "활성화된 경로가 없습니다.");
 
 
 

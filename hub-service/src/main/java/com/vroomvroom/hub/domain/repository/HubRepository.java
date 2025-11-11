@@ -13,4 +13,5 @@ public interface HubRepository {
     boolean existsByHubName(String hubName);
     Page<Hub> findAllByDeletedAtIsNull(Pageable pageable);
     Optional<Hub> findHubByHubId(UUID hubId);
+    boolean existsById(UUID hubId);
 }

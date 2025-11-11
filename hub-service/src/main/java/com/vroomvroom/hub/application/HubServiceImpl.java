@@ -12,9 +12,7 @@ import com.vroomvroom.hub.exception.ErrorCode;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +61,11 @@ public class HubServiceImpl implements HubService {
     public void deleteHub(UUID hubId) {
         Hub hub = findHubById(hubId);
         hub.markAsDeleted();
+    }
+
+    @Override
+    public boolean existsHub(UUID hubId) {
+        return hubRepository.existsById(hubId);
     }
 
     Hub findHubById(UUID hubId) {

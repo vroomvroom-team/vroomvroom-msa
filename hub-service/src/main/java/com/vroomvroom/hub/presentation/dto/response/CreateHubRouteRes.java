@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.application.dto;
+package com.vroomvroom.hub.presentation.dto.response;
 
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import lombok.Builder;
@@ -8,20 +8,22 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class HubRouteListRes {
+public class CreateHubRouteRes {
     private UUID routeId;
-    private String routeName;
     private String departureHubName;
+    private String departureAddress;
     private String arrivalHubName;
+    private String arrivalHubAddress;
     private Long time;
     private Long distance;
 
-    public static HubRouteListRes from(HubRoute hubRoute) {
-        return HubRouteListRes.builder()
+    public static CreateHubRouteRes from(HubRoute hubRoute) {
+        return CreateHubRouteRes.builder()
                 .routeId(hubRoute.getRouteId())
-                .routeName(hubRoute.getRouteName())
                 .departureHubName(hubRoute.getDepartureHub().getHubName())
+                .departureAddress(hubRoute.getDepartureHub().getAddress())
                 .arrivalHubName(hubRoute.getArrivalHub().getHubName())
+                .arrivalHubAddress(hubRoute.getArrivalHub().getAddress())
                 .time(hubRoute.getTime())
                 .distance(hubRoute.getDistance())
                 .build();

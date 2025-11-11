@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,11 +17,16 @@ public interface JpaHubRouteRepository extends JpaRepository<HubRoute, UUID> {
             "JOIN FETCH h.arrivalHub " +
             "WHERE h.deletedAt IS NULL")
     Page<HubRoute> findAllWithHubs(Pageable pageable);
-
+    
     @Query("SELECT h FROM HubRoute h " +
             "JOIN FETCH h.departureHub " +
             "JOIN FETCH h.arrivalHub " +
             "WHERE h.routeId = :routeId " +
             "AND h.deletedAt IS NULL")
     Optional<HubRoute> findHubRouteWithHubsByRouteId(@Param("routeId") UUID routeId);
+
+    @Query("SELECT h FROM HubRoute h " +
+            "WHERE h.deletedAt IS NULL " +
+            "AND h.isActive = true ")
+    List<HubRoute> findAllActive();
 }
