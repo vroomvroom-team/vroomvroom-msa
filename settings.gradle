@@ -8,5 +8,5 @@ pluginManagement {
 rootProject.name = 'vroomvroom-msa'
 
 include 'common-lib', 'user-service', 'hub-service','order-service', 'delivery-service',
-        'gateway-service', 'eureka-server', 'company-service'
+        'gateway-service', 'eureka-server', 'company-service','slack-service'
 
