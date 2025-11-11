@@ -1,7 +1,7 @@
 package com.vroomvroom.delivery.domain.port;
 
 import com.vroomvroom.delivery.application.dto.GetDeliveryRoutesReq;
-import com.vroomvroom.delivery.infrastructure.external.dto.HubDTO;
+import com.vroomvroom.delivery.infrastructure.external.dto.HubRouteDTO;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ public interface HubClient {
      *
      * @return HubDTO : 각 배송경로에 대한 출발/도착 허브ID, 소요시간, 거리를 필드로 가짐.
      */
-    List<HubDTO> getRoutes(GetDeliveryRoutesReq request);
+    List<HubRouteDTO> getRoutes(GetDeliveryRoutesReq request);
 
     void verifyExists(UUID hubId);
 }

@@ -2,7 +2,6 @@ package com.vroomvroom.delivery.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.delivery.domain.vo.ArriveHubId;
-import com.vroomvroom.delivery.domain.vo.DeliveryManagerId;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteSequence;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import com.vroomvroom.delivery.domain.vo.StartHubId;
@@ -21,7 +20,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,9 +44,8 @@ public class DeliveryRoute extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "delivery_manager_id", nullable = false))
-    private DeliveryManagerId deliveryManagerId;
+    @Column(name = "delivery_manager_id")
+    private Long deliveryManagerId;
 
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "start_hub_id", nullable = false))
@@ -75,15 +77,44 @@ public class DeliveryRoute extends BaseTimeEntity {
     private DeliveryRouteSequence sequence; // route sequence : 배송 순번
 
     public static DeliveryRoute create(
-        DeliveryRouteStatus deliveryRouteStatus,
         DeliveryRouteSequence deliverySequence,
-        StartHubId startHubId, ArriveHubId arriveHubId
+        StartHubId startHubId, ArriveHubId arriveHubId,
+        Long expectedDistance, Long expectedDuration,
+        DeliveryRouteStatus deliveryRouteStatus
     ) {
         return DeliveryRoute.builder()
-            .status(deliveryRouteStatus)
             .sequence(deliverySequence)
             .startHubId(startHubId)
             .arriveHubId(arriveHubId)
+            .expectedDistance(expectedDistance)
+            .expectedDuration(expectedDuration)
+            .status(deliveryRouteStatus)
             .build();
+    }
+
+    public void attachToDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
+    public void assignManager(Long id) {
+        this.deliveryManagerId = id;
+    }
+
+    public void updateStatus(DeliveryRouteStatus status) {
+        this.status = status;
+    }
+
+    public void updateActual(Long time, Long distance) {
+        this.actualDuration = time;
+        this.actualDistance = distance;
+    }
+
+    public Optional<LocalDateTime> getCurrentAssignmentCreatedAt() {
+        return assignments.stream()
+            .filter(assignment ->
+                    assignment.getManager() != null &&
+                Objects.equals(assignment.getManager().getId(), this.deliveryManagerId))
+            .max(Comparator.comparing(RouteManagerAssignment::getCreatedAt))
+            .map(RouteManagerAssignment::getCreatedAt);
     }
 }

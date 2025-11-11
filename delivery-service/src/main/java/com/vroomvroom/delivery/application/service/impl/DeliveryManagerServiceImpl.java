@@ -2,7 +2,10 @@ package com.vroomvroom.delivery.application.service.impl;
 
 import com.vroomvroom.delivery.application.command.CreateManagerCommand;
 import com.vroomvroom.delivery.application.service.DeliveryManagerService;
+import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
+import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
+import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
 import com.vroomvroom.delivery.domain.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.HubClient;
@@ -11,6 +14,7 @@ import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerSequence;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import com.vroomvroom.delivery.domain.vo.HubId;
+import com.vroomvroom.delivery.infrastructure.external.KafkaAssignmentMessageSender;
 import com.vroomvroom.delivery.presentation.dto.response.CreateManagerRes;
 import com.vroomvroom.delivery.presentation.dto.response.DeliveryManagerRes;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
 
     private final HubClient hubClient;
     private final UserClient userClient;
+    private final KafkaAssignmentMessageSender kafkaAssignmentMessageSender;
 
     @Override
     @Transactional
@@ -47,6 +52,16 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
         };
     }
 
+    @Transactional
+    public void assignManagerToDelivery(Delivery delivery) {
+        // 매니저가 배정될 첫번째 경로
+        DeliveryRoute firstRoute = delivery.findFirstRoute()
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_ROUTE_NOT_FOUND));
+
+        ManagerAssignmentEvent event = new ManagerAssignmentEvent(firstRoute.getId());
+        kafkaAssignmentMessageSender.send(delivery.getId(), event);
+    }
+
     @Override
     public Page<DeliveryManagerRes> getDeliveryManagers(DeliveryManagerType type, Pageable pageable) {
         if (type == null)
@@ -58,14 +73,14 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
     @Override
     public DeliveryManagerRes getDelivery(Long id) {
         return deliveryManagerRepository.findDeliveryById(id).map(DeliveryManagerRes::from)
-                .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_MANAGER_NOT_FOUND));
     }
 
     @Override
     @Transactional
     public DeliveryManagerRes deleteDelivery(Long id) {
         DeliveryManager deliveryManager = deliveryManagerRepository.findDeliveryById(id)
-                .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
         // 현재 할당된 배송이 있는지 확인 필요?
 

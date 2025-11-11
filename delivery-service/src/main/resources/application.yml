@@ -27,12 +27,32 @@ spring:
         format_sql: true
         show_sql: true
 
+  data:
+    redis:
+      host: redis
+      port: 6379
+
   cloud:
     openfeign:
       circuitbreaker:
-        enabled: true
+        enabled: false
 
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: delivery-assignment-group
 #eureka:
 #  client:
 #    service-url:
 #      defaultZone: ${EUREKA_SERVER_URL}
+
+app:
+  kafka:
+    topics:
+      manager-assignment: "manager-assignment-topic"
+
+  redis:
+    keys:
+      init-lock: "global:hub_manager:init_lock"
+      replay-lock: "global:hub_manager:replay_lock"
+      manager-queue: "global:hub_manager:queue"
