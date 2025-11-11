@@ -24,6 +24,8 @@ public interface DeliveryManagerRepository {
 
     Long nextHubSequence(UUID hubId);
 
+    Optional<DeliveryManager> findById(Long userId);
+
     /**
      * 지정된 시퀀스와 타입을 가진 배송담당자 중 일하고 있지 않은(isActive = false)인 담당자 조회
      *     - 현재 일할 수 있는(대기 중) 담당자 찾는 용도

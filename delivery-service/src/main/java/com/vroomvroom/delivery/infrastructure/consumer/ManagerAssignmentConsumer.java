@@ -7,6 +7,7 @@ import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
 import com.vroomvroom.delivery.domain.exception.AllManagerBusyException;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
+import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,29 +46,23 @@ public class ManagerAssignmentConsumer {
 
             if (route.getDeliveryManagerId() != null) { // 이미 배정된 상태
                 log.warn("배송담당자가 이미 배정된 경로입니다. routeId = {}", routeId);
-                deliveryRouteService.scheduleNextAfterCommit(route);
+                return;
+            }
+
+            if (route.getStatus() != DeliveryRouteStatus.HUB_MOVE_WAITING) {
+                log.warn("대기 상태가 아닌 경로는 배정 불가합니다. routeId = {}, status = {}",
+                    routeId, route.getStatus());
                 return;
             }
 
             String poppedSequenceStr = redisTemplate.opsForList().leftPop(managerQueueKey);
             if (poppedSequenceStr == null) {
+                log.warn("모든 담당자가 배송중입니다.");
                 throw new AllManagerBusyException();
             }
 
             final Long sequenceToAssign = Long.parseLong(poppedSequenceStr);
-            log.info("다음 순번: {}", sequenceToAssign);
-
-            TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                    @Override
-                    public void afterCompletion(int status) {
-                        if (status == STATUS_ROLLED_BACK) { // 롤백시에 sequence 복구
-                            redisTemplate.opsForList()
-                                .rightPush(managerQueueKey, String.valueOf(sequenceToAssign));
-                            log.info("트랜잭션 롤백으로 순번 복구 sequence = {}", sequenceToAssign);
-                        }
-                    }
-                });
+            log.info("다음 배정될 담당자 순번: {}", sequenceToAssign);
 
             DeliveryManager manager = managerRepository
                 .findBySequenceAndTypeAndIsActiveFalse(
@@ -88,9 +83,18 @@ public class ManagerAssignmentConsumer {
                     public void afterCommit() { // 커밋까지 됐을 때
                         log.info("배송담당자 배정 성공 routeId = {}, managerId = {}",
                             route.getId(), manager.getId());
-                        deliveryRouteService.triggerNextRouteAssignment(route);
                     }
-                });
+
+                    @Override
+                    public void afterCompletion(int status) {
+                        if (status == STATUS_ROLLED_BACK) { // 롤백시에 sequence 복구
+                            redisTemplate.opsForList()
+                                .rightPush(managerQueueKey, String.valueOf(sequenceToAssign));
+                            log.info("트랜잭션 롤백으로 순번 복구 sequence = {}", sequenceToAssign);
+                        }
+                    }
+                }
+            );
 
         } catch (AllManagerBusyException e) {
             log.warn("담당자 없음. routeId = {}", event.getRouteId());

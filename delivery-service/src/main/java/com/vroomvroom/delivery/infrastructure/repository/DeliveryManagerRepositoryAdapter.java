@@ -2,13 +2,9 @@ package com.vroomvroom.delivery.infrastructure.repository;
 
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
-
-import java.util.Optional;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,5 +56,10 @@ public class DeliveryManagerRepositoryAdapter implements DeliveryManagerReposito
         Long sequenceToAssign, DeliveryManagerType type, boolean isActive) {
         return jpaDeliveryManagerRepository
             .findBySequenceAndTypeAndIsActiveFalse(sequenceToAssign, type, isActive);
+    }
+
+    @Override
+    public Optional<DeliveryManager> findById(Long userId) {
+        return jpaDeliveryManagerRepository.findById(userId);
     }
 }

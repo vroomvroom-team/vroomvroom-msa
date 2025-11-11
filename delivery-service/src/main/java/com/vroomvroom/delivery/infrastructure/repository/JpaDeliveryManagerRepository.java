@@ -1,13 +1,9 @@
 package com.vroomvroom.delivery.infrastructure.repository;
 
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
-
-import java.util.Optional;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,8 +14,11 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
 
     boolean existsById(Long userId);
 
+    Optional<DeliveryManager> findById(Long userId);
+
     // 타입별 배송 담당자 조회
-    Page<DeliveryManager> findAllByTypeAndDeletedAtIsNull(DeliveryManagerType type, Pageable pageable);
+    Page<DeliveryManager> findAllByTypeAndDeletedAtIsNull(DeliveryManagerType type,
+        Pageable pageable);
 
     Page<DeliveryManager> findAllByDeletedAtIsNull(Pageable pageable);
 

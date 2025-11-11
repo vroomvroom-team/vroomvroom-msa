@@ -5,6 +5,7 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.delivery.application.command.CreateDeliveryCommand;
 import com.vroomvroom.delivery.application.command.CreateManagerCommand;
 import com.vroomvroom.delivery.application.service.DeliveryManagerService;
+import com.vroomvroom.delivery.application.service.DeliveryRouteService;
 import com.vroomvroom.delivery.application.service.DeliveryService;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import com.vroomvroom.delivery.presentation.dto.request.CreateDeliveryReq;
@@ -13,6 +14,7 @@ import com.vroomvroom.delivery.presentation.dto.response.CreateDeliveryRes;
 import com.vroomvroom.delivery.presentation.dto.response.CreateManagerRes;
 import com.vroomvroom.delivery.presentation.dto.response.DeliveryManagerRes;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +38,7 @@ public class DeliveryController {
 
     private final DeliveryManagerService deliveryManagerService;
     private final DeliveryService deliveryService;
+    private final DeliveryRouteService deliveryRouteService;
 
     @PostMapping("/manager")
     public ResponseEntity<ApiResponse<CreateManagerRes>> createDeliveryManager(
@@ -54,6 +58,16 @@ public class DeliveryController {
         CreateDeliveryRes response = deliveryService.createDelivery(command);
 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    // 배송/배송경로 상태 업데이트 (허브 -> 허브)
+    @PatchMapping("/{deliveryId}/delivery-routes/{routeId}/status")
+    public ResponseEntity<ApiResponse<Void>> updateDeliveryRouteStatus(
+        @PathVariable UUID deliveryId,
+        @PathVariable UUID routeId
+    ) {
+        deliveryRouteService.updateDeliveryRouteStatus(deliveryId, routeId);
+        return ResponseEntity.ok().build();
     }
 
     // 배송 담당자 전체 조회

@@ -20,7 +20,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -96,11 +100,21 @@ public class DeliveryRoute extends BaseTimeEntity {
         this.deliveryManagerId = id;
     }
 
-    public void updateStatus() {
-        this.status = DeliveryRouteStatus.HUB_MOVING;
+    public void updateStatus(DeliveryRouteStatus status) {
+        this.status = status;
     }
 
-    public void updateDeliveryManagerId(DeliveryManager manager) {
-        this.deliveryManagerId = manager.getId();
+    public void updateActual(Long time, Long distance) {
+        this.actualDuration = time;
+        this.actualDistance = distance;
+    }
+
+    public Optional<LocalDateTime> getCurrentAssignmentCreatedAt() {
+        return assignments.stream()
+            .filter(assignment ->
+                    assignment.getManager() != null &&
+                Objects.equals(assignment.getManager().getId(), this.deliveryManagerId))
+            .max(Comparator.comparing(RouteManagerAssignment::getCreatedAt))
+            .map(RouteManagerAssignment::getCreatedAt);
     }
 }

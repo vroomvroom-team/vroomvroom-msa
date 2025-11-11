@@ -78,7 +78,11 @@ public class DeliveryManager extends BaseTimeEntity {
             .build();
     }
 
-    public void updateStatus() {
-        this.isActive = !this.isActive;
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
     }
 }
