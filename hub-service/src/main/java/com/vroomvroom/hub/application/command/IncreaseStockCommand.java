@@ -1,15 +1,15 @@
-package com.vroomvroom.hub.presentation.dto.request;
+
+package com.vroomvroom.hub.application.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class DecreaseStockReq {
+public class IncreaseStockCommand {
+    private UUID hubId;
     private UUID productId;
     private Long quantity;
     private UUID orderId;

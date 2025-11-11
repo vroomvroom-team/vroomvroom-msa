@@ -1,10 +1,7 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
-import com.vroomvroom.hub.application.command.CreateHubCommand;
-import com.vroomvroom.hub.application.command.CreateStockCommand;
-import com.vroomvroom.hub.application.command.DecreaseStockCommand;
-import com.vroomvroom.hub.application.command.UpdateHubCommand;
+import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.application.dto.StockRes;
@@ -18,9 +15,9 @@ import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.ErrorCode;
 import com.vroomvroom.hub.infrastructure.kafka.StockDecreasedEvent;
+import com.vroomvroom.hub.infrastructure.kafka.StockIncreasedEvent;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -125,7 +122,6 @@ public class HubServiceImpl implements HubService {
     @Override
     @Transactional
     public void decreaseStock(DecreaseStockCommand command) {
-        Hub hub = findHubById(command.getHubId());
         Stock stock = findStockById(command.getHubId(), command.getProductId());
         stock.decrease(command.getQuantity());
         try {
@@ -136,9 +132,28 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-            kafkaTemplate.send("stock-decreased", event);
+//            kafkaTemplate.send("stock-decreased", event);
         } catch (Exception e) {
             log.error("재고 감소 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void increaseStock(IncreaseStockCommand command) {
+        Stock stock = findStockById(command.getHubId(), command.getProductId());
+        stock.increase(command.getQuantity());
+        try {
+            StockIncreasedEvent event = new StockIncreasedEvent(
+                    command.getOrderId(),
+                    command.getHubId(),
+                    command.getProductId(),
+                    command.getQuantity(),
+                    System.currentTimeMillis()
+            );
+//            kafkaTemplate.send("stock-increased", event);
+        } catch (Exception e) {
+            log.error("재고 증가 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }
     }
 
