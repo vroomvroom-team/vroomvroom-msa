@@ -53,6 +53,8 @@ app:
 
   redis:
     keys:
-      init-lock: "global:hub_manager:init_lock"
       replay-lock: "global:hub_manager:replay_lock"
       manager-queue: "global:hub_manager:queue"
+
+  assignment:
+    replay-interval-ms: 30000
