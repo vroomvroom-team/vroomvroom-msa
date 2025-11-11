@@ -22,6 +22,7 @@ public class HubClientImpl implements HubClient {
     @Override
     public StockDTO getStockInfo(UUID hubId, UUID productId) {
         log.info("재고 조회 요청 : hubId={}", hubId);
+        /*
         try {
             ApiResponse<StockDTO> response = hubFeignClient.getStockInfo(hubId, productId);
 
@@ -39,6 +40,13 @@ public class HubClientImpl implements HubClient {
             log.error("허브 서비스 호출 실패 : status={}, message={}", e.status(), e.getMessage());
             throw new CustomException(OrderErrorCode.HUB_INTERNAL_SERVER_ERROR);
         }
+        */
+
+        return StockDTO.builder()
+                .hubId(UUID.randomUUID())
+                .stockId(UUID.randomUUID())
+                .quantity(10L)
+                .build();
     }
 
     @Override
