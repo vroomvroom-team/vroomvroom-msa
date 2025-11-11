@@ -107,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void deleteCompany(DeleteCommand command) {
+    public void deleteProduct(DeleteCommand command) {
         Product product = getActiveProduct(command.id());
 
         /*        TODO. 유저 권한 체크

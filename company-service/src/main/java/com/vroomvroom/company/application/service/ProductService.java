@@ -11,5 +11,5 @@ public interface ProductService {
     ProductResult createProduct(CreateProductCommand command);
     ProductResult getProduct(UUID productId);
     ProductResult updateProduct(UpdateProductCommand command);
-    void deleteCompany(DeleteCommand command);
+    void deleteProduct(DeleteCommand command);
 }

@@ -57,7 +57,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.getProduct(productId));
 
-        log.info("상품 상세 조회 성공: companyId = {}", response.productId());
+        log.info("상품 상세 조회 성공: productId = {}", response.productId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -99,7 +99,7 @@ public class ProductController {
                 // TODO. userId, userRole 추가
         );
 
-        productService.deleteCompany(command);
+        productService.deleteProduct(command);
 
         DeleteRes response = new DeleteRes(
                 productId,
