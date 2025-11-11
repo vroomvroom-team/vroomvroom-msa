@@ -1,20 +1,21 @@
 package com.vroomvroom.orderservice.application;
 
 import com.vroomvroom.common.exception.CustomException;
-import com.vroomvroom.common.exception.ErrorCode;
 import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderDTO;
 import com.vroomvroom.orderservice.application.service.CompanyClient;
+import com.vroomvroom.orderservice.application.service.HubClient;
 import com.vroomvroom.orderservice.application.service.ProductClient;
 import com.vroomvroom.orderservice.domain.entity.Order;
 import com.vroomvroom.orderservice.domain.repository.OrderRepository;
 import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.domain.vo.OrderStatus;
+import com.vroomvroom.orderservice.exception.OrderErrorCode;
 import com.vroomvroom.orderservice.infrastructure.dto.CompanyHubDTO;
 import com.vroomvroom.orderservice.infrastructure.dto.ProductDTO;
-import feign.FeignException;
+import com.vroomvroom.orderservice.infrastructure.dto.StockDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final CompanyClient companyClient;
+    private final HubClient hubClient;
 
     /**
      * 주문 생성
@@ -49,6 +51,10 @@ public class OrderServiceImpl implements OrderService {
         CompanyHubDTO supplyCompany = companyClient.getCompanyHubInfo(command.supplyCompanyId());
         CompanyHubDTO receiveCompany = companyClient.getCompanyHubInfo(command.receiveCompanyId());
         ProductDTO product = productClient.getProductInfo(command.productId());
+        StockDTO stock = hubClient.getStockInfo(supplyCompany.getHubId(), product.getProductId());
+
+        if (stock.getQuantity() <= 0)
+            throw new CustomException(OrderErrorCode.HUB_PRODUCT_OUT_OF_STOCK);
 
         // 주문 생성
         Order order = Order.create(
@@ -64,28 +70,24 @@ public class OrderServiceImpl implements OrderService {
         );
 
         // 재고 차감
-        decreaseStocks(order.getProductId(), order.getQuantity());
+        hubClient.decreaseStocks(order.getProductId(), order.getQuantity());
 
-        // 주문 저장
-        Order savedOrder = orderRepository.save(order);
-
-        // TODO. 주문 저장 실패 시 재고 원복 로직 필요
-
-        log.info("주문 생성 성공 - 주문 ID={}", savedOrder.getId());
-        return OrderDTO.from(savedOrder);
-    }
-
-    // 상품 재고 감소
-    private void decreaseStocks(UUID productId, Long quantity) {
-        // TODO. 상품 재고 감소 로직
+        Order savedOrder = null;
         try {
-            if (!productClient.decreaseStocks(productId, quantity))
-                throw new RuntimeException("상품 재고 감소 실패");
+            // 주문 저장
+            savedOrder = orderRepository.save(order);
 
-        } catch (FeignException e) {
-            // e "상품 정보 조회 실패"
-            throw new RuntimeException(e); // TODO. ErrorCode 관리
+            if (savedOrder == null)
+                hubClient.decreaseStocks(order.getProductId(), order.getQuantity());
+
+            log.info("주문 생성 성공 - 주문 ID={}", savedOrder.getId());
+            return OrderDTO.from(savedOrder);
+        } catch (Exception e) {
+            // 주문 저장 실패 시 감소된 재고 원복
+            hubClient.increaseStocks(order.getProductId(), order.getQuantity());
         }
+
+        return null;
     }
 
     /**
@@ -100,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("주문 조회 - 주문 ID={}", orderId);
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(orderId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INTERNAL_SERVER_ERROR)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         return OrderDTO.from(order);
     }
@@ -133,12 +135,12 @@ public class OrderServiceImpl implements OrderService {
                 command.userId(), command.orderId());
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         // 배송 전 주문만 취소 가능
         if (!order.isCancellable()) {
             log.debug("주문 취소 불가 상태 - 주문 상태={}", order.getOrderStatus());
-            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.ORDER_NOT_CANCELLABLE);
         }
 
         order.updateStatus(OrderStatus.CANCELLED);
@@ -161,11 +163,11 @@ public class OrderServiceImpl implements OrderService {
         // TODO. 유저 ID 유효성 검증 필요
 
         Order order = orderRepository.findByIdAndDeletedAtIsNull(command.orderId())
-                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)); // TODO. ErrorCode 관리
+                .orElseThrow(() -> new CustomException(OrderErrorCode.ORDER_NOT_FOUND));
 
         if (!order.isModifiable()) {
             log.debug("주문 수정 불가 상태 - 주문 상태={}", order.getOrderStatus());
-            throw new CustomException(ErrorCode.VALIDATION_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.ORDER_NOT_MODIFIABLE);
         }
 
         Money newTotalPrice = order.getTotalPrice();
@@ -181,9 +183,9 @@ public class OrderServiceImpl implements OrderService {
 
             // 재고 확인
             if (quantityDiff > 0) {
-                decreaseStocks(order.getProductId(), quantityDiff);
+                hubClient.decreaseStocks(order.getProductId(), quantityDiff);
             } else if (quantityDiff < 0)
-                productClient.increaseStocks(order.getProductId(), Math.abs(quantityDiff));
+                hubClient.increaseStocks(order.getProductId(), Math.abs(quantityDiff));
 
             // 총 금액 재계산
             newTotalPrice = product.getPrice().multiply(command.quantity());
@@ -198,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
                     newTotalPrice
             );
         } catch (Exception e) {
-            // 재고 변동 시 원래 주문 수량으로 원복
+            // 주문 수정 오류 시 원래 주문 수량으로 원복
             if (quantityDiff != null)
                 rollbackStock(order.getProductId(), quantityDiff);
         }
@@ -206,15 +208,16 @@ public class OrderServiceImpl implements OrderService {
         return OrderDTO.from(order);
     }
 
+    // 재고 원복 로직
     private void rollbackStock(UUID productId, long quantityDiff) {
         try {
             if (quantityDiff > 0) {
-                productClient.increaseStocks(productId, quantityDiff);
+                hubClient.increaseStocks(productId, quantityDiff);
             } else if (quantityDiff < 0)
-                productClient.decreaseStocks(productId, Math.abs(quantityDiff));
+                hubClient.decreaseStocks(productId, Math.abs(quantityDiff));
 
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR); // TODO. ErrorCode 관리
+            throw new CustomException(OrderErrorCode.PRODUCT_INTERNAL_SERVER_ERROR);
         }
     }
 }
