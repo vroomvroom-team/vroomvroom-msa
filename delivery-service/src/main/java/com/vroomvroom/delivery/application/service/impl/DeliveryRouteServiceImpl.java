@@ -1,18 +1,17 @@
 package com.vroomvroom.delivery.application.service.impl;
 
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.application.service.DeliveryRouteService;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
 import com.vroomvroom.delivery.domain.entity.RouteManagerAssignment;
 import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
-import com.vroomvroom.delivery.domain.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.DeliveryAssignmentMessageSender;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
-import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -37,12 +37,6 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
     private final DeliveryManagerRepository deliveryManagerRepository;
     private final DeliveryAssignmentMessageSender deliveryAssignmentMessageSender;
     private final StringRedisTemplate redisTemplate;
-
-    @Override
-    public DeliveryRoute getRouteOrThrow(UUID routeId) {
-        return deliveryRepository.findByRouteId(routeId)
-            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_ROUTE_NOT_FOUND));
-    }
 
     @Override
     public void assignManager(DeliveryRoute route, DeliveryManager manager) {
@@ -62,7 +56,7 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
     @Override
     @Transactional
     public void updateDeliveryRouteStatus(UUID deliveryId, UUID routeId) {
-        DeliveryRoute route = getRouteOrThrow(routeId);
+        DeliveryRoute route = findRouteOrThrow(routeId);
 
         // 허브 이동중인 경우만 도착 상태로 변경 가능.
         if (route.getStatus() != DeliveryRouteStatus.HUB_MOVING) {
@@ -98,6 +92,12 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
                 triggerNextRouteAssignment(nextDeliveryId, nextSequence); // 다음 경로 배정
             }
         });
+    }
+
+    @Override
+    public DeliveryRoute findRouteOrThrow(UUID routeId) {
+        return deliveryRepository.findByRouteId(routeId)
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_ROUTE_NOT_FOUND));
     }
 
     /**

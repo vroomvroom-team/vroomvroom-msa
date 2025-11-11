@@ -3,6 +3,7 @@ package com.vroomvroom.delivery.infrastructure.repository;
 import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
+import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,16 @@ public class DeliveryRepositoryAdapter implements DeliveryRepository {
     @Override
     public Page<UnassignedRouteIds> findUnassignedRouteKeys(Pageable pageable) {
         return jpaDeliveryRepository.findUnassignedRouteKeys(pageable);
+    }
+
+    @Override
+    public Optional<Delivery> findById(UUID deliveryId) {
+        return jpaDeliveryRepository.findById(deliveryId);
+    }
+
+    @Override
+    public Page<UUID> findIdsByStatus(DeliveryStatus deliveryStatus, UUID hubId,
+        Pageable pageable) {
+        return jpaDeliveryRepository.findIdsByStatus(deliveryStatus, hubId, pageable);
     }
 }

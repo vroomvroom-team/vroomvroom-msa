@@ -1,4 +1,4 @@
-package com.vroomvroom.delivery.application.service;
+package com.vroomvroom.delivery.application.scheduler;
 
 import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
@@ -29,13 +29,13 @@ public class PendingAssignmentReplayer {
     String replayLockKey;
 
     // 30초마다 미배정된 배송경로 일부 재시도
-    @Scheduled(fixedDelayString = "${app.assignment.replay-interval-ms:30000}")
-    @Transactional(readOnly = true)
-    public void replayUnassigned() {
+    @Scheduled(fixedDelayString = "${app.assignment.replay-interval-ms}")
+    @Transactional
+    public void replayForUnassigned() {
 
         // 확장성을 위해 분산락으로 처리
         Boolean hasLock = redisTemplate.opsForValue()
-            .setIfAbsent(replayLockKey, "replaying", Duration.ofSeconds(10));
+            .setIfAbsent(replayLockKey, "replaying", Duration.ofSeconds(30));
 
         if (Boolean.FALSE.equals(hasLock)) { // 이미 다른 서버가 락 획득 했으면
             log.info("락 획득 실패. 다른 서버가 재시도");

@@ -49,6 +49,7 @@ public class DeliveryManager extends BaseTimeEntity {
     private DeliveryManagerSequence sequence; // manager sequence : 배송담당자 순번 (각자의 회사에서의 순번)
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = false;
 
     public static DeliveryManager createHubManager(
