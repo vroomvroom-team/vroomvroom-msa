@@ -5,9 +5,8 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.StockRes;
-import com.vroomvroom.hub.domain.entity.Stock;
 import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
-import com.vroomvroom.hub.presentation.dto.request.DecreaseStockReq;
+import com.vroomvroom.hub.presentation.dto.request.UpdateStockReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
@@ -101,12 +100,22 @@ public class HubController {
     }
 
     @PutMapping("/{hubId}/stocks/decrease")
-    public ResponseEntity<ApiResponse<Void>> updateStock(@PathVariable UUID hubId,
-                                                         @RequestBody DecreaseStockReq req) {
+    public ResponseEntity<ApiResponse<Void>> decreaseStock(@PathVariable UUID hubId,
+                                                         @RequestBody UpdateStockReq req) {
         DecreaseStockCommand command = new DecreaseStockCommand(
                 hubId, req.getProductId(), req.getQuantity(), req.getOrderId()
         );
         hubService.decreaseStock(command);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{hubId}/stocks/increase")
+    public ResponseEntity<ApiResponse<Void>> increaseStock(@PathVariable UUID hubId,
+                                                           @RequestBody UpdateStockReq req) {
+        IncreaseStockCommand command = new IncreaseStockCommand(
+                hubId, req.getProductId(), req.getQuantity(), req.getOrderId()
+        );
+        hubService.increaseStock(command);
         return ResponseEntity.noContent().build();
     }
 

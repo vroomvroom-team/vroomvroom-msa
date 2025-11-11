@@ -1,10 +1,7 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
-import com.vroomvroom.hub.application.command.CreateHubCommand;
-import com.vroomvroom.hub.application.command.CreateStockCommand;
-import com.vroomvroom.hub.application.command.DecreaseStockCommand;
-import com.vroomvroom.hub.application.command.UpdateHubCommand;
+import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.application.dto.StockRes;
@@ -26,5 +23,6 @@ public interface HubService {
     CreateStockRes createStock(CreateStockCommand command);
     List<StockRes> getStockList(UUID hubId);
     void decreaseStock(DecreaseStockCommand command);
+    void increaseStock(IncreaseStockCommand command);
     StockRes getStock(UUID hubId, UUID productId);
 }
