@@ -126,10 +126,7 @@ public class HubServiceImpl implements HubService {
     @Transactional
     public void decreaseStock(DecreaseStockCommand command) {
         Hub hub = findHubById(command.getHubId());
-        Stock stock = hub.getStocks().stream()
-                .filter(s -> s.getProductId().equals(ProductId.of(command.getProductId())) && s.getDeletedAt() == null)
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.STOCK_NOT_FOUND));
+        Stock stock = findStockById(command.getHubId(), command.getProductId());
         stock.decrease(command.getQuantity());
         try {
             StockDecreasedEvent event = new StockDecreasedEvent(
@@ -139,14 +136,28 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-//            kafkaTemplate.send("stock-decreased", event);
+            kafkaTemplate.send("stock-decreased", event);
         } catch (Exception e) {
             log.error("재고 감소 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }
     }
 
+    @Override
+    public StockRes getStock(UUID hubId, UUID productId) {
+        Stock stock = findStockById(hubId, productId);
+        return StockRes.from(stock);
+    }
+
     Hub findHubById(UUID hubId) {
         return hubRepository.findHubByHubIdAndDeletedAtIsNull(hubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.HUB_NOT_FOUND));
+    }
+
+    Stock findStockById(UUID hubId, UUID productId) {
+        Hub hub = findHubById(hubId);
+        return hub.getStocks().stream()
+                .filter(s -> s.getProductId().equals(ProductId.of(productId)) && s.getDeletedAt() == null)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.STOCK_NOT_FOUND));
     }
 }

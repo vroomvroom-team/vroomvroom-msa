@@ -5,6 +5,7 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.StockRes;
+import com.vroomvroom.hub.domain.entity.Stock;
 import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
 import com.vroomvroom.hub.presentation.dto.request.DecreaseStockReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
@@ -107,5 +108,12 @@ public class HubController {
         );
         hubService.decreaseStock(command);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{hubId}/stocks/{productId}")
+    public ResponseEntity<ApiResponse<StockRes>> getStock(@PathVariable UUID hubId,
+                                                          @PathVariable UUID productId) {
+        StockRes res = hubService.getStock(hubId, productId);
+        return ResponseEntity.ok(ApiResponse.success(res));
     }
 }
