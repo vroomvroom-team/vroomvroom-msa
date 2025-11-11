@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface JpaProductRepository extends JpaRepository<Product, UUID> {
     List<Product> findAllByCompany(Company company);
     Optional<Product> findByProductIdAndDeletedAtIsNull(UUID productId);
+    boolean existsByProductNameAndDeletedAtIsNull(String productName);
 }

@@ -1,6 +1,7 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateProductCommand;
+import com.vroomvroom.company.application.command.UpdateProductCommand;
 import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.port.HubClient;
 import com.vroomvroom.company.common.exception.CustomException;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -32,26 +32,23 @@ public class ProductServiceImpl implements ProductService {
     public ProductResult createProduct(CreateProductCommand command) {
         log.info("상품 등록 시작");
 
-        Company company = companyRepository.findByCompanyIdAndDeletedAtIsNull(command.companyId())
-                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
+        Company company = getActiveCompany(command.companyId());
         validateHub(command.hubId());
+        validateDuplicateName(command.productName());
 
         /*        TODO. 유저 권한 체크
         authorityValidator.validateCreateProductAuthority(
                 command.hubId(),
+                company.getCompanyManagerId(),
                 command.userId(),
                 command.userRole()
         );*/
-
-        List<Product> existingProducts = productRepository.findAllByCompany(company);
 
         Product product = Product.create(
                 company,
                 command.hubId(),
                 command.productName(),
-                command.price(),
-                existingProducts
+                command.price()
         );
 
         productRepository.save(product);
@@ -74,6 +71,48 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("상품 상세 조회 완료: productId = {}", product.getProductId());
         return ProductResult.from(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductResult updateProduct(UpdateProductCommand command) {
+        Product product = getActiveProduct(command.productId());
+        Company company = getActiveCompany(product.getCompany().getCompanyId());
+
+/*        TODO. 유저 권한 체크
+        authorityValidator.validateUpdateAuthority(
+                product.getHubId(),
+                company.getCompanyManagerId(),
+                command.userId(),
+                command.userRole()
+        );*/
+
+        companyUpdates(product, command);
+
+        log.info("상품 수정 완료: productId = {}", product.getProductId());
+        return ProductResult.from(product);
+    }
+
+    public void companyUpdates(Product product, UpdateProductCommand command) {
+        if (command.productName() != null) {
+            validateDuplicateName(command.productName());
+            product.changeProductName(command.productName());
+        }
+
+        if (command.price() != null) {
+            product.changePrice(command.price());
+        }
+    }
+
+    public void validateDuplicateName(String productName) {
+        if (productRepository.existsByProductNameAndDeletedAtIsNull(productName)) {
+            throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
+        }
+    }
+
+    private Company getActiveCompany(UUID companyId) {
+        return companyRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
     }
 
     private Product getActiveProduct(UUID productId) {

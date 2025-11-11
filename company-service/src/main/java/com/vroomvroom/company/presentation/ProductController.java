@@ -1,9 +1,11 @@
 package com.vroomvroom.company.presentation;
 
 import com.vroomvroom.company.application.command.CreateProductCommand;
+import com.vroomvroom.company.application.command.UpdateProductCommand;
 import com.vroomvroom.company.application.service.ProductService;
 import com.vroomvroom.company.common.api.ApiResponse;
 import com.vroomvroom.company.presentation.dto.request.CreateProductReq;
+import com.vroomvroom.company.presentation.dto.request.UpdateProductReq;
 import com.vroomvroom.company.presentation.dto.response.ProductDetailRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +56,30 @@ public class ProductController {
         ProductDetailRes response = ProductDetailRes.from(productService.getProduct(productId));
 
         log.info("상품 상세 조회 성공: companyId = {}", response.productId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PatchMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductDetailRes>> updateProduct(
+            @PathVariable UUID productId,
+            @RequestBody UpdateProductReq req
+/*             TODO. 유저 정보 받아오기
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String userRole*/
+
+    ) {
+        log.info("PATCH api/v1/products/{} 상품 수정 요청", productId);
+
+        UpdateProductCommand command = new UpdateProductCommand(
+                productId,
+                req.productName(),
+                req.price()
+                // TODO. userId, userRole 추가
+        );
+
+        ProductDetailRes response = ProductDetailRes.from(productService.updateProduct(command));
+
+        log.info("상품 수정 성공: productId = {}", response.productId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

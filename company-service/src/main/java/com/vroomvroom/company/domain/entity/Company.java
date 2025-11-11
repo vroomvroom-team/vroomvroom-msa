@@ -69,9 +69,9 @@ public class Company extends BaseTimeEntity {
     ) {
         validateHub(hubId);
         validateManager(companyManagerId);
-        validateName(companyName);
-        validateAddress(companyAddress);
-        validateType(companyType);
+        validateCompanyName(companyName);
+        validateCompanyAddress(companyAddress);
+        validateCompanyType(companyType);
     }
 
     private static void validateHub(UUID hubId) {
@@ -82,17 +82,17 @@ public class Company extends BaseTimeEntity {
         if (companyManagerId == null) throw new CustomException(ErrorCode.COMPANY_MANAGER_REQUIRED);
     }
 
-    private static void validateName(String companyName) {
+    private static void validateCompanyName(String companyName) {
         if (companyName == null || companyName.isBlank())
             throw new CustomException(ErrorCode.COMPANY_NAME_REQUIRED);
     }
 
-    private static void validateAddress(String companyAddress) {
+    private static void validateCompanyAddress(String companyAddress) {
         if (companyAddress == null || companyAddress.isBlank())
             throw new CustomException(ErrorCode.COMPANY_ADDRESS_REQUIRED);
     }
 
-    private static void validateType(CompanyType companyType) {
+    private static void validateCompanyType(CompanyType companyType) {
         if (companyType == null) throw new CustomException(ErrorCode.COMPANY_TYPE_REQUIRED);
     }
 
@@ -101,10 +101,12 @@ public class Company extends BaseTimeEntity {
     }
 
     public void changeName(String companyName) {
+        validateCompanyName(companyName);
         this.companyName = companyName;
     }
 
     public void changeAddress(String companyAddress) {
+        validateCompanyAddress(companyAddress);
         this.companyAddress = companyAddress;
     }
 
