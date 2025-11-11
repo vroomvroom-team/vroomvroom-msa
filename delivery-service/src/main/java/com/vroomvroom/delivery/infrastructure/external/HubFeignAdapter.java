@@ -1,7 +1,7 @@
 package com.vroomvroom.delivery.infrastructure.external;
 
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.application.dto.GetDeliveryRoutesReq;
-import com.vroomvroom.delivery.domain.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.HubClient;
 import com.vroomvroom.delivery.infrastructure.external.dto.HubRouteDTO;
@@ -26,5 +26,10 @@ public class HubFeignAdapter implements HubClient {
         if (!hubFeignClient.exists(hubId)) {
             throw new CustomException(DeliveryErrorCode.HUB_NOT_FOUND);
         }
+    }
+
+    @Override
+    public List<UUID> getAllHubId() {
+        return hubFeignClient.getAllHubId();
     }
 }
