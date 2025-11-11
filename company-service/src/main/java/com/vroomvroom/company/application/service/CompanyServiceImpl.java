@@ -1,7 +1,7 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
-import com.vroomvroom.company.application.command.DeleteCompanyCommand;
+import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.dto.CompanyResult;
 import com.vroomvroom.company.application.validator.AuthorityValidator;
@@ -117,8 +117,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public UUID deleteCompany(DeleteCompanyCommand command) {
-        Company company = getActiveCompany(command.companyId());
+    public void deleteCompany(DeleteCommand command) {
+        Company company = getActiveCompany(command.id());
 
 /*        TODO. 유저 권한 체크
         authorityValidator.validateDeleteAuthority(
@@ -128,7 +128,6 @@ public class CompanyServiceImpl implements CompanyService {
         );*/
 
         company.markAsDeleted();
-        return company.getCompanyId();
     }
 
     private Company getActiveCompany(UUID companyId) {

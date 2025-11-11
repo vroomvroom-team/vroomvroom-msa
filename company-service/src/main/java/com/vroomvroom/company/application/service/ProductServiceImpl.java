@@ -1,6 +1,7 @@
 package com.vroomvroom.company.application.service;
 
 import com.vroomvroom.company.application.command.CreateProductCommand;
+import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
 import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.port.HubClient;
@@ -102,6 +103,21 @@ public class ProductServiceImpl implements ProductService {
         if (command.price() != null) {
             product.changePrice(command.price());
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteCompany(DeleteCommand command) {
+        Product product = getActiveProduct(command.id());
+
+        /*        TODO. 유저 권한 체크
+        authorityValidator.validateDeleteAuthority(
+                company.getHubId(),
+                command.userId(),
+                command.userRole()
+        );*/
+
+        product.markAsDeleted();
     }
 
     public void validateDuplicateName(String productName) {
