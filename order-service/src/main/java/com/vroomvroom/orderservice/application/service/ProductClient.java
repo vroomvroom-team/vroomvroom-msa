@@ -6,8 +6,4 @@ import java.util.UUID;
 
 public interface ProductClient {
     ProductDTO getProductInfo(UUID productId);
-
-    boolean decreaseStocks(UUID productId, long quantity);
-
-    void increaseStocks(UUID productId, long quantity);
 }

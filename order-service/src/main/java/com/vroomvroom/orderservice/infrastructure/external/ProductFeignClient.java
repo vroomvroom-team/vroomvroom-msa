@@ -17,31 +17,4 @@ public interface ProductFeignClient {
      */
     @GetMapping("/{productId}")
     ApiResponse<ProductDTO> getProductInfo(@PathVariable UUID productId);
-
-    /**
-     * 재고 감소
-     */
-    @PostMapping("/{productId}/stock/decrease")
-    ApiResponse<Boolean> decreaseStock(
-            @PathVariable UUID productId,
-            @RequestParam Long quantity
-    );
-
-    /**
-     * 재고 증가
-     */
-    @PostMapping("/{productId}/stock/increase")
-    ApiResponse<Void> increaseStock(
-            @PathVariable UUID productId,
-            @RequestParam Long quantity
-    );
-
-    /**
-     * 재고 확인
-     */
-    @GetMapping("/{productId}/stock/check")
-    ApiResponse<Boolean> checkStock(
-            @PathVariable UUID productId,
-            @RequestParam Long quantity
-    );
 }

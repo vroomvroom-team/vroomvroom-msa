@@ -1,12 +1,8 @@
 package com.vroomvroom.orderservice.infrastructure.external;
 
-import com.vroomvroom.common.api.ApiResponse;
-import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.orderservice.application.service.ProductClient;
 import com.vroomvroom.orderservice.domain.vo.Money;
-import com.vroomvroom.orderservice.exception.OrderErrorCode;
 import com.vroomvroom.orderservice.infrastructure.dto.ProductDTO;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -51,52 +47,5 @@ public class ProductClientImpl implements ProductClient {
                 .price(Money.of(10000)) // TODO. 상품 가격 반영 필요
                 .stock(10L) // TODO. 상품 재고 반영 필요
                 .build();
-    }
-
-    @Override
-    public boolean decreaseStocks(UUID productId, long quantity) {
-        log.info("재고 감소 요청 : productId={}, quantity={}", productId, quantity);
-
-        /*
-        try {
-            ApiResponse<Boolean> response =
-                    productFeignClient.decreaseStock(productId, quantity);
-
-            if (!response.isSuccess()) {
-                log.error("재고 감소 실패: productId={}, quantity={}",
-                        productId, quantity);
-                return false;
-            }
-
-            return response.getData() != null && response.getData();
-
-        } catch (FeignException.BadRequest e) {
-            log.error("재고 부족: productId={}, quantity={}", productId, quantity);
-            throw new CustomException(OrderErrorCode.BAD_REQUEST);
-
-        } catch (FeignException e) {
-            log.error("재고 감소 API 호출 실패: status={}, message={}",
-                    e.status(), e.getMessage());
-            throw new CustomException(OrderErrorCode.INTERNAL_SERVER_ERROR);
-        }
-        */
-
-        return true;
-    }
-
-    @Override
-    public void increaseStocks(UUID productId, long quantity) {
-        log.info("재고 증가 요청 : productId={}, quantity={}", productId, quantity);
-
-        /*
-        try {
-            productFeignClient.increaseStock(productId, quantity);
-            log.info("재고 증가 성공: productId={}, quantity={}", productId, quantity);
-
-        } catch (FeignException e) {
-            log.error("재고 증가 실패: productId={}, quantity={}, status={}, message={}",
-                    productId, quantity, e.status(), e.getMessage());
-        }
-        */
     }
 }

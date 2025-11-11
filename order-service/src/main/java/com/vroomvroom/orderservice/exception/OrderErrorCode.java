@@ -35,12 +35,19 @@ public enum OrderErrorCode implements ErrorCode {
 
     // 외부 서비스 - 상품 서비스
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상품입니다."),
-    PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품 재고가 부족합니다."),
-    PRODUCT_STOCK_DECREASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 감소에 실패했습니다."),
-    PRODUCT_STOCK_INCREASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 증가에 실패했습니다."),
-    PRODUCT_STOCK_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 원복에 실패했습니다."),
     PRODUCT_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "상품 서비스에 연결할 수 없습니다."),
     PRODUCT_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "상품 서버 내부 오류가 발생했습니다."),
+
+    // 외부 서비스 - 허브 서비스
+    HUB_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 허브입니다."),
+    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "재고가 존재하지 않습니다."),
+    HUB_OR_STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "허브 또는 재고가 존재하지 않습니다."),
+    HUB_PRODUCT_OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "상품 재고가 부족합니다."),
+    HUB_PRODUCT_STOCK_DECREASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 감소에 실패했습니다."),
+    HUB_PRODUCT_STOCK_INCREASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 증가에 실패했습니다."),
+    HUB_PRODUCT_STOCK_ROLLBACK_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "상품 재고 원복에 실패했습니다."),
+    HUB_SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "상품 서비스에 연결할 수 없습니다."),
+    HUB_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "상품 서버 내부 오류가 발생했습니다."),
 
     // 외부 서비스 - 배송 서비스
     DELIVERY_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "배송 생성에 실패했습니다."),
