@@ -1,4 +1,4 @@
-package com.vroomvroom.company.infrastructure.repository;
+package com.vroomvroom.company.infrastructure.repository.company;
 
 import com.vroomvroom.company.domain.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;

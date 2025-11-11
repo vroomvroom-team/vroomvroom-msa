@@ -1,17 +1,20 @@
 package com.vroomvroom.company.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
+import com.vroomvroom.company.common.exception.CustomException;
+import com.vroomvroom.company.common.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "p_product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Builder
 public class Product extends BaseTimeEntity {
 
     @Id
@@ -32,13 +35,52 @@ public class Product extends BaseTimeEntity {
     @Column(name = "price", nullable = false)
     private Long price;
 
-    public static Product create(Company company, UUID hubId, String productName, Long price) {
-        Product product = new Product();
-        product.productId = UUID.randomUUID();
-        product.company = company;
-        product.hubId = hubId;
-        product.productName = productName;
-        product.price = price;
-        return product;
+    public static Product create(
+            Company company,
+            UUID hubId,
+            String productName,
+            Long price,
+            List<Product> existingProducts
+    ) {
+        validate(company, hubId, productName, price, existingProducts);
+
+        return Product.builder()
+                .company(company)
+                .hubId(hubId)
+                .productName(productName)
+                .price(price)
+                .build();
+    }
+
+    private static void validate(
+            Company company,
+            UUID hubId,
+            String productName,
+            Long price,
+            List<Product> existingProducts
+    ) {
+        validateHub(company, hubId);
+        validateName(productName);
+        validatePrice(price);
+        validateDuplicate(productName, existingProducts);
+    }
+
+    private static void validateHub(Company company, UUID hubId) {
+        if (!company.getHubId().equals(hubId)) throw new CustomException(ErrorCode.HUB_MISMATCH);
+    }
+
+    private static void validateName(String productName) {
+        if (productName == null || productName.isBlank()) throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
+    }
+
+    private static void validatePrice(Long price) {
+        if (price == null || price <= 0) throw new CustomException(ErrorCode.INVALID_PRICE);
+    }
+
+    private static void validateDuplicate(String productName, List<Product> existingProducts) {
+        boolean duplicate = existingProducts.stream()
+                .anyMatch(p -> p.getProductName().equals(productName));
+
+        if (duplicate) throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
     }
 }

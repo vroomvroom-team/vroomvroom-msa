@@ -8,11 +8,13 @@ import com.vroomvroom.company.common.exception.ErrorCode;
 import com.vroomvroom.company.domain.entity.Company;
 import com.vroomvroom.company.domain.entity.Product;
 import com.vroomvroom.company.domain.repository.CompanyRepository;
+import com.vroomvroom.company.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService{
 
     private final CompanyRepository companyRepository;
+    private final ProductRepository productRepository;
 
     private final HubClient hubClient;
 
@@ -32,22 +35,26 @@ public class ProductServiceImpl implements ProductService{
         Company company = companyRepository.findByCompanyIdAndDeletedAtIsNull(command.companyId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
-/*        TODO. 유저 권한 체크
+        validateHub(command.hubId());
+
+        /*        TODO. 유저 권한 체크
         authorityValidator.validateCreateProductAuthority(
                 command.hubId(),
                 command.userId(),
                 command.userRole()
         );*/
 
-        validateHub(command.hubId());
+        List<Product> existingProducts = productRepository.findAllByCompany(company);
 
-        Product product = company.addProduct(
+        Product product = Product.create(
+                company,
                 command.hubId(),
                 command.productName(),
-                command.price()
+                command.price(),
+                existingProducts
         );
 
-        companyRepository.save(company);
+        productRepository.save(product);
 
         log.info("상품 등록 완료: productId = {}", product.getProductId());
         return ProductResult.from(product);
