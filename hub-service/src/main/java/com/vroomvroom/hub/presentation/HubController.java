@@ -3,13 +3,16 @@ package com.vroomvroom.hub.presentation;
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
-import com.vroomvroom.hub.application.command.CreateHubCommand;
-import com.vroomvroom.hub.application.command.UpdateHubCommand;
+import com.vroomvroom.hub.application.command.*;
+import com.vroomvroom.hub.application.dto.StockRes;
+import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
+import com.vroomvroom.hub.presentation.dto.request.DecreaseStockReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubReq;
+import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -72,10 +76,36 @@ public class HubController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/{hubId}/exists")
     public boolean existHub(@PathVariable UUID hubId) {
         return hubService.existsHub(hubId);
     }
 
+    @PostMapping("/{hubId}/stocks")
+    public ResponseEntity<ApiResponse<CreateStockRes>> createStock(@PathVariable UUID hubId,
+                                                                   @RequestBody CreateStockReq req) {
+        CreateStockCommand command = new CreateStockCommand(
+                hubId,
+                req.getProductId(),
+                req.getQuantity()
+        );
+        CreateStockRes res = hubService.createStock(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
+    }
+
+    @GetMapping("/{hubId}/stocks")
+    public ResponseEntity<ApiResponse<List<StockRes>>> getStockList(@PathVariable UUID hubId) {
+        List<StockRes> res = hubService.getStockList(hubId);
+        return ResponseEntity.ok(ApiResponse.success(res));
+    }
+
+    @PutMapping("/{hubId}/stocks/decrease")
+    public ResponseEntity<ApiResponse<Void>> updateStock(@PathVariable UUID hubId,
+                                                         @RequestBody DecreaseStockReq req) {
+        DecreaseStockCommand command = new DecreaseStockCommand(
+                hubId, req.getProductId(), req.getQuantity(), req.getOrderId()
+        );
+        hubService.decreaseStock(command);
+        return ResponseEntity.noContent().build();
+    }
 }

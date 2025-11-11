@@ -1,14 +1,18 @@
 package com.vroomvroom.hub.application.dto;
 
 import com.vroomvroom.hub.domain.entity.Hub;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class HubDetailRes {
     private UUID hubId;
     private String hubName;
