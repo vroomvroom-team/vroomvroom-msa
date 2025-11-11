@@ -4,6 +4,7 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.*;
+import com.vroomvroom.hub.application.dto.HubManagerRes;
 import com.vroomvroom.hub.application.dto.StockRes;
 import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateStockReq;
@@ -37,7 +38,8 @@ public class HubController {
                 req.getHubName(),
                 req.getAddress(),
                 req.getLatitude(),
-                req.getLongitude()
+                req.getLongitude(),
+                req.getHubManagerId()
         );
         CreateHubRes res = hubService.createHub(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
@@ -64,7 +66,8 @@ public class HubController {
                 req.getHubName(),
                 req.getAddress(),
                 req.getLatitude(),
-                req.getLongitude()
+                req.getLongitude(),
+                req.getHubManagerId()
         );
         hubService.updateHub(hubId, command);
         return ResponseEntity.noContent().build();
@@ -79,6 +82,12 @@ public class HubController {
     @GetMapping("/{hubId}/exists")
     public boolean existHub(@PathVariable UUID hubId) {
         return hubService.existsHub(hubId);
+    }
+
+    @GetMapping("/{hubId}/manager")
+    public ResponseEntity<ApiResponse<HubManagerRes>> getHubManager(@PathVariable UUID hubId) {
+        HubManagerRes res = hubService.getHubManager(hubId);
+        return ResponseEntity.ok(ApiResponse.success(res));
     }
 
     @PostMapping("/{hubId}/stocks")

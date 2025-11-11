@@ -19,6 +19,7 @@ public class HubDetailRes {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private Long hubManagerId;
 
     public static HubDetailRes from(Hub hub) {
         return HubDetailRes.builder()
@@ -27,6 +28,7 @@ public class HubDetailRes {
                 .address(hub.getAddress())
                 .latitude(hub.getLocation().getLatitude())
                 .longitude(hub.getLocation().getLongitude())
+                .hubManagerId(hub.getHubManagerId())
                 .build();
     }
 }

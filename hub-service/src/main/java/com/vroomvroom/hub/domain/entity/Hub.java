@@ -32,6 +32,9 @@ public class Hub extends BaseTimeEntity {
     @Column
     private String address;
 
+    @Column
+    private Long hubManagerId;
+
     @Embedded
     private Location location;
 
@@ -44,22 +47,23 @@ public class Hub extends BaseTimeEntity {
     @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL)
     private List<Stock> stocks = new ArrayList<>();
 
-    public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
-        validateHub(hubName, address, latitude, longitude);
+    public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude, Long hubManagerId) {
+        validateHub(hubName, address, latitude, longitude, hubManagerId);
         return Hub.builder()
                 .hubName(hubName)
                 .address(address)
                 .location(Location.of(latitude, longitude))
+                .hubManagerId(hubManagerId)
                 .build();
     }
 
-    private static void validateHub(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
+    private static void validateHub(String hubName, String address, BigDecimal latitude, BigDecimal longitude, Long hubManagerId) {
         if (hubName == null || hubName.trim().isEmpty() ||
                 address == null || address.trim().isEmpty() ||
-                latitude == null || longitude == null) throw new CustomException(HubErrorCode.BAD_REQUEST);
+                latitude == null || longitude == null || hubManagerId == null) throw new CustomException(HubErrorCode.BAD_REQUEST);
     }
 
-    public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
+    public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude, Long hubManagerId) {
         if (hubName != null) this.hubName = hubName;
         if (address != null) this.address = address;
         if (latitude != null || longitude != null) {
@@ -67,6 +71,7 @@ public class Hub extends BaseTimeEntity {
             BigDecimal newLongitude = longitude != null ? longitude : this.location.getLongitude();
             this.location = Location.of(newLatitude, newLongitude);
         }
+        if (hubManagerId != null) this.hubManagerId = hubManagerId;
     }
 
     public void delete() {

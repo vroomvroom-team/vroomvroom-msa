@@ -4,6 +4,7 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
+import com.vroomvroom.hub.application.dto.HubManagerRes;
 import com.vroomvroom.hub.application.dto.StockRes;
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.entity.HubRoute;
@@ -49,7 +50,8 @@ public class HubServiceImpl implements HubService {
                 command.getHubName(),
                 command.getAddress(),
                 command.getLatitude(),
-                command.getLongitude()
+                command.getLongitude(),
+                command.getHubManagerId()
         );
         return CreateHubRes.from(hubRepository.save(hub));
     }
@@ -72,7 +74,7 @@ public class HubServiceImpl implements HubService {
     @CacheEvict(value = {"hubCache", "hubRouteCache", "optimalRouteCache"}, allEntries = true)
     public void updateHub(UUID hubId, UpdateHubCommand command) {
         Hub hub = findHubById(hubId);
-        hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude());
+        hub.update(command.getHubName(), command.getAddress(), command.getLatitude(), command.getLongitude(), command.getHubManagerId());
     }
 
     @Override
@@ -88,6 +90,13 @@ public class HubServiceImpl implements HubService {
     @Override
     public boolean existsHub(UUID hubId) {
         return hubRepository.existsById(hubId);
+    }
+
+    @Override
+    public HubManagerRes getHubManager(UUID hubId) {
+        Long managerId = hubRepository.findHubManagerIdByHubId(hubId)
+                .orElseThrow(() -> new CustomException(HubErrorCode.MANAGER_NOT_FOUND));
+        return new HubManagerRes(managerId);
     }
 
     @Override
@@ -132,7 +141,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-//            kafkaTemplate.send("stock-decreased", event);
+            kafkaTemplate.send("stock-decreased", event);
         } catch (Exception e) {
             log.error("재고 감소 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }
@@ -151,7 +160,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-//            kafkaTemplate.send("stock-increased", event);
+            kafkaTemplate.send("stock-increased", event);
         } catch (Exception e) {
             log.error("재고 증가 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }

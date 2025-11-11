@@ -1,5 +1,6 @@
 package com.vroomvroom.hub.domain.repository;
 
+import com.vroomvroom.hub.application.dto.HubManagerRes;
 import com.vroomvroom.hub.domain.entity.Hub;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,4 +15,5 @@ public interface HubRepository {
     Page<Hub> findAllByDeletedAtIsNull(Pageable pageable);
     Optional<Hub> findHubByHubIdAndDeletedAtIsNull(UUID hubId);
     boolean existsById(UUID hubId);
+    Optional<Long> findHubManagerIdByHubId(UUID hubId);
 }

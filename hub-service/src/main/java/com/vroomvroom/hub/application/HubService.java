@@ -4,6 +4,7 @@ import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
+import com.vroomvroom.hub.application.dto.HubManagerRes;
 import com.vroomvroom.hub.application.dto.StockRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
@@ -20,6 +21,7 @@ public interface HubService {
     void updateHub(UUID hubId, UpdateHubCommand command);
     void deleteHub(UUID hubId);
     boolean existsHub(UUID hubId);
+    HubManagerRes getHubManager(UUID hubId);
     CreateStockRes createStock(CreateStockCommand command);
     List<StockRes> getStockList(UUID hubId);
     void decreaseStock(DecreaseStockCommand command);

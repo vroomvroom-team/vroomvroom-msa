@@ -44,6 +44,7 @@ public class Stock extends BaseTimeEntity {
     public void increase(Long quantity) {
         this.quantity += quantity;
     }
+
     public void decrease(Long quantity) {
         if (this.quantity < quantity) throw new CustomException(HubErrorCode.INSUFFICIENT_STOCK);
         this.quantity -= quantity;

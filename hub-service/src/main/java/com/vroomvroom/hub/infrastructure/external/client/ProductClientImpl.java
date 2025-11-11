@@ -11,7 +11,7 @@
 //@RequiredArgsConstructor
 //public class ProductClientImpl implements ProductClient {
 //
-////    private final ProductFeignClient productFeignClient;
+//    private final ProductFeignClient productFeignClient;
 //
 //    @Override
 //    public boolean exists(UUID productId) {
