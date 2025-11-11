@@ -1,7 +1,6 @@
 package com.vroomvroom.delivery.domain.vo;
 
 import jakarta.persistence.Embeddable;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,15 +12,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReceiverId {
 
-    private UUID id;
-    private ReceiverId(UUID id) {
-        if(id == null) {
+    private Long id;
+
+    private ReceiverId(Long id) {
+        if (id == null) {
             throw new IllegalArgumentException("유효하지 않는 수령인ID 입니다.");
         }
         this.id = id;
     }
 
-    public static ReceiverId of(UUID id) {
+    public static ReceiverId of(Long id) {
         return new ReceiverId(id);
     }
 }

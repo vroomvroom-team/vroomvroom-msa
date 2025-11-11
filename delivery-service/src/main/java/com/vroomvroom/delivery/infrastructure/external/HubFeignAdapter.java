@@ -4,7 +4,7 @@ import com.vroomvroom.delivery.application.dto.GetDeliveryRoutesReq;
 import com.vroomvroom.delivery.domain.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.HubClient;
-import com.vroomvroom.delivery.infrastructure.external.dto.HubDTO;
+import com.vroomvroom.delivery.infrastructure.external.dto.HubRouteDTO;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class HubFeignAdapter implements HubClient {
     private final HubFeignClient hubFeignClient;
 
     @Override
-    public List<HubDTO> getRoutes(GetDeliveryRoutesReq request) {
+    public List<HubRouteDTO> getRoutes(GetDeliveryRoutesReq request) {
         return hubFeignClient.getRoutes(request);
     }
 

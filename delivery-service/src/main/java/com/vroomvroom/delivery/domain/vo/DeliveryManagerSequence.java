@@ -26,8 +26,4 @@ public class DeliveryManagerSequence {
     public static DeliveryManagerSequence of(Long value) {
         return new DeliveryManagerSequence(value);
     }
-
-    public DeliveryManagerSequence next() {
-        return null;
-    }
 }
