@@ -2,6 +2,7 @@ package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.model.BaseTimeEntity;
 import com.vroomvroom.hub.domain.vo.Location;
+import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.ErrorCode;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +36,9 @@ public class Hub extends BaseTimeEntity {
     @Embedded
     private Location location;
 
+    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL)
+    private List<Stock> stocks = new ArrayList<>();
+
     public static Hub of(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         validateHub(hubName, address, latitude, longitude);
         return Hub.builder()
@@ -44,8 +50,8 @@ public class Hub extends BaseTimeEntity {
 
     private static void validateHub(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
         if (hubName == null || hubName.trim().isEmpty() ||
-        address == null || address.trim().isEmpty() ||
-        latitude == null || longitude == null) throw new CustomException(ErrorCode.BAD_REQUEST);
+                address == null || address.trim().isEmpty() ||
+                latitude == null || longitude == null) throw new CustomException(ErrorCode.BAD_REQUEST);
     }
 
     public void update(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
@@ -56,5 +62,13 @@ public class Hub extends BaseTimeEntity {
             BigDecimal newLongitude = longitude != null ? longitude : this.location.getLongitude();
             this.location = Location.of(newLatitude, newLongitude);
         }
+    }
+
+    public void delete() {
+        this.markAsDeleted();
+    }
+
+    public void createStock(Stock stock) {
+        this.stocks.add(stock);
     }
 }

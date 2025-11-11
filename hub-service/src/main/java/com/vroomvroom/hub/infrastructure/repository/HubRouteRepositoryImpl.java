@@ -36,4 +36,9 @@ public class HubRouteRepositoryImpl implements HubRouteRepository {
     public List<HubRoute> findAllActive() {
         return jpaHubRouteRepository.findAllActive();
     }
+
+    @Override
+    public List<HubRoute> findAllByHubId(UUID hubId) {
+        return jpaHubRouteRepository.findAllByHubId(hubId);
+    }
 }

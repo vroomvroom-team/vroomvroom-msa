@@ -1,7 +1,6 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
-import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import lombok.AllArgsConstructor;

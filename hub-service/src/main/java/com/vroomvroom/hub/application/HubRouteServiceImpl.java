@@ -15,6 +15,8 @@ import com.vroomvroom.hub.exception.ErrorCode;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     }
 
     @Override
+    @Cacheable(cacheNames = "hubRouteCache", key = "#routeId")
     public HubRouteDetailRes getHubRouteDetail(UUID routeId) {
         HubRoute route = findHubRouteById(routeId);
         return HubRouteDetailRes.from(route);
@@ -65,6 +68,7 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"hubRouteCache", "optimalRouteCache"}, allEntries = true)
     public void updateHubRoute(UUID routeId, UpdateHubRouteCommand command) {
         HubRoute hubRoute = findHubRouteById(routeId);
         hubRoute.update(command.getRouteName(), command.getTime(), command.getDistance(), command.getIsActive());
@@ -72,12 +76,14 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"hubRouteCache", "optimalRouteCache"}, allEntries = true)
     public void deleteHubRoute(UUID routeId) {
         HubRoute hubRoute = findHubRouteById(routeId);
         hubRoute.markAsDeleted();
     }
 
     @Override
+    @Cacheable(cacheNames = "optimalRouteCache", key = "#departureId.toString() + '-' + #arrivalId.toString()")
     public OptimalRouteRes findOptimalPath(UUID departureId, UUID arrivalId, String type) {
         Hub departure = findHubById(departureId);
         Hub arrival = findHubById(arrivalId);
@@ -93,7 +99,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     }
 
     private Hub findHubById(UUID hubId) {
-        return hubRepository.findHubByHubId(hubId)
+        return hubRepository.findHubByHubIdAndDeletedAtIsNull(hubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.HUB_NOT_FOUND));
     }
 
