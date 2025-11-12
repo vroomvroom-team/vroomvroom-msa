@@ -14,12 +14,18 @@ import com.vroomvroom.delivery.presentation.dto.request.CreateManagerReq;
 import com.vroomvroom.delivery.presentation.dto.response.CreateDeliveryRes;
 import com.vroomvroom.delivery.presentation.dto.response.CreateManagerRes;
 import com.vroomvroom.delivery.presentation.dto.response.DeliveryManagerRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetAllDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetDeliveryRouteRes;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,7 +84,7 @@ public class DeliveryController {
         @PathVariable UUID deliveryId,
         @PathVariable UUID routeId
     ) {
-        deliveryRouteService.updateDeliveryRouteStatus(deliveryId, routeId);
+        deliveryRouteService.arriveHub(deliveryId, routeId);
         return ResponseEntity.ok().build();
     }
 
@@ -101,6 +107,38 @@ public class DeliveryController {
         CompleteDeliveryCommand command = CompleteDeliveryCommand.of(userId, userRole);
         deliveryService.completeDelivery(deliveryId, command);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<GetAllDeliveryRes>>> getAllDelivery(
+        @SortDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable
+    ) {
+        PageResponse<GetAllDeliveryRes> response = deliveryService.getAllDelivery(pageable);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{deliveryId}")
+    public ResponseEntity<ApiResponse<GetDeliveryRes>> getDelivery(
+        @PathVariable UUID deliveryId
+    ) {
+        GetDeliveryRes response = deliveryService.getDelivery(deliveryId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PatchMapping("{deliveryId}")
+    public ResponseEntity<ApiResponse<Void>> cancelDelivery(
+        @PathVariable UUID deliveryId
+    ) {
+        deliveryService.cancelDelivery(deliveryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{deliveryId}/delivery-routes")
+    public ResponseEntity<ApiResponse<List<GetDeliveryRouteRes>>> getDeliveryAllRoute(
+        @PathVariable UUID deliveryId
+    ) {
+        List<GetDeliveryRouteRes> response = deliveryRouteService.getDeliveryAllRoute(deliveryId);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     // 배송 담당자 전체 조회
