@@ -1,4 +1,4 @@
-package com.vroomvroom.user.infrastructure.config;
+package com.vroomvroom.userservice.infrastructure.config;
 
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

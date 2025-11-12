@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -15,6 +14,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.vroomvroom.util.AuthConst;
 import com.vroomvroom.util.JwtUtil;
+import com.vroomvroom.util.TokenValidationUtil;
 
 import reactor.core.publisher.Mono;
 
@@ -22,10 +22,12 @@ import reactor.core.publisher.Mono;
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> {
 
 	private final JwtUtil jwtUtil;
+	private final TokenValidationUtil tokenValidationUtil;
 
-	public AuthFilter(JwtUtil jwtUtil) {
-		super(AuthFilter.Config.class);
+	public AuthFilter(JwtUtil jwtUtil, TokenValidationUtil tokenValidationUtil) {
+		super(Config.class);
 		this.jwtUtil = jwtUtil;
+		this.tokenValidationUtil = tokenValidationUtil;
 	}
 
 	public static class Config {}
@@ -36,13 +38,25 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
 			ServerHttpRequest request = exchange.getRequest();
 			String token = jwtUtil.resolveToken(request);
 
-			if (token == null || !jwtUtil.tokenValidation(token) || jwtUtil.isExpired(token)) {
-				return onError(exchange);
+			if (token == null) {
+				return onError(exchange, "Access 토큰이 존재하지 않습니다.");
 			}
 
+			if (!jwtUtil.tokenValidation(token)) {
+				return onError(exchange, "Access 토큰이 변조되었거나 유효하지 않습니다.");
+			}
+
+			if (jwtUtil.isExpired(token)) {
+				return onError(exchange, "Access 토큰이 만료되었습니다.");
+			}
+
+			if (tokenValidationUtil.isBlacklisted(token)) {
+				return onError(exchange, "로그아웃된 토큰입니다.");
+			}
+
+			Long userId = jwtUtil.getUserIdFromToken(token);
 			String email = jwtUtil.getEmailFromToken(token);
 			String role = jwtUtil.getRoleFromToken(token);
-			Long userId = jwtUtil.getUserIdFromToken(token);
 
 			ServerHttpRequest mutated = request.mutate()
 				.header(AuthConst.HEADER_USER_ID, String.valueOf(userId))
@@ -54,7 +68,7 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
 		};
 	}
 
-	private Mono<Void> onError(ServerWebExchange exchange) {
+	private Mono<Void> onError(ServerWebExchange exchange, String message) {
 		ServerHttpResponse response = exchange.getResponse();
 		response.setStatusCode(HttpStatus.UNAUTHORIZED);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
@@ -62,12 +76,10 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
 		String body = String.format(
 			"{\"status\": %d, \"message\": \"%s\"}",
 			HttpStatus.UNAUTHORIZED.value(),
-			"Access 토큰이 유효하지 않습니다."
+			message
 		);
 
 		DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(StandardCharsets.UTF_8));
-
-		return response.writeWith(Mono.just(buffer))
-			.doFinally(signal -> DataBufferUtils.release(buffer));
+		return response.writeWith(Mono.just(buffer));
 	}
 }

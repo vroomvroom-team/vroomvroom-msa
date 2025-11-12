@@ -1,4 +1,4 @@
-package com.vroomvroom.user.domain.model;
+package com.vroomvroom.common.model;
 
 public enum Role {
 	MASTER,          // 마스터 관리자
