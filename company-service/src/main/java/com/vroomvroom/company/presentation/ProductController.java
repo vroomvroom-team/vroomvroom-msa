@@ -1,5 +1,6 @@
 package com.vroomvroom.company.presentation;
 
+import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
@@ -9,9 +10,13 @@ import com.vroomvroom.company.presentation.dto.request.CreateProductReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateProductReq;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import com.vroomvroom.company.presentation.dto.response.ProductDetailRes;
+import com.vroomvroom.company.presentation.dto.response.ProductListRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -58,6 +63,18 @@ public class ProductController {
         ProductDetailRes response = ProductDetailRes.from(productService.getProduct(productId));
 
         log.info("상품 상세 조회 성공: companyId = {}", response.productId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<ProductListRes>>> getProductList(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        log.info("GET api/v1/products 상품 목록 조회 요청");
+        PageResponse<ProductListRes> response = productService.getProductList(keyword, pageable);
+
+        log.info("상품 목록 조회 성공");
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
