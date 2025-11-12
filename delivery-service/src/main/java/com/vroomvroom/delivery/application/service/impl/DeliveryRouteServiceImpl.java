@@ -4,16 +4,16 @@ import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.application.service.DeliveryRouteService;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
-import com.vroomvroom.delivery.domain.entity.RouteManagerAssignment;
-import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
-import com.vroomvroom.delivery.domain.port.DeliveryAssignmentMessageSender;
 import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
+import com.vroomvroom.delivery.infrastructure.HubAssignmentHandler;
+import com.vroomvroom.delivery.presentation.dto.response.GetDeliveryRouteRes;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -35,40 +35,54 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
 
     private final DeliveryRepository deliveryRepository;
     private final DeliveryManagerRepository deliveryManagerRepository;
-    private final DeliveryAssignmentMessageSender deliveryAssignmentMessageSender;
+    private final HubAssignmentHandler assignmentHandler;
     private final StringRedisTemplate redisTemplate;
 
     @Override
-    public void assignManager(DeliveryRoute route, DeliveryManager manager) {
-        if (route.getStatus() != DeliveryRouteStatus.HUB_MOVE_WAITING) { // 허브대기중일 때만 배정 가능
+    @Transactional
+    public void startHub(UUID deliveryId, UUID routeId) {
+        DeliveryRoute route = findRouteOrThrow(routeId);
+
+        if (!route.getDelivery().getId().equals(deliveryId)) {
+            throw new CustomException(DeliveryErrorCode.DELIVERY_ID_MISMATCH);
+        }
+
+        if (route.getStatus() != DeliveryRouteStatus.HUB_MOVE_WAITING) {
             throw new CustomException(DeliveryErrorCode.HUB_MOVE_WAITING);
         }
 
-        route.assignManager(manager.getId()); // route에 특정 manager 배정.
+        DeliveryManager manager = deliveryManagerRepository.findById(route.getDeliveryManagerId())
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_MANAGER_NOT_FOUND));
+
+        if (Boolean.TRUE.equals(manager.getIsActive())) {
+            throw new CustomException(DeliveryErrorCode.MANAGER_ALREADY_ACTIVE);
+        }
+
+        manager.activate();// 매니저 상태 변경(isActive) : false -> true
         route.updateStatus(DeliveryRouteStatus.HUB_MOVING);
-        manager.activate(); // 매니저 상태 변경(isActive) : false -> true
         route.getDelivery().updateStatus(DeliveryStatus.TRANSIT_HUB); // 배송 상태 변경
         route.getDelivery().updateStartTime();
-
-        RouteManagerAssignment.create(route, manager);
     }
 
     @Override
     @Transactional
-    public void updateDeliveryRouteStatus(UUID deliveryId, UUID routeId) {
+    public void arriveHub(UUID deliveryId, UUID routeId) { // 허브 도착
         DeliveryRoute route = findRouteOrThrow(routeId);
+
+        if (!route.getDelivery().getId().equals(deliveryId)) {
+            throw new CustomException(DeliveryErrorCode.DELIVERY_ID_MISMATCH);
+        }
 
         // 허브 이동중인 경우만 도착 상태로 변경 가능.
         if (route.getStatus() != DeliveryRouteStatus.HUB_MOVING) {
             throw new CustomException(DeliveryErrorCode.HUB_MOVING);
         }
 
-        // 상태 변경
-        route.updateStatus(DeliveryRouteStatus.HUB_ARRIVED);
-
         DeliveryManager manager = deliveryManagerRepository.findById(route.getDeliveryManagerId())
             .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_MANAGER_NOT_FOUND));
 
+        // 상태 변경
+        route.updateStatus(DeliveryRouteStatus.HUB_ARRIVED);
         manager.deactivate(); // true -> false(배송중아님)
 
         route.updateActual(
@@ -79,8 +93,6 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
         );
         Long managerSequence = manager.getSequence().getValue();
 
-        Long nextSequence = route.getSequence().getValue() + 1;
-        UUID nextDeliveryId = route.getDelivery().getId();
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
@@ -89,9 +101,17 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
                         .rightPush(managerQueueKey, String.valueOf(managerSequence));
                     log.info("매니저 순번 큐로 복귀. sequence = {}", managerSequence);
                 }
-                triggerNextRouteAssignment(nextDeliveryId, nextSequence); // 다음 경로 배정
+                triggerNextRouteAssignment(route); // 다음 경로 배정
             }
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GetDeliveryRouteRes> getDeliveryAllRoute(UUID deliveryId) {
+        List<DeliveryRoute> routes = deliveryRepository.findAllByDeliveryIdOrderBySequenceAsc(
+            deliveryId);
+        return routes.stream().map(GetDeliveryRouteRes::from).toList();
     }
 
     @Override
@@ -103,15 +123,17 @@ public class DeliveryRouteServiceImpl implements DeliveryRouteService {
     /**
      * 현재 경로 기준으로 다음 배송 경로가 존재하면 매니저 배정 이벤트 발행
      */
-    private void triggerNextRouteAssignment(UUID deliveryId, Long nextSequence) {
+    private void triggerNextRouteAssignment(DeliveryRoute currentRoute) {
+        Long nextSequence = currentRoute.getSequence().getValue() + 1;
+        UUID deliveryId = currentRoute.getDelivery().getId();
+
         Optional<DeliveryRoute> nextRoute = deliveryRepository
             .findByDeliveryIdAndSequence(deliveryId, nextSequence);
 
         if (nextRoute.isPresent()) {
             UUID nextRouteId = nextRoute.get().getId();
             log.info("다음 경로 배정 요청 발행. nextRouteId = {}", nextRouteId);
-            deliveryAssignmentMessageSender.send(deliveryId,
-                new ManagerAssignmentEvent(nextRouteId));
+            assignmentHandler.assignForHubManager(nextRouteId);
         } else {
             log.info("허브-허브 배송의 마지막 경로 배정 완료. deliveryId = {}", deliveryId);
         }

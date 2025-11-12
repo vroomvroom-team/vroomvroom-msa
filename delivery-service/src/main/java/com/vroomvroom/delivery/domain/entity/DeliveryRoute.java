@@ -21,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +61,8 @@ public class DeliveryRoute extends BaseTimeEntity {
     private Delivery delivery;
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RouteManagerAssignment> assignments;
+    @Builder.Default
+    private List<RouteManagerAssignment> assignments = new ArrayList<>();
 
     private Long expectedDistance; // 미터(m)
     private Long expectedDuration; // 초(s)
