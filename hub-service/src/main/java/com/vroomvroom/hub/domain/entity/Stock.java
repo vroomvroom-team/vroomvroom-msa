@@ -2,6 +2,7 @@ package com.vroomvroom.hub.domain.entity;
 
 import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.common.model.BaseTimeEntity;
+import com.vroomvroom.hub.domain.vo.CompanyId;
 import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.*;
@@ -26,6 +27,9 @@ public class Stock extends BaseTimeEntity {
     @Embedded
     private ProductId productId;
 
+    @Embedded
+    private CompanyId companyId;
+
     @ManyToOne
     @JoinColumn(name = "hub_id", nullable = false)
     private Hub hub;
@@ -33,9 +37,10 @@ public class Stock extends BaseTimeEntity {
     @Column
     private Long quantity;
 
-    public static Stock of(ProductId productId, Hub hub, Long quantity) {
+    public static Stock of(ProductId productId, CompanyId companyId, Hub hub, Long quantity) {
         return Stock.builder()
                 .productId(productId)
+                .companyId(companyId)
                 .hub(hub)
                 .quantity(quantity)
                 .build();
