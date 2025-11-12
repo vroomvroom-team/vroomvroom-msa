@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.domain.port;
 
-import com.vroomvroom.hub.domain.event.DomainEvent;
+import com.vroomvroom.hub.domain.event.HubDomainEvent;
 
 public interface EventPublisher {
-    void publish(String topic, DomainEvent event);
+    void publish(String topic, HubDomainEvent event);
 }

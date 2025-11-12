@@ -1,5 +1,5 @@
 package com.vroomvroom.hub.domain.event;
 
-public interface DomainEvent {
+public interface HubDomainEvent {
     Long getTimestamp();
 }

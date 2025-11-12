@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockDecreasedEvent implements DomainEvent {
+public class StockDecreasedEvent implements HubDomainEvent {
     private UUID orderId;
     private UUID hubId;
     private UUID productId;

@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.infrastructure.kafka;
 
 import com.vroomvroom.common.exception.CustomException;
-import com.vroomvroom.hub.domain.event.DomainEvent;
+import com.vroomvroom.hub.domain.event.HubDomainEvent;
 import com.vroomvroom.hub.domain.port.EventPublisher;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class KafkaEventPublisher implements EventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public void publish(String topic, DomainEvent event) {
+    public void publish(String topic, HubDomainEvent event) {
         try {
             kafkaTemplate.send(topic, event)
                     .whenComplete((result, ex) -> {
