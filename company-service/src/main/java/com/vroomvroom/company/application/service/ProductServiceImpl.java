@@ -1,6 +1,5 @@
 package com.vroomvroom.company.application.service;
 
-import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
@@ -12,7 +11,6 @@ import com.vroomvroom.company.domain.entity.Company;
 import com.vroomvroom.company.domain.entity.Product;
 import com.vroomvroom.company.domain.repository.CompanyRepository;
 import com.vroomvroom.company.domain.repository.ProductRepository;
-import com.vroomvroom.company.presentation.dto.response.ProductListRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -79,14 +77,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResponse<ProductListRes> getProductList(String keyword, Pageable pageable) {
+    public Page<ProductResult> getProductList(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isBlank()) keyword = "";
 
         Page<Product> products = productRepository.searchProducts(keyword, pageable);
 
-        return PageResponse.fromPage(products.map(product ->
-                ProductListRes.from(ProductResult.from(product))
-        ));
+        return products.map(ProductResult::from);
     }
 
     @Override

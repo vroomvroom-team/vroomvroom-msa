@@ -1,17 +1,24 @@
 package com.vroomvroom.company.presentation;
 
-import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
+import com.vroomvroom.company.application.dto.CompanyResult;
 import com.vroomvroom.company.application.service.CompanyService;
+import com.vroomvroom.company.common.api.ApiResponse;
+import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.presentation.dto.request.CreateCompanyReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateCompanyReq;
 import com.vroomvroom.company.presentation.dto.response.CompanyDetailRes;
+import com.vroomvroom.company.presentation.dto.response.CompanyListRes;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -59,6 +66,22 @@ public class CompanyController {
         CompanyDetailRes response = CompanyDetailRes.from(companyService.getCompany(companyId));
 
         log.info("업체 상세 조회 성공: companyId = {}", response.companyId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<CompanyListRes>>> getCompanyList(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        log.info("GET api/v1/companies 업체 목록 조회 요청");
+        Page<CompanyResult> companyPage = companyService.getCompanyList(keyword, pageable);
+
+        Page<CompanyListRes> conpanyListPage = companyPage.map(CompanyListRes::from);
+
+        PageResponse<CompanyListRes> response = PageResponse.fromPage(conpanyListPage);
+
+        log.info("업체 목록 조회 성공");
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

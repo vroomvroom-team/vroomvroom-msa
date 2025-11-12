@@ -1,11 +1,12 @@
 package com.vroomvroom.company.presentation;
 
-import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
+import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.service.ProductService;
 import com.vroomvroom.company.common.api.ApiResponse;
+import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.presentation.dto.request.CreateProductReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateProductReq;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
@@ -14,6 +15,7 @@ import com.vroomvroom.company.presentation.dto.response.ProductListRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -72,7 +74,11 @@ public class ProductController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         log.info("GET api/v1/products 상품 목록 조회 요청");
-        PageResponse<ProductListRes> response = productService.getProductList(keyword, pageable);
+        Page<ProductResult> productPage = productService.getProductList(keyword, pageable);
+
+        Page<ProductListRes> productListPage = productPage.map(ProductListRes::from);
+
+        PageResponse<ProductListRes> response = PageResponse.fromPage(productListPage);
 
         log.info("상품 목록 조회 성공");
         return ResponseEntity.ok(ApiResponse.success(response));
