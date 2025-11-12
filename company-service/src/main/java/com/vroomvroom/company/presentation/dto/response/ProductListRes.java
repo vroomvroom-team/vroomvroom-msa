@@ -8,15 +8,16 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class ProductDetailRes {
+public class ProductListRes {
+
     private final UUID productId;
     private final UUID companyId;
     private final UUID hubId;
     private final String productName;
     private final Long price;
 
-    public static ProductDetailRes from(ProductResult result) {
-        return ProductDetailRes.builder()
+    public static ProductListRes from(ProductResult result) {
+        return ProductListRes.builder()
                 .productId(result.getProductId())
                 .companyId(result.getCompanyId())
                 .hubId(result.getHubId())

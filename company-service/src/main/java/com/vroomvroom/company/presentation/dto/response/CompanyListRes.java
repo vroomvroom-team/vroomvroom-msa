@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class CompanyDetailRes {
+public class CompanyListRes {
     private final UUID companyId;
     private final UUID hubId;
     private final Long companyManagerId;
@@ -16,8 +16,8 @@ public class CompanyDetailRes {
     private final String companyAddress;
     private final String companyType;
 
-    public static CompanyDetailRes from(CompanyResult result) {
-        return CompanyDetailRes.builder()
+    public static CompanyListRes from(CompanyResult result) {
+        return CompanyListRes.builder()
                 .companyId(result.getCompanyId())
                 .hubId(result.getHubId())
                 .companyManagerId(result.getCompanyManagerId())

@@ -3,15 +3,22 @@ package com.vroomvroom.company.presentation;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
+import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.service.ProductService;
 import com.vroomvroom.company.common.api.ApiResponse;
+import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.presentation.dto.request.CreateProductReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateProductReq;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import com.vroomvroom.company.presentation.dto.response.ProductDetailRes;
+import com.vroomvroom.company.presentation.dto.response.ProductListRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -47,7 +54,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.createProduct(command));
 
-        log.info("상품 등록 성공: productId = {}", response.productId());
+        log.info("상품 등록 성공: productId = {}", response.getProductId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
@@ -57,7 +64,23 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.getProduct(productId));
 
-        log.info("상품 상세 조회 성공: productId = {}", response.productId());
+        log.info("상품 상세 조회 성공: companyId = {}", response.getProductId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<ProductListRes>>> getProductList(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        log.info("GET api/v1/products 상품 목록 조회 요청");
+        Page<ProductResult> productPage = productService.getProductList(keyword, pageable);
+
+        Page<ProductListRes> productListPage = productPage.map(ProductListRes::from);
+
+        PageResponse<ProductListRes> response = PageResponse.fromPage(productListPage);
+
+        log.info("상품 목록 조회 성공");
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -81,7 +104,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.updateProduct(command));
 
-        log.info("상품 수정 성공: productId = {}", response.productId());
+        log.info("상품 수정 성공: productId = {}", response.getProductId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -99,7 +122,7 @@ public class ProductController {
                 // TODO. userId, userRole 추가
         );
 
-        productService.deleteProduct(command);
+        productService.deleteCompany(command);
 
         DeleteRes response = new DeleteRes(
                 productId,

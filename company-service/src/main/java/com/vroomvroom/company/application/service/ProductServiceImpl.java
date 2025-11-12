@@ -13,6 +13,8 @@ import com.vroomvroom.company.domain.repository.CompanyRepository;
 import com.vroomvroom.company.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +77,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductResult> getProductList(String keyword, Pageable pageable) {
+        log.info("상품 목록 조회 시작");
+        if (keyword == null || keyword.isBlank()) keyword = "";
+
+        Page<Product> products = productRepository.searchProducts(keyword, pageable);
+
+        log.info("상품 목록 조회 성공");
+        return products.map(ProductResult::from);
+    }
+
+    @Override
     @Transactional
     public ProductResult updateProduct(UpdateProductCommand command) {
         Product product = getActiveProduct(command.productId());
@@ -107,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void deleteProduct(DeleteCommand command) {
+    public void deleteCompany(DeleteCommand command) {
         Product product = getActiveProduct(command.id());
 
         /*        TODO. 유저 권한 체크

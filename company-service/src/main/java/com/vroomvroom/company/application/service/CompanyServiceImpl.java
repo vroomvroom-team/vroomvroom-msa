@@ -13,6 +13,8 @@ import com.vroomvroom.company.domain.repository.CompanyRepository;
 import com.vroomvroom.company.domain.vo.CompanyType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +75,17 @@ public class CompanyServiceImpl implements CompanyService {
 
         log.info("업체 상세 조회 완료: companyId = {}", company.getCompanyId());
         return CompanyResult.from(company);
+    }
+
+    @Override
+    public Page<CompanyResult> getCompanyList(String keyword, Pageable pageable) {
+        log.info("업체 목록 조회 시작");
+        if (keyword == null || keyword.isBlank()) keyword = "";
+
+        Page<Company> companies = companyRepository.searchCompanies(keyword, pageable);
+
+        log.info("업체 목록 조회 완료");
+        return companies.map(CompanyResult::from);
     }
 
     @Override
