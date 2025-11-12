@@ -19,6 +19,7 @@ public class CompanyId {
 
     private CompanyId(UUID companyId) {
         if (companyId == null) throw new CustomException(HubErrorCode.COMPANY_NOT_FOUND);
+        this.companyId = companyId;
     }
 
     public static CompanyId of(UUID companyId) {

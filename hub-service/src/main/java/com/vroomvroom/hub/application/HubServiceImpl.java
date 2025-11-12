@@ -7,18 +7,22 @@ import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.application.dto.HubManagerRes;
 import com.vroomvroom.hub.application.dto.StockRes;
+import com.vroomvroom.hub.application.service.ProductClient;
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.domain.entity.Stock;
 //import com.vroomvroom.hub.domain.port.ProductClient;
 import com.vroomvroom.hub.domain.repository.HubRepository;
 import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
+import com.vroomvroom.hub.domain.vo.CompanyId;
 import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.HubErrorCode;
+import com.vroomvroom.hub.infrastructure.external.dto.ProductDTO;
 import com.vroomvroom.hub.infrastructure.kafka.StockDecreasedEvent;
 import com.vroomvroom.hub.infrastructure.kafka.StockIncreasedEvent;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -39,8 +43,7 @@ import java.util.stream.Collectors;
 public class HubServiceImpl implements HubService {
 
     private final HubRepository hubRepository;
-    private final HubRouteFindRepository hubRouteFindRepository;
-//    private final ProductClient productClient;
+    private final ProductClient productClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
@@ -107,21 +110,23 @@ public class HubServiceImpl implements HubService {
     @Override
     @Transactional
     public CreateStockRes createStock(CreateStockCommand command) {
-//        try {
-//            boolean exists = productClient.exists(command.getProductId());
-//            if (!exists) throw new CustomException(ErrorCode.PRODUCT_NOT_FOUND);
-//        } catch (FeignException e) {
-//            throw new CustomException(ErrorCode.PRODUCT_SERVICE_UNAVAILABLE);
-//        }
+        var companyRes = productClient.getProduct(command.getProductId());
+        log.info("상품 정보 수신 성공: {}", companyRes);
         Hub hub = findHubById(command.getHubId());
-        ProductId productId = ProductId.of(command.getProductId());
+        ProductDTO dto = ProductDTO.builder()
+                .productId(companyRes.getProductId())
+                .companyId(companyRes.getCompanyId())
+                .productName(companyRes.getProductName())
+                .build();
+        ProductId productId = dto.toProductId();
+        CompanyId companyId = dto.toCompanyId();
         Stock stock = hub.getStocks().stream()
                 .filter(s -> s.getProductId().equals(productId) && s.getDeletedAt() == null)
                 .findFirst()
                 .orElse(null);
         if (stock != null) stock.increase(command.getQuantity());
         else {
-            stock = Stock.of(productId, hub, command.getQuantity());
+            stock = Stock.of(productId, companyId, hub, command.getQuantity());
             hub.createStock(stock);
         }
         return CreateStockRes.from(stock);

@@ -16,7 +16,9 @@ import java.util.UUID;
 public class ProductDTO {
     private UUID productId;
     private UUID companyId;
+    private UUID hubId;
     private String productName;
+    private Long price;
 
     public ProductId toProductId() {
         return ProductId.of(productId);
