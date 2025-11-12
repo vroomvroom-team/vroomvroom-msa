@@ -14,8 +14,8 @@ spring:
       prod: prod
 
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${ORDER_DB}
-    username: ${POSTGRES_USER}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${ORDER_DB:order_db}
+    username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
@@ -32,7 +32,20 @@ spring:
       circuitbreaker:
         enabled: true
 
+  kafka:
+    bootstrap-servers: 9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL}
+
+app:
+  kafka:
+    topics:
+      order-created: order.created
