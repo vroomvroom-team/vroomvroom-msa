@@ -55,7 +55,7 @@ public class CompanyController {
 
         CompanyDetailRes response = CompanyDetailRes.from(companyService.createCompany(command));
 
-        log.info("업체 생성 성공: companyId = {}", response.companyId());
+        log.info("업체 생성 성공: companyId = {}", response.getCompanyId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
@@ -65,7 +65,7 @@ public class CompanyController {
 
         CompanyDetailRes response = CompanyDetailRes.from(companyService.getCompany(companyId));
 
-        log.info("업체 상세 조회 성공: companyId = {}", response.companyId());
+        log.info("업체 상세 조회 성공: companyId = {}", response.getCompanyId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -107,7 +107,7 @@ public class CompanyController {
 
         CompanyDetailRes response = CompanyDetailRes.from(companyService.updateCompany(command));
 
-        log.info("업체 수정 성공: companyId = {}", response.companyId());
+        log.info("업체 수정 성공: companyId = {}", response.getCompanyId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

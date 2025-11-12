@@ -54,7 +54,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.createProduct(command));
 
-        log.info("상품 등록 성공: productId = {}", response.productId());
+        log.info("상품 등록 성공: productId = {}", response.getProductId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
@@ -64,7 +64,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.getProduct(productId));
 
-        log.info("상품 상세 조회 성공: companyId = {}", response.productId());
+        log.info("상품 상세 조회 성공: companyId = {}", response.getProductId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -104,7 +104,7 @@ public class ProductController {
 
         ProductDetailRes response = ProductDetailRes.from(productService.updateProduct(command));
 
-        log.info("상품 수정 성공: productId = {}", response.productId());
+        log.info("상품 수정 성공: productId = {}", response.getProductId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

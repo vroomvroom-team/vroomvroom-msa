@@ -1,25 +1,29 @@
 package com.vroomvroom.company.presentation.dto.response;
 
 import com.vroomvroom.company.application.dto.CompanyResult;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.UUID;
 
-public record CompanyDetailRes(
-        UUID companyId,
-        UUID hubId,
-        Long companyManagerId,
-        String companyName,
-        String companyAddress,
-        String companyType
-) {
+@Getter
+@Builder
+public class CompanyDetailRes {
+    private final UUID companyId;
+    private final UUID hubId;
+    private final Long companyManagerId;
+    private final String companyName;
+    private final String companyAddress;
+    private final String companyType;
+
     public static CompanyDetailRes from(CompanyResult result) {
-        return new CompanyDetailRes(
-                result.companyId(),
-                result.hubId(),
-                result.companyManagerId(),
-                result.companyName(),
-                result.companyAddress(),
-                result.companyType()
-        );
+        return CompanyDetailRes.builder()
+                .companyId(result.getCompanyId())
+                .hubId(result.getHubId())
+                .companyManagerId(result.getCompanyManagerId())
+                .companyName(result.getCompanyName())
+                .companyAddress(result.getCompanyAddress())
+                .companyType(result.getCompanyType())
+                .build();
     }
 }
