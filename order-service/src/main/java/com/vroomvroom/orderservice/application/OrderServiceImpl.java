@@ -109,15 +109,8 @@ public class OrderServiceImpl implements OrderService {
         try {
             OrderCreatedEvent event = OrderCreatedEvent.from(
                     order.getId(),
-                    order.getSupplyCompanyId(),
-                    order.getReceiveCompanyId(),
                     order.getSupplyHubId(),
-                    order.getReceiveHubId(),
-                    order.getProductId(),
-                    order.getTotalPrice().getAmount(),
-                    order.getQuantity(),
-                    order.getDeadline(),
-                    order.getRequestNote()
+                    order.getReceiveHubId()
             );
 
             orderEventPublisher.publishOrderCreated(order.getId(), event);
