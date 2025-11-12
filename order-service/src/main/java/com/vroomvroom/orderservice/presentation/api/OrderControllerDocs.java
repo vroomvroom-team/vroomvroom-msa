@@ -74,6 +74,14 @@ public interface OrderControllerDocs {
                     description = "페이지 크기",
                     in = ParameterIn.QUERY,
                     schema = @Schema(type = "integer", defaultValue = "10")
+            ),
+            @Parameter(
+                    name = "sort",
+                    description = "정렬 조건 (필드명,방향). 예: createdAt,desc",
+                    in = ParameterIn.QUERY,
+                    required = false,  // ✅ 필수 아님
+                    schema = @Schema(type = "string"),
+                    example = "createdAt,desc"
             )
     })
     ResponseEntity<com.vroomvroom.common.api.ApiResponse<PageResponse<OrderRes>>> getOrders(Pageable pageable);

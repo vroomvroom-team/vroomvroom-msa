@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -96,7 +99,10 @@ public class OrderController implements OrderControllerDocs {
      */
     @Override
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(
+            @PageableDefault(size = 10, page = 0)
+            @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
         log.info("GET /api/v1/orders - 주문 전체 목록 조회");
 
         Page<OrderDTO> orderDTOPage = orderService.getOrders(pageable);
