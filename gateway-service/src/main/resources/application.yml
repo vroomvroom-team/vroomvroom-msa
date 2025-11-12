@@ -1,9 +1,6 @@
 spring:
   application:
     name: gateway-service
-  web:
-    resources:
-      add-mappings: false
 
   profiles:
     active: local
@@ -13,6 +10,10 @@ spring:
 
   config:
     import: optional:file:.env[.properties]
+
+  web:
+    resources:
+      add-mappings: false
 
   cloud:
     gateway:
@@ -55,13 +56,20 @@ spring:
             - AuthFilter
             - AuthPermissionFilter
 
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
+
   jwt:
     secret: ${JWT_SECRET_KEY}
 
 server:
-  port: ${GATEWAY_PORT}
+  port: ${GATEWAY_PORT:8080}
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL}
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka}
