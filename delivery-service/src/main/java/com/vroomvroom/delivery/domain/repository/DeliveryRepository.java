@@ -2,12 +2,12 @@ package com.vroomvroom.delivery.domain.repository;
 
 import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
+import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
 import com.vroomvroom.delivery.infrastructure.repository.UnassignedRouteIds;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.util.RouteMatcher.Route;
 
 public interface DeliveryRepository {
 
@@ -28,8 +28,11 @@ public interface DeliveryRepository {
         UUID deliveryId, Long nextSequence);
 
     /**
-     * 담당자가 아직 배정되지 않은 배송대기 상태의 deliveryRouteId, deliveryId 가져옴
-     *     - 가장 먼저 생긴 배송 우선
+     * 담당자가 아직 배정되지 않은 배송대기 상태의 deliveryRouteId, deliveryId 가져옴 - 가장 먼저 생긴 배송 우선
      */
     Page<UnassignedRouteIds> findUnassignedRouteKeys(Pageable pageable);
+
+    Optional<Delivery> findById(UUID deliveryId);
+
+    Page<UUID> findIdsByStatus(DeliveryStatus deliveryStatus, UUID hubId, Pageable pageable);
 }

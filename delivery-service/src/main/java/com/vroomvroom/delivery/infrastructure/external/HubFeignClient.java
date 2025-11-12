@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "hub-service")
 public interface HubFeignClient {
 
-    @GetMapping("/api/v1/hubs")
+    @GetMapping("/api/v1/hub-routes")
     List<HubRouteDTO> getRoutes(@RequestBody GetDeliveryRoutesReq request);
 
     @GetMapping("/api/v1/hubs/{hubId}/exists")
     boolean exists(UUID hubId);
+
+    @GetMapping("/api/v1/hubs")
+    List<UUID> getAllHubId();
 }

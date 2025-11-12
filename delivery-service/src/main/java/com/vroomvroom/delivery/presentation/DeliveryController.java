@@ -2,6 +2,7 @@ package com.vroomvroom.delivery.presentation;
 
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
+import com.vroomvroom.delivery.application.command.CompleteDeliveryCommand;
 import com.vroomvroom.delivery.application.command.CreateDeliveryCommand;
 import com.vroomvroom.delivery.application.command.CreateManagerCommand;
 import com.vroomvroom.delivery.application.service.DeliveryManagerService;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,13 +62,44 @@ public class DeliveryController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // 배송/배송경로 상태 업데이트 (허브 -> 허브)
+    // 허브 출발
+    @PatchMapping("/{deliveryId}/delivery-routes/{routeId}")
+    public ResponseEntity<ApiResponse<Void>> startHub(
+        @PathVariable UUID deliveryId,
+        @PathVariable UUID routeId
+    ) {
+        deliveryRouteService.startHub(deliveryId, routeId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 허브 도착 - 배송/배송경로 상태 업데이트 (허브 -> 허브)
     @PatchMapping("/{deliveryId}/delivery-routes/{routeId}/status")
-    public ResponseEntity<ApiResponse<Void>> updateDeliveryRouteStatus(
+    public ResponseEntity<ApiResponse<Void>> arriveHub(
         @PathVariable UUID deliveryId,
         @PathVariable UUID routeId
     ) {
         deliveryRouteService.updateDeliveryRouteStatus(deliveryId, routeId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 허브 -> 업체
+    @PatchMapping("/{deliveryId}/company")
+    public ResponseEntity<ApiResponse<Void>> handoffToCompany(
+        @PathVariable UUID deliveryId
+    ) {
+        deliveryService.handoffToCompany(deliveryId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 배송완료
+    @PostMapping("/{deliveryId}/complete")
+    public ResponseEntity<ApiResponse<Void>> completeDelivery(
+        @PathVariable UUID deliveryId,
+        @RequestHeader("X-User-Id") Long userId,
+        @RequestHeader("X-User-Role") String userRole
+    ) {
+        CompleteDeliveryCommand command = CompleteDeliveryCommand.of(userId, userRole);
+        deliveryService.completeDelivery(deliveryId, command);
         return ResponseEntity.ok().build();
     }
 

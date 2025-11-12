@@ -67,4 +67,19 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
         @Param("type") DeliveryManagerType type,
         @Param("isActive") Boolean isActive
     );
+
+
+    @Query(value = """
+                SELECT dm
+                FROM DeliveryManager dm
+                WHERE dm.sequence.value = :sequence
+                  AND dm.type = :type
+                  And dm.isActive = false
+                  AND dm.hubId.id  = :hubId
+        """)
+    Optional<DeliveryManager> findAvailableManagerForAssignment(
+        @Param("sequence") Long sequence,
+        @Param("type") DeliveryManagerType deliveryManagerType,
+        @Param("hubId") UUID hubId
+    );
 }

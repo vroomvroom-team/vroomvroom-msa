@@ -15,4 +15,6 @@ public interface HubClient {
     List<HubRouteDTO> getRoutes(GetDeliveryRoutesReq request);
 
     void verifyExists(UUID hubId);
+
+    List<UUID> getAllHubId();
 }

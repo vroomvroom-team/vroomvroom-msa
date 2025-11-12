@@ -62,4 +62,14 @@ public class DeliveryManagerRepositoryAdapter implements DeliveryManagerReposito
     public Optional<DeliveryManager> findById(Long userId) {
         return jpaDeliveryManagerRepository.findById(userId);
     }
+
+    @Override
+    public Optional<DeliveryManager> findAvailableManagerForAssignment(
+        Long sequence,
+        DeliveryManagerType deliveryManagerType,
+        UUID hubId
+    ) {
+        return jpaDeliveryManagerRepository
+            .findAvailableManagerForAssignment(sequence, deliveryManagerType, hubId);
+    }
 }
