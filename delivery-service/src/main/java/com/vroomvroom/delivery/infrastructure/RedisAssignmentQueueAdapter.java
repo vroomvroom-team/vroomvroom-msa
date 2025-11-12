@@ -25,6 +25,18 @@ public class RedisAssignmentQueueAdapter implements AssignmentQueuePort {
         redisTemplate.opsForList().rightPush(cmqKey(hubId), String.valueOf(sequence));
     }
 
+    @Override
+    public Optional<Long> popHubManagerSequence(String key) {
+        String value = redisTemplate.opsForList().leftPop(key);
+        return value == null ? Optional.empty() : Optional.of(Long.parseLong(value));
+    }
+
+    @Override
+    public void pushHubManagerSequence(String key, Long sequence) {
+        redisTemplate.opsForList().rightPush(key, String.valueOf(sequence));
+    }
+
+
     private String cmqKey(UUID hubId) {
         return "cmq:" + hubId + ":"
             + DeliveryManagerType.COMPANY_MANAGER.name();

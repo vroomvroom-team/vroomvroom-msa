@@ -54,21 +54,6 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
         """, nativeQuery = true)
     Long nextHubSequence(@Param("hubId") UUID hubId);
 
-
-    @Query(value = """
-                SELECT dm
-                FROM DeliveryManager dm
-                WHERE dm.sequence.value = :sequence
-                  AND dm.type = :type
-                  AND dm.isActive = :isActive
-        """)
-    Optional<DeliveryManager> findBySequenceAndTypeAndIsActiveFalse(
-        @Param("sequence") Long sequence,
-        @Param("type") DeliveryManagerType type,
-        @Param("isActive") Boolean isActive
-    );
-
-
     @Query(value = """
                 SELECT dm
                 FROM DeliveryManager dm
@@ -81,5 +66,17 @@ public interface JpaDeliveryManagerRepository extends JpaRepository<DeliveryMana
         @Param("sequence") Long sequence,
         @Param("type") DeliveryManagerType deliveryManagerType,
         @Param("hubId") UUID hubId
+    );
+
+
+    @Query(value = """
+                SELECT dm
+                FROM DeliveryManager dm
+                WHERE dm.sequence.value = :sequence
+                  AND dm.type = :type
+        """)
+    Optional<DeliveryManager> findBySequenceAndType(
+        @Param("sequence") Long sequence,
+        @Param("type") DeliveryManagerType deliveryManagerType
     );
 }

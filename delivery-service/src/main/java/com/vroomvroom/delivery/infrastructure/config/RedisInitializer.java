@@ -71,7 +71,7 @@ public class RedisInitializer implements ApplicationRunner {
 
     private void initHubManagerQueue() {
         String hubManagerKey =
-            "hmq:" + DeliveryManagerType.HUB_MANAGER.name(); // 각 허브의 HUB_MANAGER 큐 key
+            "hmq:" + DeliveryManagerType.HUB_MANAGER.name() + ":queue"; // 각 허브의 HUB_MANAGER 큐 key
         initQueue(hubManagerKey, "global:hub_manager:init_lock", "hub_manager_initializing");
     }
 }

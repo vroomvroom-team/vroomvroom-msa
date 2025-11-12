@@ -52,10 +52,10 @@ public class DeliveryManagerRepositoryAdapter implements DeliveryManagerReposito
     }
 
     @Override
-    public Optional<DeliveryManager> findBySequenceAndTypeAndIsActiveFalse(
-        Long sequenceToAssign, DeliveryManagerType type, boolean isActive) {
-        return jpaDeliveryManagerRepository
-            .findBySequenceAndTypeAndIsActiveFalse(sequenceToAssign, type, isActive);
+    public Optional<DeliveryManager> findBySequenceAndType(
+        Long sequence, DeliveryManagerType deliveryManagerType
+    ) {
+        return jpaDeliveryManagerRepository.findBySequenceAndType(sequence, deliveryManagerType);
     }
 
     @Override

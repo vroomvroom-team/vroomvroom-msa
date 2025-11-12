@@ -8,4 +8,8 @@ public interface AssignmentQueuePort {
     Optional<Long> popCompanyManagerSequence(UUID hubId);
 
     void pushCompanyManagerSequence(UUID hubId, Long sequence);
+
+    Optional<Long> popHubManagerSequence(String key);
+
+    void pushHubManagerSequence(String key, Long sequence);
 }
