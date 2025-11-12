@@ -46,6 +46,9 @@ springdoc:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:19090/eureka
     register-with-eureka: true
     fetch-registry: true
+
+server:
+  port: 19092
