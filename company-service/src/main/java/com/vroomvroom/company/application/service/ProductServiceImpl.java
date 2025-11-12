@@ -3,6 +3,7 @@ package com.vroomvroom.company.application.service;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
+import com.vroomvroom.company.application.dto.ProductOrderInfoResult;
 import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.port.HubClient;
 import com.vroomvroom.company.common.exception.CustomException;
@@ -131,6 +132,18 @@ public class ProductServiceImpl implements ProductService {
         );*/
 
         product.markAsDeleted();
+    }
+
+    @Override
+    public ProductOrderInfoResult getOrderInfo(UUID productId) {
+        Product product = getActiveProduct(productId);
+        UUID hubId = product.getHubId();
+        Long price = product.getPrice();
+
+        if (hubId == null) throw new CustomException(ErrorCode.PRODUCT_HUB_ID_NOT_FOUND);
+        if (price == null) throw new CustomException(ErrorCode.PRICE_NOT_FOUND);
+
+        return ProductOrderInfoResult.from(hubId, price);
     }
 
     public void validateDuplicateName(String productName) {

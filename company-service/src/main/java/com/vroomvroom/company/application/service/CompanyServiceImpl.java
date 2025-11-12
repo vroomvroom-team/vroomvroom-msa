@@ -3,6 +3,7 @@ package com.vroomvroom.company.application.service;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
+import com.vroomvroom.company.application.dto.CompanyHubIdResult;
 import com.vroomvroom.company.application.dto.CompanyResult;
 import com.vroomvroom.company.application.validator.AuthorityValidator;
 import com.vroomvroom.company.application.validator.CompanyValidator;
@@ -142,6 +143,20 @@ public class CompanyServiceImpl implements CompanyService {
 
         company.markAsDeleted();
     }
+
+    @Override
+    public CompanyHubIdResult getHubIdByCompanyId(UUID companyId) {
+        log.info("소속 허브 ID 조회 시작");
+
+        Company company = getActiveCompany(companyId);
+        UUID hubId = company.getHubId();
+
+        if (hubId == null) throw new CustomException(ErrorCode.COMPANY_HUB_ID_NOT_FOUND);
+
+        log.info("소속 허브 ID 조회완료");
+        return CompanyHubIdResult.from(hubId);
+    }
+
 
     private Company getActiveCompany(UUID companyId) {
         return companyRepository.findByCompanyIdAndDeletedAtIsNull(companyId)
