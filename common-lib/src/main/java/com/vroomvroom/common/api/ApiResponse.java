@@ -1,8 +1,10 @@
 package com.vroomvroom.common.api;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vroomvroom.common.exception.ErrorCode;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -24,6 +26,21 @@ public class ApiResponse<T> {
 		this.message = message;
 		this.data = data;
 		this.timestamp = LocalDateTime.now();
+	}
+
+	@JsonCreator
+	private ApiResponse(
+			@JsonProperty("success") boolean success,
+			@JsonProperty("code") String code,
+			@JsonProperty("message") String message,
+			@JsonProperty("data") T data,
+			@JsonProperty("timestamp") LocalDateTime timestamp
+	) {
+		this.success = success;
+		this.code = code;
+		this.message = message;
+		this.data = data;
+		this.timestamp = timestamp != null ? timestamp : LocalDateTime.now();
 	}
 
 	public static <T> ApiResponse<T> success(T data) {
