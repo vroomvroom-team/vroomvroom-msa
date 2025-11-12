@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.domain.port;
+package com.vroomvroom.hub.application.service;
 
 import com.vroomvroom.hub.infrastructure.external.dto.ProductDTO;
 
