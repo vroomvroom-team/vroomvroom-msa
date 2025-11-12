@@ -31,8 +31,11 @@ public enum DeliveryErrorCode implements ErrorCode {
     ROUTE_NOT_ARRIVED_YET(HttpStatus.CONFLICT, "아직 허브배송이 완료되지 않았습니다."),
     DELIVERY_STATE_CONFLICT(HttpStatus.CONFLICT, "잘못된 배송 상태입니다."),
     DELIVERY_NOT_CANCEL(HttpStatus.CONFLICT, "현재는 배송 취소가 불가능한 상태입니다,"),
+    DELIVERY_ID_MISMATCH(HttpStatus.BAD_REQUEST, "해당 배송경로가 해당 배송에 속하지 않습니다."),
+    MANAGER_ALREADY_ACTIVE(HttpStatus.CONFLICT, "해당 담당자는 이미 배송중입니다."),
 
     ;
+
 
     private final HttpStatus httpStatus;
     private final String message;

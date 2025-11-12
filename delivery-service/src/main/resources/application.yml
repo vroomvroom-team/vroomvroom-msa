@@ -45,12 +45,7 @@ spring:
 #  client:
 #    service-url:
 #      defaultZone: ${EUREKA_SERVER_URL}
-
 app:
-  kafka:
-    topics:
-      manager-assignment: "manager-assignment-topic"
-
   redis:
     keys:
       replay-lock: "global:hub_manager:replay_lock"
