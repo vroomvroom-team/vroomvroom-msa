@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.domain.entity;
 
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.common.model.BaseTimeEntity;
-import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.*;
 import lombok.*;

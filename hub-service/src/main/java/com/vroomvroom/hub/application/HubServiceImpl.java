@@ -1,6 +1,7 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.hub.application.command.*;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
@@ -13,7 +14,6 @@ import com.vroomvroom.hub.domain.entity.Stock;
 import com.vroomvroom.hub.domain.repository.HubRepository;
 import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
 import com.vroomvroom.hub.domain.vo.ProductId;
-import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import com.vroomvroom.hub.infrastructure.kafka.StockDecreasedEvent;
 import com.vroomvroom.hub.infrastructure.kafka.StockIncreasedEvent;

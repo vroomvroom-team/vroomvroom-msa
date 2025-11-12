@@ -1,6 +1,7 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.common.api.PageResponse;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.hub.application.command.CreateHubRouteCommand;
 import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
@@ -11,7 +12,6 @@ import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.domain.repository.HubRepository;
 import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
 import com.vroomvroom.hub.domain.service.OptimalRouteType;
-import com.vroomvroom.hub.exception.CustomException;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import lombok.RequiredArgsConstructor;

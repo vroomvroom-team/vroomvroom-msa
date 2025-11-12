@@ -1,6 +1,6 @@
 package com.vroomvroom.hub.domain.vo;
 
-import com.vroomvroom.hub.exception.CustomException;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
