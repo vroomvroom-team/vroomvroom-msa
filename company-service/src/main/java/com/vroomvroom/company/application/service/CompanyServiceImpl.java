@@ -79,10 +79,12 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Page<CompanyResult> getCompanyList(String keyword, Pageable pageable) {
+        log.info("업체 목록 조회 시작");
         if (keyword == null || keyword.isBlank()) keyword = "";
 
         Page<Company> companies = companyRepository.searchCompanies(keyword, pageable);
 
+        log.info("업체 목록 조회 완료");
         return companies.map(CompanyResult::from);
     }
 

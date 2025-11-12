@@ -78,10 +78,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResult> getProductList(String keyword, Pageable pageable) {
+        log.info("상품 목록 조회 시작");
         if (keyword == null || keyword.isBlank()) keyword = "";
 
         Page<Product> products = productRepository.searchProducts(keyword, pageable);
 
+        log.info("상품 목록 조회 성공");
         return products.map(ProductResult::from);
     }
 
