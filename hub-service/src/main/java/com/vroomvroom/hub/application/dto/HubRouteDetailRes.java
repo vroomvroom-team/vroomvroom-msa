@@ -2,13 +2,17 @@ package com.vroomvroom.hub.application.dto;
 
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.entity.HubRoute;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class HubRouteDetailRes {
     private UUID routeId;
     private String routeName;
@@ -20,6 +24,8 @@ public class HubRouteDetailRes {
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class HubInfoRes {
         private UUID hubId;
         private String hubName;

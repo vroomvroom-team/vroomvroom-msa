@@ -1,7 +1,7 @@
 package com.vroomvroom.hub.domain.vo;
 
-import com.vroomvroom.hub.exception.CustomException;
-import com.vroomvroom.hub.exception.ErrorCode;
+import com.vroomvroom.common.exception.CustomException;
+import com.vroomvroom.hub.exception.HubErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -38,7 +38,7 @@ public class Location {
                 latitude.compareTo(new BigDecimal("-90")) < 0 || latitude.compareTo(new BigDecimal("90")) > 0 ||
                 longitude.compareTo(new BigDecimal("-180")) < 0 || longitude.compareTo(new BigDecimal("180")) > 0
         ) {
-            throw new CustomException(ErrorCode.INVALID_LOCATION);
+            throw new CustomException(HubErrorCode.INVALID_LOCATION);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.vroomvroom.delivery.domain.vo;
 
-import com.vroomvroom.delivery.domain.exception.CustomException;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

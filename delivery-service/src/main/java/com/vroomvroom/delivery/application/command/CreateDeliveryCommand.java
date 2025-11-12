@@ -1,6 +1,6 @@
 package com.vroomvroom.delivery.application.command;
 
-import com.vroomvroom.delivery.domain.exception.CustomException;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.vo.ArriveHubId;
 import com.vroomvroom.delivery.domain.vo.DeliveryAddress;

@@ -35,11 +35,11 @@ public class ApiResponse<T> {
 	}
 
 	public static ApiResponse<Void> fail(ErrorCode errorCode) {
-		return new ApiResponse<>(false, errorCode.name(), errorCode.getMessage(), null);
+		return new ApiResponse<>(false, errorCode.getHttpStatus().name(), errorCode.getMessage(), null);
 	}
 
 	public static ApiResponse<Void> fail(String message, ErrorCode errorCode) {
-		return new ApiResponse<>(false, errorCode.name(), message, null);
+		return new ApiResponse<>(false, errorCode.getHttpStatus().name(), message, null);
 	}
 
 	public static ApiResponse<Void> fail(String code, String message) {

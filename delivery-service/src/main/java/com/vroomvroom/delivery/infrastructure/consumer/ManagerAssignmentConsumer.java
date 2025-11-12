@@ -24,7 +24,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @RequiredArgsConstructor
 public class ManagerAssignmentConsumer {
 
-    @Value("${app.redis.keys.manager-queue:global:manager:queue}")
+    @Value("${app.redis.keys.manager-queue}")
     private String managerQueueKey;
 
     private final DeliveryManagerRepository managerRepository;
@@ -42,7 +42,7 @@ public class ManagerAssignmentConsumer {
         log.info("담당자 배정 요청 수신. routeId = {}", routeId);
 
         try {
-            DeliveryRoute route = deliveryRouteService.getRouteOrThrow(routeId);
+            DeliveryRoute route = deliveryRouteService.findRouteOrThrow(routeId);
 
             if (route.getDeliveryManagerId() != null) { // 이미 배정된 상태
                 log.warn("배송담당자가 이미 배정된 경로입니다. routeId = {}", routeId);

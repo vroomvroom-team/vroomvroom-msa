@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Embeddable
 @Getter

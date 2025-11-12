@@ -1,9 +1,9 @@
 package com.vroomvroom.hub.application;
 
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
-import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.domain.entity.HubRoute;
+import com.vroomvroom.hub.domain.service.OptimalRouteType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ public class Dijkstra {
         long cost;
     }
 
-    public static OptimalRouteRes findOptimalRoute(Map<UUID, List<HubRoute>> graph, UUID start, UUID end, String type) {
+    public static OptimalRouteRes findOptimalRoute(Map<UUID, List<HubRoute>> graph, UUID start, UUID end, OptimalRouteType type) {
         Map<UUID, Long> distance = new HashMap<>();
         Map<UUID, UUID> prev = new HashMap<>();
         PriorityQueue<Node> pq = new PriorityQueue<>(Comparator.comparingLong(Node::getCost));
@@ -32,7 +32,7 @@ public class Dijkstra {
             if (cur.id.equals(end)) break;
             for (HubRoute route: graph.getOrDefault(cur.id, List.of())) {
                 if (!route.getIsActive()) continue;
-                long w = type.equalsIgnoreCase("DISTANCE") ? route.getDistance() : route.getTime();
+                long w = type.equals(OptimalRouteType.DISTANCE) ? route.getDistance() : route.getTime();
                 long newDist = cur.cost + w;
                 UUID next = route.getArrivalHub().getHubId();
                 if (newDist < distance.get(next)) {
@@ -52,7 +52,7 @@ public class Dijkstra {
             UUID arrival = path.get(i + 1);
             HubRoute min = graph.getOrDefault(departure, List.of()).stream()
                     .filter(r -> r.getArrivalHub().getHubId().equals(arrival))
-                    .min(Comparator.comparingLong(r -> type.equalsIgnoreCase("DISTANCE") ? r.getDistance() : r.getTime())).orElse(null);
+                    .min(Comparator.comparingLong(r -> type.equals(OptimalRouteType.DISTANCE) ? r.getDistance() : r.getTime())).orElse(null);
             if (min != null) details.add(HubRouteDetailRes.from(min));
         }
         return OptimalRouteRes.builder()
