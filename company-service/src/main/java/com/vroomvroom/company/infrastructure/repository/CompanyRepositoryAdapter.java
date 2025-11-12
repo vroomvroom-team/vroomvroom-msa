@@ -1,4 +1,4 @@
-package com.vroomvroom.company.infrastructure.repository.company;
+package com.vroomvroom.company.infrastructure.repository;
 
 import com.vroomvroom.company.domain.entity.Company;
 import com.vroomvroom.company.domain.repository.CompanyRepository;

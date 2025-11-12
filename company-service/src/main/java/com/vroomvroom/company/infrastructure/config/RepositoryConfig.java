@@ -1,8 +1,8 @@
 package com.vroomvroom.company.infrastructure.config;
 
 import com.vroomvroom.company.domain.repository.CompanyRepository;
-import com.vroomvroom.company.infrastructure.repository.company.CompanyRepositoryAdapter;
-import com.vroomvroom.company.infrastructure.repository.company.JpaCompanyRepository;
+import com.vroomvroom.company.infrastructure.repository.CompanyRepositoryAdapter;
+import com.vroomvroom.company.infrastructure.repository.JpaCompanyRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

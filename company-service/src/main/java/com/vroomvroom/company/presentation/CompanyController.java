@@ -2,13 +2,13 @@ package com.vroomvroom.company.presentation;
 
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.company.application.command.CreateCompanyCommand;
-import com.vroomvroom.company.application.command.DeleteCompanyCommand;
+import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateCompanyCommand;
 import com.vroomvroom.company.application.service.CompanyService;
 import com.vroomvroom.company.presentation.dto.request.CreateCompanyReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateCompanyReq;
-import com.vroomvroom.company.presentation.dto.response.CompanyDeletedRes;
 import com.vroomvroom.company.presentation.dto.response.CompanyDetailRes;
+import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class CompanyController {
                 // TODO. userId, userRole 추가
         );
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.createCompany(command));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.createCompany(command));
 
         log.info("업체 생성 성공: companyId = {}", response.companyId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
@@ -56,7 +56,7 @@ public class CompanyController {
     public ResponseEntity<ApiResponse<CompanyDetailRes>> getCompany(@PathVariable UUID companyId) {
         log.info("GET api/v1/companies/{} 업체 상세조회 요청", companyId);
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.getCompany(companyId));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.getCompany(companyId));
 
         log.info("업체 상세 조회 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -82,14 +82,14 @@ public class CompanyController {
                 // TODO. userId, userRole 추가
         );
 
-        CompanyDetailRes response = CompanyDetailRes.form(companyService.updateCompany(command));
+        CompanyDetailRes response = CompanyDetailRes.from(companyService.updateCompany(command));
 
         log.info("업체 수정 성공: companyId = {}", response.companyId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/{companyId}")
-    public ResponseEntity<ApiResponse<CompanyDeletedRes>> deleteCompany(
+    public ResponseEntity<ApiResponse<DeleteRes>> deleteCompany(
             @PathVariable UUID companyId
 /*             TODO. 유저 정보 받아오기
             @RequestHeader("X-User-Id") Long userId,
@@ -97,19 +97,19 @@ public class CompanyController {
     ) {
         log.info("DELETE api/v1/companies/{} 업체 삭제 요청", companyId);
 
-        DeleteCompanyCommand command = new DeleteCompanyCommand(
+        DeleteCommand command = new DeleteCommand(
                 companyId
                 // TODO. userId, userRole 추가
         );
 
-        UUID DeletedCompanyId = companyService.deleteCompany(command); // TODO. 추후 command로 수정
+        companyService.deleteCompany(command);
 
-        CompanyDeletedRes response = new CompanyDeletedRes(
-                DeletedCompanyId,
+        DeleteRes response = new DeleteRes(
+                companyId,
                 "업체가 성공적으로 삭제되었습니다."
         );
 
-        log.info("업체 삭제 성공: companyId = {}", response.companyId());
+        log.info("업체 삭제 성공: companyId = {}", companyId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

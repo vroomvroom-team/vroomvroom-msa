@@ -6,7 +6,6 @@ import com.vroomvroom.company.common.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,10 +38,9 @@ public class Product extends BaseTimeEntity {
             Company company,
             UUID hubId,
             String productName,
-            Long price,
-            List<Product> existingProducts
+            Long price
     ) {
-        validate(company, hubId, productName, price, existingProducts);
+        validate(company, hubId, productName, price);
 
         return Product.builder()
                 .company(company)
@@ -56,20 +54,18 @@ public class Product extends BaseTimeEntity {
             Company company,
             UUID hubId,
             String productName,
-            Long price,
-            List<Product> existingProducts
+            Long price
     ) {
         validateHub(company, hubId);
-        validateName(productName);
+        validateProductName(productName);
         validatePrice(price);
-        validateDuplicate(productName, existingProducts);
     }
 
     private static void validateHub(Company company, UUID hubId) {
         if (!company.getHubId().equals(hubId)) throw new CustomException(ErrorCode.HUB_MISMATCH);
     }
 
-    private static void validateName(String productName) {
+    private static void validateProductName(String productName) {
         if (productName == null || productName.isBlank()) throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
     }
 
@@ -77,10 +73,13 @@ public class Product extends BaseTimeEntity {
         if (price == null || price <= 0) throw new CustomException(ErrorCode.INVALID_PRICE);
     }
 
-    private static void validateDuplicate(String productName, List<Product> existingProducts) {
-        boolean duplicate = existingProducts.stream()
-                .anyMatch(p -> p.getProductName().equals(productName));
+    public void changeProductName(String productName) {
+        validateProductName(productName);
+        this.productName = productName;
+    }
 
-        if (duplicate) throw new CustomException(ErrorCode.DUPLICATE_PRODUCT_NAME);
+    public void changePrice(Long price) {
+        validatePrice(price);
+        this.price = price;
     }
 }

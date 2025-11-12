@@ -12,7 +12,7 @@ public record CompanyDetailRes(
         String companyAddress,
         String companyType
 ) {
-    public static CompanyDetailRes form(CompanyResult result) {
+    public static CompanyDetailRes from(CompanyResult result) {
         return new CompanyDetailRes(
                 result.companyId(),
                 result.hubId(),
