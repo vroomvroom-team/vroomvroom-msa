@@ -13,11 +13,13 @@ public class UpdateHubCommand {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private Long hubManagerId;
 
-    public UpdateHubCommand(String hubName, String address, BigDecimal latitude, BigDecimal longitude) {
+    public UpdateHubCommand(String hubName, String address, BigDecimal latitude, BigDecimal longitude, Long hubManagerId) {
         this.hubName = hubName;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.hubManagerId = hubManagerId;
     }
 }

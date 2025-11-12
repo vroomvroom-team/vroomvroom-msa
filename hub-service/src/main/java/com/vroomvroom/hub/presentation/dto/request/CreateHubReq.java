@@ -24,4 +24,6 @@ public class CreateHubReq {
 
     @NotNull(message = "허브 경도는 필수입니다.")
     private BigDecimal longitude;
+
+    private Long hubManagerId;
 }

@@ -6,6 +6,7 @@ import com.vroomvroom.hub.application.command.UpdateHubRouteCommand;
 import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
+import com.vroomvroom.hub.domain.service.OptimalRouteType;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import org.springframework.data.domain.Pageable;
 
@@ -19,5 +20,5 @@ public interface HubRouteService {
     HubRouteDetailRes getHubRouteDetail(UUID routeId);
     void updateHubRoute(UUID routeId, UpdateHubRouteCommand command);
     void deleteHubRoute(UUID routeId);
-    OptimalRouteRes findOptimalPath(UUID departureId, UUID arrivalId, String type);
+    OptimalRouteRes findOptimalPath(UUID departureId, UUID arrivalId, OptimalRouteType type);
 }
