@@ -36,7 +36,9 @@ public enum HubErrorCode implements ErrorCode {
     STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 재고를 찾을 수 없습니다."),
     INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "재고가 충분하지 않습니다."),
 
-    PRODUCT_SERVICE_UNAVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, "상품 서비스에 연결할 수 없습니다.");
+    PRODUCT_SERVICE_UNAVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, "상품 서비스에 연결할 수 없습니다."),
+
+    EVENT_PUBLISH_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "이벤트 발행 실패");
 
 
     private final HttpStatus httpStatus;

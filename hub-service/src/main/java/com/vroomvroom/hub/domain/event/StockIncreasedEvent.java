@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.infrastructure.kafka;
+package com.vroomvroom.hub.domain.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockIncreasedEvent {
+public class StockIncreasedEvent implements DomainEvent {
     private UUID orderId;
     private UUID hubId;
     private UUID productId;
