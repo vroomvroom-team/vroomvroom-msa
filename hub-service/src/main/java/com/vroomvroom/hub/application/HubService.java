@@ -27,4 +27,5 @@ public interface HubService {
     void decreaseStock(DecreaseStockCommand command);
     void increaseStock(IncreaseStockCommand command);
     StockRes getStock(UUID hubId, UUID productId);
+    void deleteStock(UUID hubId, UUID stockId);
 }

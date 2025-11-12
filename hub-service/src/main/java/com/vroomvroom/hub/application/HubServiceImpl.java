@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,8 +84,12 @@ public class HubServiceImpl implements HubService {
     public void deleteHub(UUID hubId) {
         Hub hub = findHubById(hubId);
         hub.delete();
-        List<HubRoute> routes = hubRouteFindRepository.findAllByHubId(hubId);
-        routes.forEach(HubRoute::markAsDeleted);
+        List<HubRoute> arrivalRoutes = hub.getArrivalRoutes();
+        List<HubRoute> departureRoutes = hub.getDepartureRoutes();
+        arrivalRoutes.forEach(HubRoute::markAsDeleted);
+        departureRoutes.forEach(HubRoute::markAsDeleted);
+        List<Stock> stocks = hub.getStocks();
+        stocks.forEach(Stock::markAsDeleted);
     }
 
     @Override
@@ -125,13 +130,15 @@ public class HubServiceImpl implements HubService {
     @Override
     public List<StockRes> getStockList(UUID hubId) {
         Hub hub = findHubById(hubId);
-        return StockRes.fromList(hub.getStocks());
+        return StockRes.fromList(hub.getStocks().stream().filter(
+                s -> s.getDeletedAt() == null).collect(Collectors.toList())
+        );
     }
 
     @Override
     @Transactional
     public void decreaseStock(DecreaseStockCommand command) {
-        Stock stock = findStockById(command.getHubId(), command.getProductId());
+        Stock stock = findStockByProductId(command.getHubId(), command.getProductId());
         stock.decrease(command.getQuantity());
         try {
             StockDecreasedEvent event = new StockDecreasedEvent(
@@ -150,7 +157,7 @@ public class HubServiceImpl implements HubService {
     @Override
     @Transactional
     public void increaseStock(IncreaseStockCommand command) {
-        Stock stock = findStockById(command.getHubId(), command.getProductId());
+        Stock stock = findStockByProductId(command.getHubId(), command.getProductId());
         stock.increase(command.getQuantity());
         try {
             StockIncreasedEvent event = new StockIncreasedEvent(
@@ -168,8 +175,15 @@ public class HubServiceImpl implements HubService {
 
     @Override
     public StockRes getStock(UUID hubId, UUID productId) {
-        Stock stock = findStockById(hubId, productId);
+        Stock stock = findStockByProductId(hubId, productId);
         return StockRes.from(stock);
+    }
+
+    @Override
+    @Transactional
+    public void deleteStock(UUID hubId, UUID stockId) {
+        Stock stock = findStockById(hubId, stockId);
+        stock.markAsDeleted();
     }
 
     Hub findHubById(UUID hubId) {
@@ -177,10 +191,18 @@ public class HubServiceImpl implements HubService {
                 .orElseThrow(() -> new CustomException(HubErrorCode.HUB_NOT_FOUND));
     }
 
-    Stock findStockById(UUID hubId, UUID productId) {
+    Stock findStockByProductId(UUID hubId, UUID productId) {
         Hub hub = findHubById(hubId);
         return hub.getStocks().stream()
                 .filter(s -> s.getProductId().equals(ProductId.of(productId)) && s.getDeletedAt() == null)
+                .findFirst()
+                .orElseThrow(() -> new CustomException(HubErrorCode.STOCK_NOT_FOUND));
+    }
+
+    Stock findStockById(UUID hubId, UUID stockId) {
+        Hub hub = findHubById(hubId);
+        return hub.getStocks().stream()
+                .filter(s -> s.getStockId().equals(stockId) && s.getDeletedAt() == null)
                 .findFirst()
                 .orElseThrow(() -> new CustomException(HubErrorCode.STOCK_NOT_FOUND));
     }

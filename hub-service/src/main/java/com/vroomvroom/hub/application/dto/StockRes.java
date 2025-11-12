@@ -12,11 +12,13 @@ import java.util.stream.Collectors;
 @Builder
 public class StockRes {
 
+    private UUID stockId;
     private UUID productId;
     private Long quantity;
 
     public static StockRes from(Stock stock) {
         return StockRes.builder()
+                .stockId(stock.getStockId())
                 .productId(stock.getProductId().getProductId())
                 .quantity(stock.getQuantity())
                 .build();

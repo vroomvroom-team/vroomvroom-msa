@@ -134,4 +134,11 @@ public class HubController {
         StockRes res = hubService.getStock(hubId, productId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
+
+    @DeleteMapping("/{hubId}/stocks/{stockId}")
+    public ResponseEntity<ApiResponse<Void>> deleteStock(@PathVariable UUID hubId,
+                                                         @PathVariable UUID stockId) {
+        hubService.deleteStock(hubId, stockId);
+        return ResponseEntity.noContent().build();
+    }
 }
