@@ -148,7 +148,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-            kafkaTemplate.send("stock-decreased", event);
+//            kafkaTemplate.send("stock-decreased", event);
         } catch (Exception e) {
             log.error("재고 감소 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }
@@ -167,7 +167,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-            kafkaTemplate.send("stock-increased", event);
+//            kafkaTemplate.send("stock-increased", event);
         } catch (Exception e) {
             log.error("재고 증가 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }

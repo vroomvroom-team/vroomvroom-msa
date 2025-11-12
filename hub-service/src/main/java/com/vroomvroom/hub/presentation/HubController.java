@@ -14,6 +14,8 @@ import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,11 +30,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/hubs")
 @RequiredArgsConstructor
+@Tag(name = "Hub API", description = "허브 API")
 public class HubController {
 
     private final HubService hubService;
 
     @PostMapping
+    @Operation(summary = "Hub 생성", description = "새로운 허브를 생성합니다.")
     public ResponseEntity<ApiResponse<CreateHubRes>> createHub(@RequestBody CreateHubReq req) {
         CreateHubCommand command = new CreateHubCommand(
                 req.getHubName(),
