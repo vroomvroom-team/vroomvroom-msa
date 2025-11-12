@@ -41,15 +41,19 @@ spring:
     bootstrap-servers: kafka:9092
     consumer:
       group-id: delivery-assignment-group
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: ${EUREKA_SERVER_URL}
+eureka:
+  client:
+    service-url:
+      #      defaultZone: ${EUREKA_SERVER_URL}
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: false
+
 app:
   redis:
     keys:
       replay-lock: "global:hub_manager:replay_lock"
-      manager-queue: "global:hub_manager:queue"
+      manager-queue: "hmq:HUB_MANAGER:queue"
 
   assignment:
     replay-interval-ms: 30000
