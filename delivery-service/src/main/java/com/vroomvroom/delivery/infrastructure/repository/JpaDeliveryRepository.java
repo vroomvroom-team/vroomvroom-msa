@@ -3,6 +3,7 @@ package com.vroomvroom.delivery.infrastructure.repository;
 import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -45,6 +46,8 @@ public interface JpaDeliveryRepository extends JpaRepository<Delivery, UUID> {
         """)
     Page<UnassignedRouteIds> findUnassignedRouteKeys(Pageable pageable);
 
+    Page<Delivery> findAllByDeletedAtIsNull(Pageable pageable);
+
     @Query("""
               SELECT d.id
               FROM Delivery d
@@ -56,4 +59,15 @@ public interface JpaDeliveryRepository extends JpaRepository<Delivery, UUID> {
         @Param("status") DeliveryStatus deliveryStatus,
         @Param("hubId") UUID hubId,
         Pageable pageable);
+
+
+    @Query("""
+          SELECT dr
+          FROM DeliveryRoute dr
+          WHERE dr.delivery.id = :deliveryId
+          ORDER BY dr.sequence.value ASC
+    """)
+    List<DeliveryRoute> findAllByDeliveryIdOrderBySequenceAsc(
+        @Param("deliveryId") UUID deliveryId
+    );
 }

@@ -1,10 +1,10 @@
 package com.vroomvroom.delivery.application.service.impl;
 
+import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.application.command.CompleteDeliveryCommand;
 import com.vroomvroom.delivery.application.command.CreateDeliveryCommand;
 import com.vroomvroom.delivery.application.dto.GetDeliveryRoutesReq;
-import com.vroomvroom.delivery.application.service.DeliveryManagerService;
 import com.vroomvroom.delivery.application.service.DeliveryService;
 import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
@@ -22,15 +22,22 @@ import com.vroomvroom.delivery.domain.vo.DeliveryRouteStatus;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
 import com.vroomvroom.delivery.domain.vo.OrderId;
 import com.vroomvroom.delivery.domain.vo.StartHubId;
+import com.vroomvroom.delivery.infrastructure.HubAssignmentHandler;
 import com.vroomvroom.delivery.infrastructure.external.dto.HubRouteDTO;
 import com.vroomvroom.delivery.presentation.dto.response.CreateDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetAllDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetDeliveryRes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -46,7 +53,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final OrderClient orderClient;
     private final HubClient hubClient;
-    private final DeliveryManagerService deliveryManagerService;
+    private final HubAssignmentHandler hubAssignmentHandler;
+
+    private static final Set<Integer> PERMITTED_PAGE_SIZES = Set.of(10, 30, 50);
+    private static final int DEFAULT_PAGE_SIZE = 10;
     private final AssignmentQueuePort assignmentQueuePort;
 
     @Override
@@ -60,6 +70,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<HubRouteDTO> routes = hubClient.getRoutes(
             GetDeliveryRoutesReq.of(
                 request.getStartHubId().getId(), request.getArriveHubId().getId()));
+        log.info("HubClient 경로 가져오기 성공. routes = {}", routes);
 
         // 경로 및 배송 생성
         List<DeliveryRoute> deliveryRoutes = createRoutesWithSequence(routes);
@@ -70,19 +81,27 @@ public class DeliveryServiceImpl implements DeliveryService {
         );
         deliveryRoutes.forEach(deliveryRoute ->
             deliveryRoute.attachToDelivery(delivery));
+        log.info("경로 및 배송 생성 = {}", delivery);
 
         Delivery savedDelivery = deliveryRepository.save(delivery);
         log.info("배송 생성. deliveryId = {}", savedDelivery.getId());
 
-        // 담당자 배정
-        deliveryManagerService.assignManagerToDelivery(savedDelivery);
+        // 매니저가 배정될 첫번째 경로
+        DeliveryRoute firstRoute = delivery.findFirstRoute()
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_ROUTE_NOT_FOUND));
+
+        log.info("첫번째 경로 = {}", firstRoute);
+
+        // 첫번째 경로에 담당자 배정
+        hubAssignmentHandler.assignForHubManager(firstRoute.getId());
+        log.info("담당자 배정 성공. sequence = {}", firstRoute.getSequence());
 
         return CreateDeliveryRes.from(savedDelivery);
     }
 
     @Override
     @Transactional
-    public void handoffToCompany(UUID deliveryId) {
+    public void handoffToCompany(UUID deliveryId) { // 허브 -> 업체
         Delivery delivery = deliveryRepository.findById(deliveryId)
             .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
 
@@ -137,6 +156,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         delivery.updateStatus(DeliveryStatus.DELIVERY_PREPARING);
         manager.activate();
         delivery.updateStatus(DeliveryStatus.DELIVERY_IN_PROGRESS);
+        delivery.getDeliveryRoutes().forEach(route ->
+            route.updateStatus(DeliveryRouteStatus.DELIVERY_IN_PROGRESS)
+        );
 
         log.info("업체 배송 시작");
     }
@@ -160,6 +182,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // 상태 변경
         delivery.updateStatus(DeliveryStatus.DELIVERY_COMPLETED);
+        delivery.getDeliveryRoutes().forEach(route ->
+            route.updateStatus(DeliveryRouteStatus.COMPLETED)
+        );
         delivery.updateArriveTime();
         manager.deactivate();
 
@@ -175,13 +200,38 @@ public class DeliveryServiceImpl implements DeliveryService {
                             log.info("업체매니저 순번 큐로 복귀. sequence = {}", sequence);
                         }
                     });
-            } else {
-                assignmentQueuePort.pushCompanyManagerSequence(hubId, sequence);
-                log.warn("트랜잭션 없음. 큐 복귀. sequence = {}, hubId = {}", sequence, hubId);
             }
         }
 
         log.info("업체 배송 완료: deliveryId = {}", deliveryId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<GetAllDeliveryRes> getAllDelivery(Pageable pageable) {
+        Pageable normalized = normalizedPageable(pageable);
+        Page<Delivery> deliveries = deliveryRepository.findAllByDeletedAtIsNull(normalized);
+        return PageResponse.fromPage(deliveries.map(GetAllDeliveryRes::from));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GetDeliveryRes getDelivery(UUID deliveryId) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
+        return GetDeliveryRes.from(delivery);
+    }
+
+    @Override
+    @Transactional
+    public void cancelDelivery(UUID deliveryId) {
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_NOT_FOUND));
+
+        if (delivery.getStatus() != DeliveryStatus.HUB_WAITING) {
+            throw new CustomException(DeliveryErrorCode.DELIVERY_NOT_CANCEL);
+        }
+        delivery.updateStatus(DeliveryStatus.CANCELED);
     }
 
     private List<DeliveryRoute> createRoutesWithSequence(List<HubRouteDTO> routes) {
@@ -202,4 +252,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         return deliveryRoutes;
     }
+
+    private Pageable normalizedPageable(Pageable pageable) {
+        int size = PERMITTED_PAGE_SIZES.contains(
+            pageable.getPageSize()) ? pageable.getPageSize() : DEFAULT_PAGE_SIZE;
+
+        return PageRequest.of(pageable.getPageNumber(), size, pageable.getSort());
+    }
+
 }

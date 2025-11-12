@@ -4,6 +4,7 @@ import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
 import com.vroomvroom.delivery.domain.repository.DeliveryRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +45,18 @@ public class DeliveryRepositoryAdapter implements DeliveryRepository {
     }
 
     @Override
+    public Page<Delivery> findAllByDeletedAtIsNull(Pageable pageable) {
+        return jpaDeliveryRepository.findAllByDeletedAtIsNull(pageable);
+    }
+
+    @Override
     public Page<UUID> findIdsByStatus(DeliveryStatus deliveryStatus, UUID hubId,
         Pageable pageable) {
         return jpaDeliveryRepository.findIdsByStatus(deliveryStatus, hubId, pageable);
+    }
+
+    @Override
+    public List<DeliveryRoute> findAllByDeliveryIdOrderBySequenceAsc(UUID deliveryId) {
+        return jpaDeliveryRepository.findAllByDeliveryIdOrderBySequenceAsc(deliveryId);
     }
 }
