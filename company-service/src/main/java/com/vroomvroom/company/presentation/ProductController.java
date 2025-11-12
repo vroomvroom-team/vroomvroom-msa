@@ -123,7 +123,7 @@ public class ProductController {
                 // TODO. userId, userRole 추가
         );
 
-        productService.deleteCompany(command);
+        productService.deleteProduct(command);
 
         DeleteRes response = new DeleteRes(
                 productId,

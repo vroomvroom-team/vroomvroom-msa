@@ -102,13 +102,13 @@ public class ProductServiceImpl implements ProductService {
                 command.userRole()
         );*/
 
-        companyUpdates(product, command);
+        productUpdates(product, command);
 
         log.info("상품 수정 완료: productId = {}", product.getProductId());
         return ProductResult.from(product);
     }
 
-    public void companyUpdates(Product product, UpdateProductCommand command) {
+    public void productUpdates(Product product, UpdateProductCommand command) {
         if (command.productName() != null) {
             validateDuplicateName(command.productName());
             product.changeProductName(command.productName());
@@ -121,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void deleteCompany(DeleteCommand command) {
+    public void deleteProduct(DeleteCommand command) {
         Product product = getActiveProduct(command.id());
 
         /*        TODO. 유저 권한 체크

@@ -15,6 +15,6 @@ public interface ProductService {
     ProductResult getProduct(UUID productId);
     Page<ProductResult> getProductList(String keyword, Pageable pageable);
     ProductResult updateProduct(UpdateProductCommand command);
-    void deleteCompany(DeleteCommand command);
+    void deleteProduct(DeleteCommand command);
     ProductOrderInfoResult getOrderInfo(UUID productId);
 }
