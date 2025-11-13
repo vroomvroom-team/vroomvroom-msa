@@ -4,18 +4,17 @@ import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.hub.application.HubService;
 import com.vroomvroom.hub.application.command.*;
-import com.vroomvroom.hub.application.dto.HubManagerRes;
-import com.vroomvroom.hub.application.dto.StockRes;
-import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
-import com.vroomvroom.hub.presentation.dto.request.UpdateStockReq;
-import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
-import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.application.dto.HubDetailRes;
 import com.vroomvroom.hub.application.dto.HubListRes;
+import com.vroomvroom.hub.application.dto.HubManagerRes;
+import com.vroomvroom.hub.application.dto.StockRes;
+import com.vroomvroom.hub.presentation.api.HubControllerDocs;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubReq;
+import com.vroomvroom.hub.presentation.dto.request.CreateStockReq;
+import com.vroomvroom.hub.presentation.dto.request.UpdateHubReq;
+import com.vroomvroom.hub.presentation.dto.request.UpdateStockReq;
+import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,13 +29,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/hubs")
 @RequiredArgsConstructor
-@Tag(name = "Hub API", description = "허브 API")
-public class HubController {
+public class HubController implements HubControllerDocs {
 
     private final HubService hubService;
 
+    @Override
     @PostMapping
-    @Operation(summary = "Hub 생성", description = "새로운 허브를 생성합니다.")
     public ResponseEntity<ApiResponse<CreateHubRes>> createHub(@RequestBody CreateHubReq req) {
         CreateHubCommand command = new CreateHubCommand(
                 req.getHubName(),
@@ -49,6 +47,7 @@ public class HubController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<HubListRes>>> getHubList(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -57,12 +56,14 @@ public class HubController {
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @GetMapping("/{hubId}")
     public ResponseEntity<ApiResponse<HubDetailRes>> getHubDetail(@PathVariable UUID hubId) {
         HubDetailRes res = hubService.getHubDetail(hubId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @PatchMapping("/{hubId}")
     public ResponseEntity<ApiResponse<Void>> updateHub(@PathVariable UUID hubId,
                                                        @RequestBody UpdateHubReq req) {
@@ -77,23 +78,27 @@ public class HubController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @DeleteMapping("/{hubId}")
     public ResponseEntity<ApiResponse<Void>> deleteHub(@PathVariable UUID hubId) {
         hubService.deleteHub(hubId);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/{hubId}/exists")
     public boolean existHub(@PathVariable UUID hubId) {
         return hubService.existsHub(hubId);
     }
 
+    @Override
     @GetMapping("/{hubId}/manager")
     public ResponseEntity<ApiResponse<HubManagerRes>> getHubManager(@PathVariable UUID hubId) {
         HubManagerRes res = hubService.getHubManager(hubId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @PostMapping("/{hubId}/stocks")
     public ResponseEntity<ApiResponse<CreateStockRes>> createStock(@PathVariable UUID hubId,
                                                                    @RequestBody CreateStockReq req) {
@@ -106,12 +111,14 @@ public class HubController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
     }
 
+    @Override
     @GetMapping("/{hubId}/stocks")
     public ResponseEntity<ApiResponse<List<StockRes>>> getStockList(@PathVariable UUID hubId) {
         List<StockRes> res = hubService.getStockList(hubId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @PutMapping("/{hubId}/stocks/decrease")
     public ResponseEntity<ApiResponse<Void>> decreaseStock(@PathVariable UUID hubId,
                                                          @RequestBody UpdateStockReq req) {
@@ -122,6 +129,7 @@ public class HubController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PutMapping("/{hubId}/stocks/increase")
     public ResponseEntity<ApiResponse<Void>> increaseStock(@PathVariable UUID hubId,
                                                            @RequestBody UpdateStockReq req) {
@@ -132,6 +140,7 @@ public class HubController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/{hubId}/stocks/{productId}")
     public ResponseEntity<ApiResponse<StockRes>> getStock(@PathVariable UUID hubId,
                                                           @PathVariable UUID productId) {
@@ -139,6 +148,7 @@ public class HubController {
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @DeleteMapping("/{hubId}/stocks/{stockId}")
     public ResponseEntity<ApiResponse<Void>> deleteStock(@PathVariable UUID hubId,
                                                          @PathVariable UUID stockId) {

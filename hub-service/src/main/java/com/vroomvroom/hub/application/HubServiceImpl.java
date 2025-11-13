@@ -11,13 +11,14 @@ import com.vroomvroom.hub.application.service.ProductClient;
 import com.vroomvroom.hub.domain.entity.Hub;
 import com.vroomvroom.hub.domain.entity.HubRoute;
 import com.vroomvroom.hub.domain.entity.Stock;
+import com.vroomvroom.hub.domain.event.StockDecreasedEvent;
+import com.vroomvroom.hub.domain.event.StockIncreasedEvent;
+import com.vroomvroom.hub.domain.port.EventPublisher;
 import com.vroomvroom.hub.domain.repository.HubRepository;
 import com.vroomvroom.hub.domain.vo.CompanyId;
 import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import com.vroomvroom.hub.infrastructure.external.dto.ProductDTO;
-import com.vroomvroom.hub.infrastructure.kafka.StockDecreasedEvent;
-import com.vroomvroom.hub.infrastructure.kafka.StockIncreasedEvent;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRes;
 import com.vroomvroom.hub.presentation.dto.response.CreateStockRes;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +41,7 @@ public class HubServiceImpl implements HubService {
 
     private final HubRepository hubRepository;
     private final ProductClient productClient;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final EventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -150,7 +150,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-//            kafkaTemplate.send("stock-decreased", event);
+            eventPublisher.publish("stock-decreased", event);
         } catch (Exception e) {
             log.error("재고 감소 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }
@@ -169,7 +169,7 @@ public class HubServiceImpl implements HubService {
                     command.getQuantity(),
                     System.currentTimeMillis()
             );
-//            kafkaTemplate.send("stock-increased", event);
+            eventPublisher.publish("stock-increased", event);
         } catch (Exception e) {
             log.error("재고 증가 이벤트 발행 실패, 주문 아이디: {}", command.getOrderId(), e);
         }

@@ -9,6 +9,7 @@ import com.vroomvroom.hub.application.dto.HubRouteDetailRes;
 import com.vroomvroom.hub.application.dto.HubRouteListRes;
 import com.vroomvroom.hub.application.dto.OptimalRouteRes;
 import com.vroomvroom.hub.domain.service.OptimalRouteType;
+import com.vroomvroom.hub.presentation.api.HubRouteControllerDocs;
 import com.vroomvroom.hub.presentation.dto.request.CreateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.request.UpdateHubRouteReq;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
@@ -25,10 +26,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/hub-routes")
 @RequiredArgsConstructor
-public class HubRouteController {
+public class HubRouteController implements HubRouteControllerDocs {
 
     private final HubRouteService hubRouteService;
 
+    @Override
     @PostMapping
     public ResponseEntity<ApiResponse<CreateHubRouteRes>> createHubRoute(@RequestBody CreateHubRouteReq req) {
         CreateHubRouteCommand command = new CreateHubRouteCommand(
@@ -42,6 +44,7 @@ public class HubRouteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(res));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<HubRouteListRes>>> getHubRouteList(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -50,12 +53,14 @@ public class HubRouteController {
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @GetMapping("/{routeId}")
     public ResponseEntity<ApiResponse<HubRouteDetailRes>> getHubRouteDetail(@PathVariable UUID routeId) {
         HubRouteDetailRes res = hubRouteService.getHubRouteDetail(routeId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    @Override
     @PatchMapping("/{routeId}")
     public ResponseEntity<ApiResponse<Void>> updateHubRoute(@PathVariable UUID routeId,
                                                             @RequestBody UpdateHubRouteReq req) {
@@ -69,12 +74,14 @@ public class HubRouteController {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @DeleteMapping("/{routeId}")
     public ResponseEntity<ApiResponse<Void>> deleteHubRoute(@PathVariable UUID routeId) {
         hubRouteService.deleteHubRoute(routeId);
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @GetMapping("/optimal-path")
     public ResponseEntity<ApiResponse<OptimalRouteRes>> findOptimalPathByDistance(@RequestParam UUID departureId,
                                                                                   @RequestParam UUID arrivalId,
