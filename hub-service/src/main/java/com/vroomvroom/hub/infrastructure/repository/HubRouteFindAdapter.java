@@ -5,15 +5,15 @@ import com.vroomvroom.hub.domain.repository.HubRouteFindRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@Component
 @RequiredArgsConstructor
-public class HubRouteFindRepositoryImpl implements HubRouteFindRepository {
+public class HubRouteFindAdapter implements HubRouteFindRepository {
 
     private final JpaHubRouteRepository jpaHubRouteRepository;
 

@@ -10,7 +10,6 @@ import com.vroomvroom.hub.domain.service.OptimalRouteType;
 import com.vroomvroom.hub.presentation.dto.response.CreateHubRouteRes;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Map;
 import java.util.UUID;
 
 public interface HubRouteService {

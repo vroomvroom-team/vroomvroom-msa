@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class HubRouteController implements HubRouteControllerDocs {
     private final HubRouteService hubRouteService;
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @PostMapping
     public ResponseEntity<ApiResponse<CreateHubRouteRes>> createHubRoute(@RequestBody CreateHubRouteReq req) {
         CreateHubRouteCommand command = new CreateHubRouteCommand(
@@ -61,6 +63,7 @@ public class HubRouteController implements HubRouteControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @PatchMapping("/{routeId}")
     public ResponseEntity<ApiResponse<Void>> updateHubRoute(@PathVariable UUID routeId,
                                                             @RequestBody UpdateHubRouteReq req) {
@@ -75,6 +78,7 @@ public class HubRouteController implements HubRouteControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @DeleteMapping("/{routeId}")
     public ResponseEntity<ApiResponse<Void>> deleteHubRoute(@PathVariable UUID routeId) {
         hubRouteService.deleteHubRoute(routeId);
