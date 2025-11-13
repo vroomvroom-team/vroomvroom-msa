@@ -2,9 +2,7 @@ package com.vroomvroom.hub.infrastructure.external.client;
 
 import com.vroomvroom.common.api.ApiResponse;
 import com.vroomvroom.common.exception.CustomException;
-import com.vroomvroom.hub.application.command.CreateStockCommand;
 import com.vroomvroom.hub.application.service.ProductClient;
-import com.vroomvroom.hub.domain.vo.ProductId;
 import com.vroomvroom.hub.exception.HubErrorCode;
 import com.vroomvroom.hub.infrastructure.external.dto.ProductDTO;
 import feign.FeignException;
