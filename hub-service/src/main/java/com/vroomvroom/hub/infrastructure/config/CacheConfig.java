@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.config;
+package com.vroomvroom.hub.infrastructure.config;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;

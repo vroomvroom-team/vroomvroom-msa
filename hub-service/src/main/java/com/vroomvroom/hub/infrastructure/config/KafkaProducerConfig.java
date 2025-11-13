@@ -1,4 +1,4 @@
-package com.vroomvroom.hub.config;
+package com.vroomvroom.hub.infrastructure.config;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
