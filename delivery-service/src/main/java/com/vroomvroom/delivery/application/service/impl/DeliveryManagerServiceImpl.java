@@ -79,7 +79,7 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
     }
 
     private CreateManagerRes createHubManager(CreateManagerCommand request) {
-        userClient.verifyUserHasRole(request.getUserId(), DeliveryManagerType.HUB_MANAGER);
+        userClient.verifyUserHasRole(request.getUserId(), DeliveryManagerType.HUB_MANAGER.name());
 
         Long sequence = deliveryManagerRepository.nextGlobalSequence();
         if (sequence == null) {
@@ -100,7 +100,8 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
     }
 
     private CreateManagerRes createCompanyManager(CreateManagerCommand request) {
-        userClient.verifyUserHasRole(request.getUserId(), DeliveryManagerType.COMPANY_MANAGER);
+        userClient.verifyUserHasRole(
+            request.getUserId(), DeliveryManagerType.COMPANY_MANAGER.name());
         hubClient.verifyExists(request.getHubId());
 
         Long sequence = deliveryManagerRepository.nextHubSequence(request.getHubId());
