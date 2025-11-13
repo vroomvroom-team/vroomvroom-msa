@@ -30,7 +30,7 @@
 
 ### 개발 기간
 
-- **기간**: 14일
+- **기간**: 2025.10.31 ~ 2025.11.13
 - **인원**: 6명
 
 ## 👥 팀원 및 역할
@@ -121,32 +121,6 @@ service/
 │   │   │       ├── repository/
 │   │   │       ├── infrastructure/
 │   │   │       ├── presentation/
-│   │   │       ├── exception/
-│   │   │       └── Application.java
-│   │   └── resources/
-│   │       └── application.yml
-│   └── test/
-└── build.gradle
-
-service/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/vroomvroom/service/
-│   │   │       ├── application/
-│   │   │       │   ├── service/
-│   │   │       │   └── port/UserClient.java
-│   │   │       ├── domain/
-│   │   │       │   └── repository/OrderRepository.java
-│   │   │       ├── infrastructure/
-│   │   │       │   ├── repository/JpaOrderRepository.java
-│   │   │       │   ├── persistence/
-│   │   │       │   ├── external/userFeignClient.java
-│   │   │       │   │   └── adapter/UserClientImpl.java
-│   │   │       │   └── config/
-│   │   │       ├── presentation/
-│   │   │       │   ├── controller/
-│   │   │       │   └── dto/
 │   │   │       ├── exception/
 │   │   │       └── Application.java
 │   │   └── resources/
