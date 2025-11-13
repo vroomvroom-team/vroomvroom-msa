@@ -1,8 +1,10 @@
 package com.vroomvroom.delivery.domain.port;
 
-import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
+import java.util.UUID;
 
 public interface UserClient {
 
-    void verifyUserHasRole(Long userId, DeliveryManagerType deliveryManagerType);
+    void verifyUserHasRole(Long userId, String role);
+
+    UUID getUserSlackId(Long receiverId);
 }

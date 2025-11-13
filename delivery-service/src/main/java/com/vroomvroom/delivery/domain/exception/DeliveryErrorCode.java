@@ -23,7 +23,7 @@ public enum DeliveryErrorCode implements ErrorCode {
     START_HUB_EQUALS_ARRIVE_HUB(HttpStatus.BAD_REQUEST, "출발 허브와 도착 허브는 같을 수 없습니다."),
     ORDER_STATE_CONFLICT(HttpStatus.CONFLICT, "배송 불가능한 주문입니다."),
     ORDER_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 주문입니다."),
-    DELIVERY_NOT_FOUND(HttpStatus.CONFLICT, "존재하지 않는 배송입니다."),
+    DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 배송입니다."),
     DELIVERY_ROUTE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 배송경로입니다."),
     HUB_MOVE_WAITING(HttpStatus.BAD_REQUEST, "허브대기중인 배송만 담당자 배정이 가능합니다."),
     HUB_MOVING(HttpStatus.BAD_REQUEST, "허브이동중인 배송만 배송완료로 상태변경 가능합니다."),
