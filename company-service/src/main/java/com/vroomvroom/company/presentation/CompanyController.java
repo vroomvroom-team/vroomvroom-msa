@@ -10,6 +10,7 @@ import com.vroomvroom.company.common.api.PageResponse;
 import com.vroomvroom.company.presentation.dto.request.CreateCompanyReq;
 import com.vroomvroom.company.presentation.dto.request.UpdateCompanyReq;
 import com.vroomvroom.company.presentation.dto.response.CompanyDetailRes;
+import com.vroomvroom.company.presentation.dto.response.CompanyHubIdRes;
 import com.vroomvroom.company.presentation.dto.response.CompanyListRes;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import jakarta.validation.Valid;
@@ -135,4 +136,15 @@ public class CompanyController {
         log.info("업체 삭제 성공: companyId = {}", companyId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/{companyId}/hub")
+    public ResponseEntity<ApiResponse<CompanyHubIdRes>> getHubIdByCompanyId(@PathVariable UUID companyId) {
+        log.info("GET api/v1/companies/{}/hub 소속 허브 ID 반환 요청", companyId);
+
+        CompanyHubIdRes response = CompanyHubIdRes.from(companyService.getHubIdByCompanyId(companyId));
+
+        log.info("소속 허브 ID 반환 성공: companyId = {} hubId = {}", companyId, response.hubId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
 }

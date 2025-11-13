@@ -3,6 +3,7 @@ package com.vroomvroom.company.application.service;
 import com.vroomvroom.company.application.command.CreateProductCommand;
 import com.vroomvroom.company.application.command.DeleteCommand;
 import com.vroomvroom.company.application.command.UpdateProductCommand;
+import com.vroomvroom.company.application.dto.ProductOrderInfoResult;
 import com.vroomvroom.company.application.dto.ProductResult;
 import com.vroomvroom.company.application.port.HubClient;
 import com.vroomvroom.company.common.exception.CustomException;
@@ -101,13 +102,13 @@ public class ProductServiceImpl implements ProductService {
                 command.userRole()
         );*/
 
-        companyUpdates(product, command);
+        productUpdates(product, command);
 
         log.info("상품 수정 완료: productId = {}", product.getProductId());
         return ProductResult.from(product);
     }
 
-    public void companyUpdates(Product product, UpdateProductCommand command) {
+    public void productUpdates(Product product, UpdateProductCommand command) {
         if (command.productName() != null) {
             validateDuplicateName(command.productName());
             product.changeProductName(command.productName());
@@ -120,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void deleteCompany(DeleteCommand command) {
+    public void deleteProduct(DeleteCommand command) {
         Product product = getActiveProduct(command.id());
 
         /*        TODO. 유저 권한 체크
@@ -131,6 +132,18 @@ public class ProductServiceImpl implements ProductService {
         );*/
 
         product.markAsDeleted();
+    }
+
+    @Override
+    public ProductOrderInfoResult getOrderInfo(UUID productId) {
+        Product product = getActiveProduct(productId);
+        UUID hubId = product.getHubId();
+        Long price = product.getPrice();
+
+        if (hubId == null) throw new CustomException(ErrorCode.PRODUCT_HUB_ID_NOT_FOUND);
+        if (price == null) throw new CustomException(ErrorCode.PRICE_NOT_FOUND);
+
+        return ProductOrderInfoResult.from(hubId, price);
     }
 
     public void validateDuplicateName(String productName) {

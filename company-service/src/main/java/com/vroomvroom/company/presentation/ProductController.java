@@ -12,6 +12,7 @@ import com.vroomvroom.company.presentation.dto.request.UpdateProductReq;
 import com.vroomvroom.company.presentation.dto.response.DeleteRes;
 import com.vroomvroom.company.presentation.dto.response.ProductDetailRes;
 import com.vroomvroom.company.presentation.dto.response.ProductListRes;
+import com.vroomvroom.company.presentation.dto.response.ProductOrderInfoRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +123,7 @@ public class ProductController {
                 // TODO. userId, userRole 추가
         );
 
-        productService.deleteCompany(command);
+        productService.deleteProduct(command);
 
         DeleteRes response = new DeleteRes(
                 productId,
@@ -130,6 +131,16 @@ public class ProductController {
         );
 
         log.info("상품 삭제 성공: productId = {}", productId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{productId}/order-info")
+    public ResponseEntity<ApiResponse<ProductOrderInfoRes>> getOrderInfo(@PathVariable UUID productId) {
+        log.info("GET api/v1/products/{}/order-info 주문에 필요한 상품 정보 요청", productId);
+
+        ProductOrderInfoRes response = ProductOrderInfoRes.from(productService.getOrderInfo(productId));
+
+        log.info("주문에 필요한 상품 정보 반환 성공");
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
