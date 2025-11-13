@@ -1,6 +1,6 @@
 package com.vroomvroom.delivery.infrastructure.external;
 
-import com.vroomvroom.delivery.domain.exception.CustomException;
+import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.UserClient;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;

@@ -14,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,8 @@ public class DeliveryManager extends BaseTimeEntity {
     private HubId hubId;
 
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RouteManagerAssignment> assignments;
+    @Builder.Default
+    private List<RouteManagerAssignment> assignments = new ArrayList<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

@@ -3,10 +3,7 @@ package com.vroomvroom.delivery.application.service.impl;
 import com.vroomvroom.common.exception.CustomException;
 import com.vroomvroom.delivery.application.command.CreateManagerCommand;
 import com.vroomvroom.delivery.application.service.DeliveryManagerService;
-import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryManager;
-import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
-import com.vroomvroom.delivery.domain.event.ManagerAssignmentEvent;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.port.HubClient;
 import com.vroomvroom.delivery.domain.port.UserClient;
@@ -14,7 +11,6 @@ import com.vroomvroom.delivery.domain.repository.DeliveryManagerRepository;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerSequence;
 import com.vroomvroom.delivery.domain.vo.DeliveryManagerType;
 import com.vroomvroom.delivery.domain.vo.HubId;
-import com.vroomvroom.delivery.infrastructure.external.KafkaAssignmentMessageSender;
 import com.vroomvroom.delivery.presentation.dto.response.CreateManagerRes;
 import com.vroomvroom.delivery.presentation.dto.response.DeliveryManagerRes;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +30,6 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
 
     private final HubClient hubClient;
     private final UserClient userClient;
-    private final KafkaAssignmentMessageSender kafkaAssignmentMessageSender;
 
     @Override
     @Transactional
@@ -50,16 +45,6 @@ public class DeliveryManagerServiceImpl implements DeliveryManagerService {
             case HUB_MANAGER -> createHubManager(request);
             case COMPANY_MANAGER -> createCompanyManager(request);
         };
-    }
-
-    @Transactional
-    public void assignManagerToDelivery(Delivery delivery) {
-        // 매니저가 배정될 첫번째 경로
-        DeliveryRoute firstRoute = delivery.findFirstRoute()
-            .orElseThrow(() -> new CustomException(DeliveryErrorCode.DELIVERY_ROUTE_NOT_FOUND));
-
-        ManagerAssignmentEvent event = new ManagerAssignmentEvent(firstRoute.getId());
-        kafkaAssignmentMessageSender.send(delivery.getId(), event);
     }
 
     @Override

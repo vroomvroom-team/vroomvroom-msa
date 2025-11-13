@@ -1,9 +1,13 @@
 package com.vroomvroom.delivery.application.service;
 
+import com.vroomvroom.common.api.PageResponse;
 import com.vroomvroom.delivery.application.command.CompleteDeliveryCommand;
 import com.vroomvroom.delivery.application.command.CreateDeliveryCommand;
 import com.vroomvroom.delivery.presentation.dto.response.CreateDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetAllDeliveryRes;
+import com.vroomvroom.delivery.presentation.dto.response.GetDeliveryRes;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 
 public interface DeliveryService {
 
@@ -18,4 +22,10 @@ public interface DeliveryService {
     void handoffToCompany(UUID deliveryId);
 
     void completeDelivery(UUID deliveryId, CompleteDeliveryCommand command);
+
+    PageResponse<GetAllDeliveryRes> getAllDelivery(Pageable pageable);
+
+    GetDeliveryRes getDelivery(UUID deliveryId);
+
+    void cancelDelivery(UUID deliveryId);
 }

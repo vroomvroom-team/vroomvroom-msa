@@ -21,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class Delivery extends BaseTimeEntity {
     private UUID id;
 
     @Embedded
-    @AttributeOverride(name = "id", column = @Column(name = "order_id", nullable = false))
+    @AttributeOverride(name = "id", column = @Column(name = "order_id", nullable = false, unique = true))
     private OrderId orderId;
 
     @Embedded
@@ -63,7 +64,7 @@ public class Delivery extends BaseTimeEntity {
     private ReceiverSlackId receiverSlackId;
 
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DeliveryRoute> deliveryRoutes;
+    private List<DeliveryRoute> deliveryRoutes = new ArrayList<>();
 
     @Column(name = "start_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime startTime;

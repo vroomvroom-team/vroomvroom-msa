@@ -4,6 +4,7 @@ import com.vroomvroom.delivery.domain.entity.Delivery;
 import com.vroomvroom.delivery.domain.entity.DeliveryRoute;
 import com.vroomvroom.delivery.domain.vo.DeliveryStatus;
 import com.vroomvroom.delivery.infrastructure.repository.UnassignedRouteIds;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -34,5 +35,9 @@ public interface DeliveryRepository {
 
     Optional<Delivery> findById(UUID deliveryId);
 
+    Page<Delivery> findAllByDeletedAtIsNull(Pageable pageable);
+
     Page<UUID> findIdsByStatus(DeliveryStatus deliveryStatus, UUID hubId, Pageable pageable);
+
+    List<DeliveryRoute> findAllByDeliveryIdOrderBySequenceAsc(UUID deliveryId);
 }

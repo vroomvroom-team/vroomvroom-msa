@@ -29,7 +29,7 @@ public class CompanyAssignmentReplayer {
     private final HubClient hubClient;
 
     @Scheduled(fixedDelayString = "${app.assignment.replay-interval-ms}")
-    @Transactional
+    @Transactional(readOnly = true)
     public void replayForUnassigned() {
         List<UUID> hubIds = hubClient.getAllHubId();
         for (UUID hubId : hubIds) {
