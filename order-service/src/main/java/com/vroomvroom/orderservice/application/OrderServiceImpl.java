@@ -9,6 +9,8 @@ import com.vroomvroom.orderservice.application.service.CompanyClient;
 import com.vroomvroom.orderservice.application.service.HubClient;
 import com.vroomvroom.orderservice.application.service.ProductClient;
 import com.vroomvroom.orderservice.domain.entity.Order;
+import com.vroomvroom.orderservice.domain.event.OrderCreatedEvent;
+import com.vroomvroom.orderservice.domain.port.OrderEventPublisher;
 import com.vroomvroom.orderservice.domain.repository.OrderRepository;
 import com.vroomvroom.orderservice.domain.vo.Money;
 import com.vroomvroom.orderservice.domain.vo.OrderStatus;
@@ -22,6 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.UUID;
 
@@ -34,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductClient productClient;
     private final CompanyClient companyClient;
     private final HubClient hubClient;
+    private final OrderEventPublisher orderEventPublisher;
 
     /**
      * 주문 생성
@@ -53,6 +58,10 @@ public class OrderServiceImpl implements OrderService {
         ProductDTO product = productClient.getProductInfo(command.productId());
         StockDTO stock = hubClient.getStockInfo(supplyCompany.getHubId(), product.getProductId());
 
+        // 공급/수량 업체 동일 여부 검증
+        if (supplyCompany.getCompanyId().equals(receiveCompany.getCompanyId()))
+            throw new CustomException(OrderErrorCode.SAME_SUPPLY_RECEIVE_COMPANY);
+        // 재고 수량 확인
         if (stock.getQuantity() <= 0)
             throw new CustomException(OrderErrorCode.HUB_PRODUCT_OUT_OF_STOCK);
 
@@ -72,22 +81,44 @@ public class OrderServiceImpl implements OrderService {
         // 재고 차감
         hubClient.decreaseStocks(order.getProductId(), order.getQuantity());
 
-        Order savedOrder = null;
         try {
             // 주문 저장
-            savedOrder = orderRepository.save(order);
+            Order savedOrder = orderRepository.save(order);
 
-            if (savedOrder == null)
-                hubClient.decreaseStocks(order.getProductId(), order.getQuantity());
+            // 트랜잭션 커밋 후 이벤트 발행
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    publishOrderCreatedEvent(savedOrder);
+                }
+            });
 
             log.info("주문 생성 성공 - 주문 ID={}", savedOrder.getId());
             return OrderDTO.from(savedOrder);
+
         } catch (Exception e) {
             // 주문 저장 실패 시 감소된 재고 원복
             hubClient.increaseStocks(order.getProductId(), order.getQuantity());
         }
 
         return null;
+    }
+
+    // 주문 생성 이벤트 발행
+    private void publishOrderCreatedEvent(Order order) {
+        try {
+            OrderCreatedEvent event = OrderCreatedEvent.from(
+                    order.getId(),
+                    order.getSupplyHubId(),
+                    order.getReceiveHubId()
+            );
+
+            orderEventPublisher.publishOrderCreated(order.getId(), event);
+            log.info("주문 생성 이벤트 발행 완료 - orderId: {}", order.getId());
+
+        } catch (Exception e) {
+            log.error("주문 생성 이벤트 발행 실패 - orderId: {}", order.getId(), e);
+        }
     }
 
     /**

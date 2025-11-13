@@ -59,6 +59,8 @@ public enum OrderErrorCode implements ErrorCode {
     INVALID_DEADLINE(HttpStatus.BAD_REQUEST, "납기일은 현재 시간 이후여야 합니다."),
     INVALID_PRICE(HttpStatus.BAD_REQUEST, "주문 금액이 올바르지 않습니다."),
     SAME_SUPPLY_RECEIVE_COMPANY(HttpStatus.BAD_REQUEST, "공급 업체와 수령 업체가 동일할 수 없습니다."),
+
+    KAFKA_RUNTIME_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "주문 이벤트 발행을 실패했습니다."),
     ;
 
     private final HttpStatus httpStatus;

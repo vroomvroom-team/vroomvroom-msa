@@ -7,6 +7,7 @@ import com.vroomvroom.orderservice.application.command.CancelOrderCommand;
 import com.vroomvroom.orderservice.application.command.CreateOrderCommand;
 import com.vroomvroom.orderservice.application.command.UpdateOrderCommand;
 import com.vroomvroom.orderservice.application.dto.OrderDTO;
+import com.vroomvroom.orderservice.presentation.api.OrderControllerDocs;
 import com.vroomvroom.orderservice.presentation.dto.request.CreateOrderReq;
 import com.vroomvroom.orderservice.presentation.dto.request.UpdateOrderReq;
 import com.vroomvroom.orderservice.presentation.dto.response.OrderRes;
@@ -15,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +29,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
-public class OrderController {
+public class OrderController implements OrderControllerDocs {
 
     private final OrderService orderService;
 
@@ -37,6 +41,7 @@ public class OrderController {
      * @param request 주문 생성 요청
      * @return 생성된 주문 정보
      */
+    @Override
     @PostMapping
     public ResponseEntity<ApiResponse<OrderRes>> createOrder(
             @Valid @RequestBody CreateOrderReq request) {
@@ -72,6 +77,7 @@ public class OrderController {
      * @param orderId 주문 ID
      * @return 주문 정보
      */
+    @Override
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse<OrderRes>> getOrder(@PathVariable UUID orderId) {
         log.info("GET /api/v1/orders/{} - 주문 조회", orderId);
@@ -91,8 +97,12 @@ public class OrderController {
      * @param pageable 페이징 정보 (page, size, sort)
      * @return 주문 목록
      */
+    @Override
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<OrderRes>>> getOrders(
+            @PageableDefault(size = 10, page = 0)
+            @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
         log.info("GET /api/v1/orders - 주문 전체 목록 조회");
 
         Page<OrderDTO> orderDTOPage = orderService.getOrders(pageable);
@@ -112,6 +122,7 @@ public class OrderController {
      * @param orderId 주문 ID
      * @return OK
      */
+    @Override
     @DeleteMapping("/{orderId}")
     public ResponseEntity<ApiResponse<OrderRes>> cancelOrder(@PathVariable UUID orderId) {
         log.info("DELETE /api/v1/orders/{} - 주문 취소", orderId);
@@ -135,6 +146,7 @@ public class OrderController {
      * @param orderId 주문 ID
      * @return OK
      */
+    @Override
     @PatchMapping("/{orderId}")
     public ResponseEntity<ApiResponse<OrderRes>> updateOrder(
             @PathVariable UUID orderId,
