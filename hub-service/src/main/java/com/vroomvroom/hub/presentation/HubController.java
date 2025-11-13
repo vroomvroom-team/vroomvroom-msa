@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class HubController implements HubControllerDocs {
     private final HubService hubService;
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @PostMapping
     public ResponseEntity<ApiResponse<CreateHubRes>> createHub(@RequestBody CreateHubReq req) {
         CreateHubCommand command = new CreateHubCommand(
@@ -64,6 +66,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @PatchMapping("/{hubId}")
     public ResponseEntity<ApiResponse<Void>> updateHub(@PathVariable UUID hubId,
                                                        @RequestBody UpdateHubReq req) {
@@ -79,6 +82,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasRole('MASTER')")
     @DeleteMapping("/{hubId}")
     public ResponseEntity<ApiResponse<Void>> deleteHub(@PathVariable UUID hubId) {
         hubService.deleteHub(hubId);
@@ -99,6 +103,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @PostMapping("/{hubId}/stocks")
     public ResponseEntity<ApiResponse<CreateStockRes>> createStock(@PathVariable UUID hubId,
                                                                    @RequestBody CreateStockReq req) {
@@ -119,6 +124,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @PutMapping("/{hubId}/stocks/decrease")
     public ResponseEntity<ApiResponse<Void>> decreaseStock(@PathVariable UUID hubId,
                                                          @RequestBody UpdateStockReq req) {
@@ -130,6 +136,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @PutMapping("/{hubId}/stocks/increase")
     public ResponseEntity<ApiResponse<Void>> increaseStock(@PathVariable UUID hubId,
                                                            @RequestBody UpdateStockReq req) {
@@ -149,6 +156,7 @@ public class HubController implements HubControllerDocs {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @DeleteMapping("/{hubId}/stocks/{stockId}")
     public ResponseEntity<ApiResponse<Void>> deleteStock(@PathVariable UUID hubId,
                                                          @PathVariable UUID stockId) {
