@@ -1,5 +1,6 @@
 package com.vroomvroom.delivery.infrastructure.external;
 
+import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,4 +14,7 @@ public interface UserFeignClient {
         @PathVariable Long userId,
         @RequestParam("role") String role
     );
+
+    @GetMapping("/api/v1/users/{userId}/slack")
+    UUID getUserSlackId(Long receiverId);
 }

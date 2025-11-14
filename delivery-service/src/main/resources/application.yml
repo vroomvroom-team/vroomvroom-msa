@@ -44,12 +44,17 @@ spring:
 eureka:
   client:
     service-url:
-      #      defaultZone: ${EUREKA_SERVER_URL}
-      defaultZone: http://localhost:8761/eureka/
+            defaultZone: ${EUREKA_SERVER_URL}
     register-with-eureka: false
     fetch-registry: false
 
 app:
+  kafka:
+    consumer:
+      group-id: delivery-service
+    topics:
+      order:
+        created: order-created-topic
   redis:
     keys:
       replay-lock: "global:hub_manager:replay_lock"

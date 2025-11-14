@@ -64,6 +64,7 @@ public class Delivery extends BaseTimeEntity {
     private ReceiverSlackId receiverSlackId;
 
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<DeliveryRoute> deliveryRoutes = new ArrayList<>();
 
     @Column(name = "start_time", columnDefinition = "TIMESTAMP")

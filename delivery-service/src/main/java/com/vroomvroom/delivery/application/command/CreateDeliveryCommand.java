@@ -1,6 +1,7 @@
 package com.vroomvroom.delivery.application.command;
 
 import com.vroomvroom.common.exception.CustomException;
+import com.vroomvroom.delivery.domain.event.OrderCreatedEvent;
 import com.vroomvroom.delivery.domain.exception.DeliveryErrorCode;
 import com.vroomvroom.delivery.domain.vo.ArriveHubId;
 import com.vroomvroom.delivery.domain.vo.DeliveryAddress;
@@ -36,6 +37,17 @@ public class CreateDeliveryCommand {
         this.receiverId = receiverId;
         this.receiverSlackId = receiverSlackId;
         this.address = address;
+    }
+
+    public static CreateDeliveryCommand of(OrderCreatedEvent event, UUID slackId) {
+        return new CreateDeliveryCommand(
+            event.getOrderId(),
+            StartHubId.of(event.getStartHubId()),
+            ArriveHubId.of(event.getArriveHubId()),
+            ReceiverId.of(event.getReceiverId()),
+            ReceiverSlackId.of(slackId),
+            DeliveryAddress.of(event.getAddress())
+        );
     }
 
     public static CreateDeliveryCommand from(CreateDeliveryReq request) {
